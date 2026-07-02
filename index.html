@@ -187,7 +187,8 @@
       <p>Fill this form to request a worker</p>
     </div>
 
-    <form class="form-box" id="bookingForm">
+    <form class="form-box" id="bookingForm" name="booking" method="POST" data-netlify="true">
+  <input type="hidden" name="form-name" value="booking">
       <div class="form-group">
         <label>Your Name</label>
         <input type="text" id="customerName" placeholder="Enter your name" required />
@@ -234,7 +235,8 @@
       <p>Register and start earning with KaamConnect</p>
     </div>
 
-    <form class="form-box" id="workerForm">
+    <form class="form-box" id="workerForm" name="worker" method="POST" data-netlify="true">
+  <input type="hidden" name="form-name" value="worker">
       <div class="form-group">
         <label>Full Name</label>
         <input type="text" id="workerName" placeholder="Enter your full name" required />
