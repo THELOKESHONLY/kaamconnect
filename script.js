@@ -43,7 +43,7 @@ bookingForm.addEventListener("submit", function (event) {
     "Work Details: " + details;
 
   // Replace this number with your own WhatsApp number
-  const adminWhatsAppNumber = "+91 7303041394";
+  const adminWhatsAppNumber = "917303041394";
 
   // Open WhatsApp with booking details
   window.open(
@@ -83,7 +83,7 @@ workerForm.addEventListener("submit", function (event) {
     "City: " + city;
 
   // Replace this number with your own WhatsApp number
-  const adminWhatsAppNumber = "+91 7303041394";
+  const adminWhatsAppNumber = "917303041394";
 
   // Open WhatsApp with worker details
   window.open(
