@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <!-- This makes website responsive on mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>KaamConnect - Hire Trusted Local Workers</title>
+
+  <!-- Link CSS file -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Header / Navbar -->
+  <header class="header">
+    <nav class="navbar">
+      <div class="logo">Kaam<span>Connect</span></div>
+
+      <!-- Mobile menu button -->
+      <button class="menu-btn" id="menuBtn">☰</button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#book">Book Worker</a></li>
+        <li><a href="#join">Join as Worker</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Home Section -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <h1>Hire Trusted Local Workers Near You</h1>
+      <p>
+        KaamConnect helps customers hire electricians, plumbers, cleaners,
+        tutors, cooks, painters and other skilled workers easily.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="#book" class="btn primary-btn">Book a Worker</a>
+        <a href="#join" class="btn secondary-btn">Join as Worker</a>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <h3>Fast Booking</h3>
+      <p>Find skilled workers for your home and local service needs.</p>
+
+      <div class="quick-info">
+        <div>
+          <h2>6+</h2>
+          <p>Services</p>
+        </div>
+        <div>
+          <h2>24/7</h2>
+          <p>Support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="section" id="about">
+    <div class="section-title">
+      <h2>About KaamConnect</h2>
+      <p>Your local service hiring platform</p>
+    </div>
+
+    <div class="about-container">
+      <div class="about-text">
+        <h3>Connecting Customers with Skilled Workers</h3>
+        <p>
+          KaamConnect is an online platform where customers can book trusted
+          local workers for daily needs. It also helps skilled people get work
+          opportunities and earn money.
+        </p>
+
+        <p>
+          Our goal is to make local hiring simple, safe and fast for everyone.
+          Customers can request services and workers can register to get jobs.
+        </p>
+      </div>
+
+      <div class="about-box">
+        <h3>Why Choose Us?</h3>
+        <ul>
+          <li>✔ Easy booking process</li>
+          <li>✔ Skilled local workers</li>
+          <li>✔ Affordable service charges</li>
+          <li>✔ WhatsApp support</li>
+          <li>✔ Helps workers earn income</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="section light-bg" id="services">
+    <div class="section-title">
+      <h2>Our Services</h2>
+      <p>Book workers for your daily needs</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="icon">⚡</div>
+        <h3>Electrician</h3>
+        <p>Fan, light, wiring, switchboard and electrical repair services.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🔧</div>
+        <h3>Plumber</h3>
+        <p>Water leakage, pipe fitting, tap repair and bathroom work.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🧹</div>
+        <h3>Cleaner</h3>
+        <p>Home cleaning, office cleaning and deep cleaning services.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">📚</div>
+        <h3>Tutor</h3>
+        <p>Home tuition and online tuition for school and college students.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🍳</div>
+        <h3>Cook</h3>
+        <p>Daily cooking, party cooking and home food preparation.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🎨</div>
+        <h3>Painter</h3>
+        <p>House painting, wall painting and small painting work.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="section" id="how">
+    <div class="section-title">
+      <h2>How It Works</h2>
+      <p>Simple steps to book a worker</p>
+    </div>
+
+    <div class="steps-container">
+      <div class="step">
+        <span>1</span>
+        <h3>Select Service</h3>
+        <p>Choose the worker type you need.</p>
+      </div>
+
+      <div class="step">
+        <span>2</span>
+        <h3>Fill Form</h3>
+        <p>Enter your name, phone, address and service details.</p>
+      </div>
+
+      <div class="step">
+        <span>3</span>
+        <h3>Get Confirmation</h3>
+        <p>Our team will contact you through phone or WhatsApp.</p>
+      </div>
+
+      <div class="step">
+        <span>4</span>
+        <h3>Work Completed</h3>
+        <p>The worker visits and completes your work.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Book Worker Form -->
+  <section class="section light-bg" id="book">
+    <div class="section-title">
+      <h2>Book a Worker</h2>
+      <p>Fill this form to request a worker</p>
+    </div>
+
+    <form class="form-box" id="bookingForm">
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" id="customerName" placeholder="Enter your name" required />
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="customerPhone" placeholder="Enter mobile number" required />
+      </div>
+
+      <div class="form-group">
+        <label>Select Service</label>
+        <select id="serviceType" required>
+          <option value="">Choose service</option>
+          <option>Electrician</option>
+          <option>Plumber</option>
+          <option>Cleaner</option>
+          <option>Tutor</option>
+          <option>Cook</option>
+          <option>Painter</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Your Address</label>
+        <textarea id="customerAddress" placeholder="Enter your full address" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Work Details</label>
+        <textarea id="workDetails" placeholder="Explain your work requirement" required></textarea>
+      </div>
+
+      <button type="submit" class="btn primary-btn full-btn">Submit Booking</button>
+
+      <p class="form-message" id="bookingMessage"></p>
+    </form>
+  </section>
+
+  <!-- Join as Worker Form -->
+  <section class="section" id="join">
+    <div class="section-title">
+      <h2>Join as Worker</h2>
+      <p>Register and start earning with KaamConnect</p>
+    </div>
+
+    <form class="form-box" id="workerForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="workerName" placeholder="Enter your full name" required />
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="workerPhone" placeholder="Enter mobile number" required />
+      </div>
+
+      <div class="form-group">
+        <label>Your Skill</label>
+        <select id="workerSkill" required>
+          <option value="">Choose your skill</option>
+          <option>Electrician</option>
+          <option>Plumber</option>
+          <option>Cleaner</option>
+          <option>Tutor</option>
+          <option>Cook</option>
+          <option>Painter</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Experience</label>
+        <input type="text" id="workerExperience" placeholder="Example: 2 years" required />
+      </div>
+
+      <div class="form-group">
+        <label>Area / City</label>
+        <input type="text" id="workerCity" placeholder="Example: Rohtak, Delhi, Gurgaon" required />
+      </div>
+
+      <button type="submit" class="btn primary-btn full-btn">Register as Worker</button>
+
+      <p class="form-message" id="workerMessage"></p>
+    </form>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="section contact-section" id="contact">
+    <div class="section-title">
+      <h2>Contact Us</h2>
+      <p>Need help? Contact KaamConnect</p>
+    </div>
+
+    <div class="contact-container">
+      <div class="contact-card">
+        <h3>Get in Touch</h3>
+        <p><strong>Phone:</strong> +91 7303041394</p>
+        <p><strong>Email:</strong> support@kaamconnect.com</p>
+        <p><strong>Location:</strong> India</p>
+
+        <!-- Replace phone number in script.js also -->
+        <a href="https://wa.me/917303041394" target="_blank" class="btn whatsapp-btn">
+          Chat on WhatsApp
+        </a>
+      </div>
+
+      <div class="contact-card">
+        <h3>Business Hours</h3>
+        <p>Monday - Saturday</p>
+        <p>9:00 AM - 8:00 PM</p>
+        <p>Sunday: Emergency support only</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 KaamConnect. All Rights Reserved.</p>
+    <p>Made for local workers and customers in India.</p>
+  </footer>
+
+  <!-- Link JavaScript file -->
+  <script src="script.js"></script>
+</body>
+</html>
