@@ -20,7 +20,7 @@ const bookingForm = document.getElementById("bookingForm");
 const bookingMessage = document.getElementById("bookingMessage");
 
 bookingForm.addEventListener("submit", function (event) {
-  event.preventDefault(); // Stop page refresh
+  //event.preventDefault(); // Stop page refresh
 
   // Get customer form values
   const name = document.getElementById("customerName").value;
