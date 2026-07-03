@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
 
-  <!-- This makes website responsive on mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>KaamConnect - Hire Trusted Local Workers</title>
 
-  <!-- Link CSS file -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -18,16 +16,14 @@
     <nav class="navbar">
       <div class="logo">Kaam<span>Connect</span></div>
 
-      <!-- Mobile menu button -->
       <button class="menu-btn" id="menuBtn">☰</button>
 
       <ul class="nav-links" id="navLinks">
         <li><a href="#home">Home</a></li>
-        <li><a href="#about">About</a></li>
         <li><a href="#services">Services</a></li>
-        <li><a href="#how">How It Works</a></li>
         <li><a href="#book">Book Worker</a></li>
         <li><a href="#join">Join as Worker</a></li>
+        <li><a href="#worker-dashboard">Worker Dashboard</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
@@ -38,8 +34,8 @@
     <div class="hero-content">
       <h1>Hire Trusted Local Workers Near You</h1>
       <p>
-        KaamConnect helps customers hire electricians, plumbers, cleaners,
-        tutors, cooks, painters and other skilled workers easily.
+        KaamConnect connects customers with electricians, plumbers, cleaners,
+        tutors, cooks, painters and other skilled workers.
       </p>
 
       <div class="hero-buttons">
@@ -49,8 +45,8 @@
     </div>
 
     <div class="hero-card">
-      <h3>Fast Booking</h3>
-      <p>Find skilled workers for your home and local service needs.</p>
+      <h3>Smart Matching</h3>
+      <p>Customer booking directly connects with matching workers using Firebase database.</p>
 
       <div class="quick-info">
         <div>
@@ -58,44 +54,9 @@
           <p>Services</p>
         </div>
         <div>
-          <h2>24/7</h2>
-          <p>Support</p>
+          <h2>Live</h2>
+          <p>Database</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- About Section -->
-  <section class="section" id="about">
-    <div class="section-title">
-      <h2>About KaamConnect</h2>
-      <p>Your local service hiring platform</p>
-    </div>
-
-    <div class="about-container">
-      <div class="about-text">
-        <h3>Connecting Customers with Skilled Workers</h3>
-        <p>
-          KaamConnect is an online platform where customers can book trusted
-          local workers for daily needs. It also helps skilled people get work
-          opportunities and earn money.
-        </p>
-
-        <p>
-          Our goal is to make local hiring simple, safe and fast for everyone.
-          Customers can request services and workers can register to get jobs.
-        </p>
-      </div>
-
-      <div class="about-box">
-        <h3>Why Choose Us?</h3>
-        <ul>
-          <li>✔ Easy booking process</li>
-          <li>✔ Skilled local workers</li>
-          <li>✔ Affordable service charges</li>
-          <li>✔ WhatsApp support</li>
-          <li>✔ Helps workers earn income</li>
-        </ul>
       </div>
     </div>
   </section>
@@ -129,7 +90,7 @@
       <div class="service-card">
         <div class="icon">📚</div>
         <h3>Tutor</h3>
-        <p>Home tuition and online tuition for school and college students.</p>
+        <p>Home tuition and online tuition for students.</p>
       </div>
 
       <div class="service-card">
@@ -146,45 +107,11 @@
     </div>
   </section>
 
-  <!-- How It Works Section -->
-  <section class="section" id="how">
-    <div class="section-title">
-      <h2>How It Works</h2>
-      <p>Simple steps to book a worker</p>
-    </div>
-
-    <div class="steps-container">
-      <div class="step">
-        <span>1</span>
-        <h3>Select Service</h3>
-        <p>Choose the worker type you need.</p>
-      </div>
-
-      <div class="step">
-        <span>2</span>
-        <h3>Fill Form</h3>
-        <p>Enter your name, phone, address and service details.</p>
-      </div>
-
-      <div class="step">
-        <span>3</span>
-        <h3>Get Confirmation</h3>
-        <p>Our team will contact you through phone or WhatsApp.</p>
-      </div>
-
-      <div class="step">
-        <span>4</span>
-        <h3>Work Completed</h3>
-        <p>The worker visits and completes your work.</p>
-      </div>
-    </div>
-  </section>
-
   <!-- Book Worker Form -->
-  <section class="section light-bg" id="book">
+  <section class="section" id="book">
     <div class="section-title">
       <h2>Book a Worker</h2>
-      <p>Fill this form to request a worker</p>
+      <p>Customer details will save in Firebase and match with a worker</p>
     </div>
 
     <form class="form-box" id="bookingForm">
@@ -195,12 +122,13 @@
 
       <div class="form-group">
         <label>Mobile Number</label>
-        <input type="tel" id="customerPhone" placeholder="Enter mobile number" required />
+        <input type="tel" id="customerPhone" placeholder="Enter 10 digit mobile number" required />
       </div>
+
       <div class="form-group">
-  <label>Your City / Area</label>
-  <input type="text" id="customerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
-</div>
+        <label>Your City / Area</label>
+        <input type="text" id="customerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
+      </div>
 
       <div class="form-group">
         <label>Select Service</label>
@@ -229,13 +157,16 @@
 
       <p class="form-message" id="bookingMessage"></p>
     </form>
+
+    <!-- Customer matching result will show here -->
+    <div class="result-box" id="matchResult"></div>
   </section>
 
   <!-- Join as Worker Form -->
-  <section class="section" id="join">
+  <section class="section light-bg" id="join">
     <div class="section-title">
       <h2>Join as Worker</h2>
-      <p>Register and start earning with KaamConnect</p>
+      <p>Worker data will save in Firebase database</p>
     </div>
 
     <form class="form-box" id="workerForm">
@@ -246,7 +177,7 @@
 
       <div class="form-group">
         <label>Mobile Number</label>
-        <input type="tel" id="workerPhone" placeholder="Enter mobile number" required />
+        <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
       </div>
 
       <div class="form-group">
@@ -269,13 +200,35 @@
 
       <div class="form-group">
         <label>Area / City</label>
-        <input type="text" id="workerCity" placeholder="Example: Rohtak, Delhi, Gurgaon" required />
+        <input type="text" id="workerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
       </div>
 
       <button type="submit" class="btn primary-btn full-btn">Register as Worker</button>
 
       <p class="form-message" id="workerMessage"></p>
     </form>
+  </section>
+
+  <!-- Worker Dashboard -->
+  <section class="section" id="worker-dashboard">
+    <div class="section-title">
+      <h2>Worker Dashboard</h2>
+      <p>Workers can check customer bookings assigned to them</p>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Enter Worker Mobile Number</label>
+        <input type="tel" id="dashboardWorkerPhone" placeholder="Enter your registered mobile number" />
+      </div>
+
+      <button class="btn primary-btn full-btn" id="loadJobsBtn">Load My Jobs</button>
+
+      <p class="form-message" id="dashboardMessage"></p>
+    </div>
+
+    <!-- Worker jobs will show here -->
+    <div class="result-box" id="workerJobs"></div>
   </section>
 
   <!-- Contact Section -->
@@ -287,15 +240,10 @@
 
     <div class="contact-container">
       <div class="contact-card">
-        <h3>Get in Touch</h3>
-        <p><strong>Phone:</strong> 917303041394</p>
+        <h3>KaamConnect Support</h3>
+        <p><strong>Phone:</strong> +91 7303041394</p>
         <p><strong>Email:</strong> support@kaamconnect.com</p>
         <p><strong>Location:</strong> India</p>
-
-        <!-- Replace phone number in script.js also -->
-        <a href="https://wa.me/917303041394" target="_blank" class="btn whatsapp-btn">
-          Chat on WhatsApp
-        </a>
       </div>
 
       <div class="contact-card">
@@ -307,14 +255,12 @@
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="footer">
     <p>© 2026 KaamConnect. All Rights Reserved.</p>
-    <p>Made for local workers and customers in India.</p>
+    <p>Firebase based local worker hiring platform.</p>
   </footer>
 
-  <!-- Link JavaScript file -->
+  <!-- Firebase code needs module type -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
-<!-- KaamConnect website update -->
