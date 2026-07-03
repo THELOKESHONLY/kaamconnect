@@ -181,58 +181,49 @@
   </section>
 
   <!-- Book Worker Form -->
-  <section class="section light-bg" id="book">
-    <div class="section-title">
-      <h2>Book a Worker</h2>
-      <p>Fill this form to request a worker</p>
-    </div>
+  <form class="form-box" id="bookingForm">
+  <div class="form-group">
+    <label>Your Name</label>
+    <input type="text" id="customerName" placeholder="Enter your name" required />
+  </div>
 
-    <form class="form-box" id="bookingForm" name="booking" method="POST" data-netlify="true">
-  <input type="hidden" name="form-name" value="booking">
-      <div class="form-group">
-        <label>Your Name</label>
-        <input type="text" id="customerName" placeholder="Enter your name" required />
-      </div>
+  <div class="form-group">
+    <label>Mobile Number</label>
+    <input type="tel" id="customerPhone" placeholder="Enter mobile number" required />
+  </div>
 
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input type="tel" id="customerPhone" placeholder="Enter mobile number" required />
-      </div>
-      
-      <div class="form-group">
-         <label>Your City / Area</label>
-         <input type="text" id="customerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
-      </div>
+  <div class="form-group">
+    <label>Your City / Area</label>
+    <input type="text" id="customerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
+  </div>
 
-      <div class="form-group">
-        <label>Select Service</label>
-        <select id="serviceType" required>
-          <option value="">Choose service</option>
-          <option>Electrician</option>
-          <option>Plumber</option>
-          <option>Cleaner</option>
-          <option>Tutor</option>
-          <option>Cook</option>
-          <option>Painter</option>
-        </select>
-      </div>
+  <div class="form-group">
+    <label>Select Service</label>
+    <select id="serviceType" required>
+      <option value="">Choose service</option>
+      <option>Electrician</option>
+      <option>Plumber</option>
+      <option>Cleaner</option>
+      <option>Tutor</option>
+      <option>Cook</option>
+      <option>Painter</option>
+    </select>
+  </div>
 
-      <div class="form-group">
-        <label>Your Address</label>
-        <textarea id="customerAddress" placeholder="Enter your full address" required></textarea>
-      </div>
+  <div class="form-group">
+    <label>Your Address</label>
+    <textarea id="customerAddress" placeholder="Enter your full address" required></textarea>
+  </div>
 
-      <div class="form-group">
-        <label>Work Details</label>
-        <textarea id="workDetails" placeholder="Explain your work requirement" required></textarea>
-      </div>
+  <div class="form-group">
+    <label>Work Details</label>
+    <textarea id="workDetails" placeholder="Explain your work requirement" required></textarea>
+  </div>
 
-      <button type="submit" class="btn primary-btn full-btn">Submit Booking</button>
+  <button type="submit" class="btn primary-btn full-btn">Submit Booking</button>
 
-      <p class="form-message" id="bookingMessage"></p>
-    </form>
-  </section>
-
+  <p class="form-message" id="bookingMessage"></p>
+</form>
   <!-- Join as Worker Form -->
   <section class="section" id="join">
     <div class="section-title">
