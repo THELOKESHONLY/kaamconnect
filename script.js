@@ -15,14 +15,14 @@ import {
 
 // Replace this config with your own Firebase web app config
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+  apiKey: "AIzaSyDylEdOuxEpqh7IxEO9cBoV7u9_9cK8DAc",
+  authDomain: "kaamconnect-fdf87.firebaseapp.com",
+  projectId: "kaamconnect-fdf87",
+  storageBucket: "kaamconnect-fdf87.firebasestorage.app",
+  messagingSenderId: "929567285202",
+  appId: "1:929567285202:web:99f1423f03e45dd79db20b",
+  measurementId: "G-88STRK3KCK"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
