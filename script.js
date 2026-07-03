@@ -20,8 +20,8 @@ const firebaseConfig = {
   projectId: "kaamconnect-fdf87",
   storageBucket: "kaamconnect-fdf87.firebasestorage.app",
   messagingSenderId: "929567285202",
-  appId: "1:929567285202:web:99f1423f03e45dd79db20b",
-  measurementId: "G-88STRK3KCK"
+  appId: "1:929567285202:web:de1498e0c20f215b9db20b",
+  measurementId: "G-ZWJ80G0J11"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
