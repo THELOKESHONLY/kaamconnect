@@ -9,10 +9,11 @@ import {
   query,
   where,
   limit,
-  serverTimestamp
+  serverTimestamp,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Replace this with your own Firebase config
+// Replace this config with your own Firebase web app config
 const firebaseConfig = {
   apiKey: "PASTE_YOUR_API_KEY",
   authDomain: "PASTE_YOUR_AUTH_DOMAIN",
@@ -26,29 +27,45 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Your admin WhatsApp number
-const adminWhatsAppNumber = "917303041394";
-
-// Mobile menu toggle
+// Mobile menu
 const menuBtn = document.getElementById("menuBtn");
 const navLinks = document.getElementById("navLinks");
 
-menuBtn.addEventListener("click", () => {
-  navLinks.classList.toggle("active");
-});
+if (menuBtn) {
+  menuBtn.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
+  });
+}
 
-// Close mobile menu after clicking any link
-const links = document.querySelectorAll(".nav-links a");
-
-links.forEach((link) => {
+document.querySelectorAll(".nav-links a").forEach((link) => {
   link.addEventListener("click", () => {
     navLinks.classList.remove("active");
   });
 });
 
-// Helper function to make city lowercase
+// Clean city text for matching
 function cleanText(text) {
   return text.trim().toLowerCase();
+}
+
+// Clean phone number
+function cleanPhone(phone) {
+  let digits = phone.replace(/\D/g, "");
+
+  if (digits.startsWith("91") && digits.length === 12) {
+    digits = digits.slice(2);
+  }
+
+  if (digits.startsWith("0") && digits.length === 11) {
+    digits = digits.slice(1);
+  }
+
+  return digits;
+}
+
+// Check valid Indian mobile number
+function isValidPhone(phone) {
+  return /^[6-9]\d{9}$/.test(phone);
 }
 
 // ===============================
@@ -56,86 +73,98 @@ function cleanText(text) {
 // ===============================
 const bookingForm = document.getElementById("bookingForm");
 const bookingMessage = document.getElementById("bookingMessage");
+const matchResult = document.getElementById("matchResult");
 
 bookingForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  const name = document.getElementById("customerName").value;
-  const phone = document.getElementById("customerPhone").value;
-  const city = document.getElementById("customerCity").value;
-  const service = document.getElementById("serviceType").value;
-  const address = document.getElementById("customerAddress").value;
-  const details = document.getElementById("workDetails").value;
+  bookingMessage.textContent = "Saving booking and searching worker...";
+  matchResult.innerHTML = "";
+
+  const customerName = document.getElementById("customerName").value.trim();
+  const customerPhone = cleanPhone(document.getElementById("customerPhone").value);
+  const customerCity = document.getElementById("customerCity").value.trim();
+  const serviceType = document.getElementById("serviceType").value;
+  const customerAddress = document.getElementById("customerAddress").value.trim();
+  const workDetails = document.getElementById("workDetails").value.trim();
+
+  if (!isValidPhone(customerPhone)) {
+    bookingMessage.textContent = "Please enter a valid 10 digit mobile number.";
+    return;
+  }
 
   try {
-    // Save booking in Firebase
-    await addDoc(collection(db, "bookings"), {
-      customerName: name,
-      customerPhone: phone,
-      customerCity: city,
-      customerCityLower: cleanText(city),
-      serviceType: service,
-      customerAddress: address,
-      workDetails: details,
+    // First save booking as pending
+    const bookingRef = await addDoc(collection(db, "bookings"), {
+      customerName: customerName,
+      customerPhone: customerPhone,
+      customerCity: customerCity,
+      customerCityLower: cleanText(customerCity),
+      serviceType: serviceType,
+      customerAddress: customerAddress,
+      workDetails: workDetails,
       bookingStatus: "pending",
+      assignedWorkerId: "",
+      assignedWorkerName: "",
+      assignedWorkerPhone: "",
       createdAt: serverTimestamp()
     });
 
-    // Search matching verified worker
-    const workersQuery = query(
+    // Find matching worker by skill and city
+    const workerQuery = query(
       collection(db, "workers"),
-      where("workerSkill", "==", service),
-      where("workerCityLower", "==", cleanText(city)),
+      where("workerSkill", "==", serviceType),
+      where("workerCityLower", "==", cleanText(customerCity)),
       where("available", "==", true),
       where("verified", "==", true),
       limit(1)
     );
 
-    const workersSnapshot = await getDocs(workersQuery);
+    const workerSnapshot = await getDocs(workerQuery);
 
-    if (!workersSnapshot.empty) {
-      // Get first matching worker
-      const workerData = workersSnapshot.docs[0].data();
+    if (!workerSnapshot.empty) {
+      const workerDoc = workerSnapshot.docs[0];
+      const worker = workerDoc.data();
 
-      bookingMessage.textContent =
-        "Worker found: " + workerData.workerName + ". Opening WhatsApp...";
+      // Update booking with assigned worker details
+      await updateDoc(bookingRef, {
+        bookingStatus: "assigned",
+        assignedWorkerId: workerDoc.id,
+        assignedWorkerName: worker.workerName,
+        assignedWorkerPhone: worker.workerPhone
+      });
 
-      const whatsappMessage =
-        "Hello " + workerData.workerName + ", I need " + service + " service.%0A" +
-        "My Name: " + name + "%0A" +
-        "Phone: " + phone + "%0A" +
-        "City: " + city + "%0A" +
-        "Address: " + address + "%0A" +
-        "Work Details: " + details;
+      bookingMessage.textContent = "Booking saved. Matching worker found.";
 
-      window.open(
-        "https://wa.me/91" + workerData.workerPhone + "?text=" + whatsappMessage,
-        "_blank"
-      );
+      matchResult.innerHTML = `
+        <div class="data-card">
+          <h3>Worker Matched Successfully</h3>
+          <p><strong>Worker Name:</strong> ${worker.workerName}</p>
+          <p><strong>Skill:</strong> ${worker.workerSkill}</p>
+          <p><strong>Experience:</strong> ${worker.workerExperience}</p>
+          <p><strong>City:</strong> ${worker.workerCity}</p>
+          <p><strong>Worker Phone:</strong> ${worker.workerPhone}</p>
+          <p class="status-assigned">Status: Assigned</p>
+          <p>Your booking is also visible in the worker dashboard.</p>
+        </div>
+      `;
     } else {
-      // If no worker found, send request to admin
-      bookingMessage.textContent =
-        "Booking saved. No verified worker found now. Admin will contact you.";
+      bookingMessage.textContent = "Booking saved. No matching worker found right now.";
 
-      const adminMessage =
-        "New Booking Request:%0A" +
-        "Name: " + name + "%0A" +
-        "Phone: " + phone + "%0A" +
-        "City: " + city + "%0A" +
-        "Service: " + service + "%0A" +
-        "Address: " + address + "%0A" +
-        "Work Details: " + details;
-
-      window.open(
-        "https://wa.me/" + adminWhatsAppNumber + "?text=" + adminMessage,
-        "_blank"
-      );
+      matchResult.innerHTML = `
+        <div class="data-card">
+          <h3>Booking Saved</h3>
+          <p>No verified worker is available for ${serviceType} in ${customerCity} right now.</p>
+          <p class="status-pending">Status: Pending</p>
+          <p>When a worker registers in the same city and skill, you can assign later from Firebase.</p>
+        </div>
+      `;
     }
 
     bookingForm.reset();
   } catch (error) {
     console.error("Booking error:", error);
-    bookingMessage.textContent = "Something went wrong. Please try again.";
+    bookingMessage.textContent = "Error: Booking not saved. Check Firebase config and rules.";
   }
 });
 
@@ -148,45 +177,103 @@ const workerMessage = document.getElementById("workerMessage");
 workerForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  const name = document.getElementById("workerName").value;
-  const phone = document.getElementById("workerPhone").value;
-  const skill = document.getElementById("workerSkill").value;
-  const experience = document.getElementById("workerExperience").value;
-  const city = document.getElementById("workerCity").value;
+  workerMessage.textContent = "Saving worker registration...";
+
+  const workerName = document.getElementById("workerName").value.trim();
+  const workerPhone = cleanPhone(document.getElementById("workerPhone").value);
+  const workerSkill = document.getElementById("workerSkill").value;
+  const workerExperience = document.getElementById("workerExperience").value.trim();
+  const workerCity = document.getElementById("workerCity").value.trim();
+
+  if (!isValidPhone(workerPhone)) {
+    workerMessage.textContent = "Please enter a valid 10 digit mobile number.";
+    return;
+  }
 
   try {
-    // Save worker data in Firebase
     await addDoc(collection(db, "workers"), {
-      workerName: name,
-      workerPhone: phone,
-      workerSkill: skill,
-      workerExperience: experience,
-      workerCity: city,
-      workerCityLower: cleanText(city),
+      workerName: workerName,
+      workerPhone: workerPhone,
+      workerSkill: workerSkill,
+      workerExperience: workerExperience,
+      workerCity: workerCity,
+      workerCityLower: cleanText(workerCity),
       available: true,
-      verified: false,
+
+      // For testing, true. For real business, make this false and verify manually.
+      verified: true,
+
       createdAt: serverTimestamp()
     });
 
     workerMessage.textContent =
-      "Thank you " + name + "! Your registration is saved. Admin will verify you soon.";
-
-    const whatsappMessage =
-      "New Worker Registration:%0A" +
-      "Name: " + name + "%0A" +
-      "Phone: " + phone + "%0A" +
-      "Skill: " + skill + "%0A" +
-      "Experience: " + experience + "%0A" +
-      "City: " + city;
-
-    window.open(
-      "https://wa.me/" + adminWhatsAppNumber + "?text=" + whatsappMessage,
-      "_blank"
-    );
+      "Worker registered successfully. Now customers from same city and skill can match with you.";
 
     workerForm.reset();
   } catch (error) {
     console.error("Worker registration error:", error);
-    workerMessage.textContent = "Something went wrong. Please try again.";
+    workerMessage.textContent = "Error: Worker not saved. Check Firebase config and rules.";
+  }
+});
+
+// ===============================
+// Worker Dashboard
+// ===============================
+const loadJobsBtn = document.getElementById("loadJobsBtn");
+const dashboardMessage = document.getElementById("dashboardMessage");
+const workerJobs = document.getElementById("workerJobs");
+
+loadJobsBtn.addEventListener("click", async function () {
+  const phone = cleanPhone(document.getElementById("dashboardWorkerPhone").value);
+
+  workerJobs.innerHTML = "";
+
+  if (!isValidPhone(phone)) {
+    dashboardMessage.textContent = "Please enter your registered 10 digit mobile number.";
+    return;
+  }
+
+  dashboardMessage.textContent = "Loading assigned jobs...";
+
+  try {
+    const jobsQuery = query(
+      collection(db, "bookings"),
+      where("assignedWorkerPhone", "==", phone)
+    );
+
+    const jobsSnapshot = await getDocs(jobsQuery);
+
+    if (jobsSnapshot.empty) {
+      dashboardMessage.textContent = "No jobs found for this number.";
+      workerJobs.innerHTML = `
+        <div class="data-card">
+          <h3>No Assigned Jobs</h3>
+          <p>When a customer books your service, assigned jobs will appear here.</p>
+        </div>
+      `;
+      return;
+    }
+
+    dashboardMessage.textContent = "Jobs loaded successfully.";
+
+    jobsSnapshot.forEach((docItem) => {
+      const job = docItem.data();
+
+      workerJobs.innerHTML += `
+        <div class="data-card">
+          <h3>Customer Booking</h3>
+          <p><strong>Customer Name:</strong> ${job.customerName}</p>
+          <p><strong>Customer Phone:</strong> ${job.customerPhone}</p>
+          <p><strong>Service:</strong> ${job.serviceType}</p>
+          <p><strong>City:</strong> ${job.customerCity}</p>
+          <p><strong>Address:</strong> ${job.customerAddress}</p>
+          <p><strong>Work Details:</strong> ${job.workDetails}</p>
+          <p class="status-assigned">Status: ${job.bookingStatus}</p>
+        </div>
+      `;
+    });
+  } catch (error) {
+    console.error("Dashboard error:", error);
+    dashboardMessage.textContent = "Error loading jobs. Check Firebase rules.";
   }
 });
