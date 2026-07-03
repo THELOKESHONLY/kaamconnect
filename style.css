@@ -480,3 +480,37 @@ html {
     padding: 25px;
   }
 }
+/* Result box for matched worker and worker dashboard jobs */
+.result-box {
+  max-width: 800px;
+  margin: 30px auto 0;
+}
+
+.data-card {
+  background: #ffffff;
+  border-left: 5px solid #f97316;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+  margin-bottom: 20px;
+}
+
+.data-card h3 {
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.data-card p {
+  margin-bottom: 8px;
+  color: #444;
+}
+
+.status-pending {
+  color: #f97316;
+  font-weight: bold;
+}
+
+.status-assigned {
+  color: green;
+  font-weight: bold;
+}
