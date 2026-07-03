@@ -277,24 +277,3 @@ loadJobsBtn.addEventListener("click", async function () {
     dashboardMessage.textContent = "Error loading jobs. Check Firebase rules.";
   }
 });
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDylEdOuxEpqh7IxEO9cBoV7u9_9cK8DAc",
-  authDomain: "kaamconnect-fdf87.firebaseapp.com",
-  projectId: "kaamconnect-fdf87",
-  storageBucket: "kaamconnect-fdf87.firebasestorage.app",
-  messagingSenderId: "929567285202",
-  appId: "1:929567285202:web:99f1423f03e45dd79db20b",
-  measurementId: "G-88STRK3KCK"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
