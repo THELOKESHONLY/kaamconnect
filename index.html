@@ -163,51 +163,52 @@
   </section>
 
   <!-- Join as Worker Form -->
-  <section class="section light-bg" id="join">
-    <div class="section-title">
-      <h2>Join as Worker</h2>
-      <p>Worker data will save in Firebase database</p>
+  <!-- Join as Worker Form -->
+<section class="section light-bg" id="join">
+  <div class="section-title">
+    <h2>Join as Worker</h2>
+    <p>Worker data will save in Firebase database</p>
+  </div>
+
+  <form class="form-box" id="workerForm">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="workerName" placeholder="Enter your full name" required />
     </div>
 
-    <form class="form-box" id="workerForm">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="workerName" placeholder="Enter your full name" required />
-      </div>
+    <div class="form-group">
+      <label>Mobile Number</label>
+      <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
+    </div>
 
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
-      </div>
+    <div class="form-group">
+      <label>Your Skill</label>
+      <select id="workerSkill" required>
+        <option value="">Choose your skill</option>
+        <option>Electrician</option>
+        <option>Plumber</option>
+        <option>Cleaner</option>
+        <option>Tutor</option>
+        <option>Cook</option>
+        <option>Painter</option>
+      </select>
+    </div>
 
-      <div class="form-group">
-        <label>Your Skill</label>
-        <select id="workerSkill" required>
-          <option value="">Choose your skill</option>
-          <option>Electrician</option>
-          <option>Plumber</option>
-          <option>Cleaner</option>
-          <option>Tutor</option>
-          <option>Cook</option>
-          <option>Painter</option>
-        </select>
-      </div>
+    <div class="form-group">
+      <label>Experience</label>
+      <input type="text" id="workerExperience" placeholder="Example: 2 years" required />
+    </div>
 
-      <div class="form-group">
-        <label>Experience</label>
-        <input type="text" id="workerExperience" placeholder="Example: 2 years" required />
-      </div>
+    <div class="form-group">
+      <label>Area / City</label>
+      <input type="text" id="workerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
+    </div>
 
-      <div class="form-group">
-        <label>Area / City</label>
-        <input type="text" id="WorkerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
-      </div>
+    <button type="submit" class="btn primary-btn full-btn">Register as Worker</button>
 
-      <button type="submit" class="btn primary-btn full-btn">Register as Worker</button>
-
-      <p class="form-message" id="workerMessage"></p>
-    </form>
-  </section>
+    <p class="form-message" id="workerMessage"></p>
+  </form>
+</section>
 
   <!-- Worker Dashboard -->
   <section class="section" id="worker-dashboard">
