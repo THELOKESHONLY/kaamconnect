@@ -185,13 +185,21 @@ workerForm.addEventListener("submit", async function (event) {
   const workerExperience = document.getElementById("workerExperience").value.trim();
   const workerCity = document.getElementById("workerCity").value.trim();
 
+  console.log("Worker data:", {
+    workerName,
+    workerPhone,
+    workerSkill,
+    workerExperience,
+    workerCity
+  });
+
   if (!isValidPhone(workerPhone)) {
     workerMessage.textContent = "Please enter a valid 10 digit mobile number.";
     return;
   }
 
   try {
-    await addDoc(collection(db, "workers"), {
+    const docRef = await addDoc(collection(db, "workers"), {
       workerName: workerName,
       workerPhone: workerPhone,
       workerSkill: workerSkill,
@@ -199,23 +207,21 @@ workerForm.addEventListener("submit", async function (event) {
       workerCity: workerCity,
       workerCityLower: cleanText(workerCity),
       available: true,
-
-      // For testing, true. For real business, make this false and verify manually.
       verified: true,
-
       createdAt: serverTimestamp()
     });
 
+    console.log("Worker saved with ID:", docRef.id);
+
     workerMessage.textContent =
-      "Worker registered successfully. Now customers from same city and skill can match with you.";
+      "Worker registered successfully. Data saved in Firebase.";
 
     workerForm.reset();
   } catch (error) {
     console.error("Worker registration error:", error);
-    workerMessage.textContent = "Error: Worker not saved. Check Firebase config and rules.";
+    workerMessage.textContent = "Firebase Error: " + error.message;
   }
 });
-
 // ===============================
 // Worker Dashboard
 // ===============================
