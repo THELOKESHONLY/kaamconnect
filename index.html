@@ -25,6 +25,7 @@
         <li><a href="#book">Book Worker</a></li>
         <li><a href="#join">Join as Worker</a></li>
         <li><a href="#worker-dashboard">Worker Dashboard</a></li>
+        <li><a href="#reviews">Reviews</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
@@ -35,8 +36,8 @@
     <div class="hero-content">
       <h1>Hire Trusted Local Workers Near You</h1>
       <p>
-        KaamConnect connects customers with electricians, plumbers, cleaners,
-        tutors, cooks, painters and other skilled workers.
+        KaamConnect helps customers book verified local workers such as electricians,
+        plumbers, cleaners, drivers, maids, tutors, mechanics, caretakers and more.
       </p>
 
       <div class="hero-buttons">
@@ -46,12 +47,12 @@
     </div>
 
     <div class="hero-card">
-      <h3>Smart Matching</h3>
-      <p>Customer booking directly connects with matching workers using Firebase database.</p>
+      <h3>Smart Worker Matching</h3>
+      <p>Customer booking connects with matching workers using Firebase database.</p>
 
       <div class="quick-info">
         <div>
-          <h2>22+</h2>
+          <h2>20+</h2>
           <p>Services</p>
         </div>
         <div>
@@ -63,81 +64,81 @@
   </section>
 
   <!-- Login / Register Section -->
-<section class="section light-bg" id="login">
-  <div class="section-title">
-    <h2>Login / Register</h2>
-    <p>Create account and login again anytime</p>
-  </div>
-
-  <form class="form-box" id="authForm">
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" id="authName" placeholder="Enter your name" />
+  <section class="section light-bg" id="login">
+    <div class="section-title">
+      <h2>Login / Register</h2>
+      <p>Create your account and login again anytime</p>
     </div>
 
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="authEmail" placeholder="Enter your email" required />
-    </div>
+    <form class="form-box" id="authForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="authName" placeholder="Enter your full name" />
+      </div>
 
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="authPassword" placeholder="Enter password" required />
-    </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="Enter your email" required />
+      </div>
 
-    <div class="form-group">
-      <label>Account Type</label>
-      <select id="authRole" required>
-        <option value="">Choose account type</option>
-        <option value="customer">Customer</option>
-        <option value="worker">Worker</option>
-      </select>
-    </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="Enter your password" required />
+      </div>
 
-    <button type="button" class="btn primary-btn full-btn" id="signupBtn">
-      Create Account
-    </button>
+      <div class="form-group">
+        <label>Account Type</label>
+        <select id="authRole" required>
+          <option value="">Choose account type</option>
+          <option value="customer">Customer</option>
+          <option value="worker">Worker</option>
+        </select>
+      </div>
 
-    <br><br>
+      <button type="button" class="btn primary-btn full-btn" id="signupBtn">
+        Create Account
+      </button>
 
-    <button type="button" class="btn secondary-btn full-btn" id="loginBtn">
-      Login
-    </button>
+      <br><br>
 
-    <br><br>
+      <button type="button" class="btn secondary-btn full-btn" id="loginBtn">
+        Login
+      </button>
 
-    <button type="button" class="btn secondary-btn full-btn" id="logoutBtn">
-      Logout
-    </button>
+      <br><br>
 
-    <p class="form-message" id="authMessage"></p>
-  </form>
-</section>
+      <button type="button" class="btn secondary-btn full-btn" id="logoutBtn">
+        Logout
+      </button>
+
+      <p class="form-message" id="authMessage"></p>
+    </form>
+  </section>
 
   <!-- Services Section -->
-  <section class="section light-bg" id="services">
+  <section class="section" id="services">
     <div class="section-title">
       <h2>Our Services</h2>
-      <p>Book workers for your daily needs</p>
+      <p>Choose from trusted local services</p>
     </div>
 
     <div class="services-grid">
       <div class="service-card">
         <div class="icon">⚡</div>
         <h3>Electrician</h3>
-        <p>Fan, light, wiring, switchboard and electrical repair services.</p>
+        <p>Fan, light, switchboard and wiring repair.</p>
       </div>
 
       <div class="service-card">
         <div class="icon">🔧</div>
         <h3>Plumber</h3>
-        <p>Water leakage, pipe fitting, tap repair and bathroom work.</p>
+        <p>Tap repair, leakage, pipe fitting and bathroom work.</p>
       </div>
 
       <div class="service-card">
         <div class="icon">🧹</div>
         <h3>Cleaner</h3>
-        <p>Home cleaning, office cleaning and deep cleaning services.</p>
+        <p>Home cleaning, office cleaning and deep cleaning.</p>
       </div>
 
       <div class="service-card">
@@ -149,13 +150,137 @@
       <div class="service-card">
         <div class="icon">🍳</div>
         <h3>Cook</h3>
-        <p>Daily cooking, party cooking and home food preparation.</p>
+        <p>Daily cooking, home food and party cooking.</p>
       </div>
 
       <div class="service-card">
         <div class="icon">🎨</div>
         <h3>Painter</h3>
-        <p>House painting, wall painting and small painting work.</p>
+        <p>House painting, wall paint and repair paint work.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">❄️</div>
+        <h3>AC Repair</h3>
+        <p>AC servicing, repair, installation and gas refill.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🪚</div>
+        <h3>Carpenter</h3>
+        <p>Furniture repair, door fitting and wood work.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🚗</div>
+        <h3>Driver</h3>
+        <p>Local driver and personal driver services.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🌱</div>
+        <h3>Gardener</h3>
+        <p>Garden cleaning, plant care and maintenance.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🛡️</div>
+        <h3>Security Guard</h3>
+        <p>Home, office and event security support.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🏠</div>
+        <h3>House Helper</h3>
+        <p>Daily home help and household assistance.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🧺</div>
+        <h3>Maid</h3>
+        <p>Cleaning, washing and daily household support.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🛠️</div>
+        <h3>Mechanic</h3>
+        <p>Bike, car and machine repair support.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">📱</div>
+        <h3>Mobile Repair</h3>
+        <p>Screen, battery, charging and software issues.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">💻</div>
+        <h3>Computer Repair</h3>
+        <p>Laptop, desktop, software and hardware repair.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">📷</div>
+        <h3>Photographer</h3>
+        <p>Event, wedding, product and personal photography.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">💄</div>
+        <h3>Makeup Artist</h3>
+        <p>Party, bridal and event makeup services.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🩺</div>
+        <h3>Nurse / Caretaker</h3>
+        <p>Patient care, elder care and home assistance.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">📦</div>
+        <h3>Delivery Boy</h3>
+        <p>Local parcel delivery and pickup support.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🎪</div>
+        <h3>Event Helper</h3>
+        <p>Event setup, decoration and support staff.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section light-bg" id="how">
+    <div class="section-title">
+      <h2>How KaamConnect Works</h2>
+      <p>Simple booking and worker matching system</p>
+    </div>
+
+    <div class="steps-container">
+      <div class="step">
+        <span>1</span>
+        <h3>Create Account</h3>
+        <p>Customer or worker creates a free account.</p>
+      </div>
+
+      <div class="step">
+        <span>2</span>
+        <h3>Register / Book</h3>
+        <p>Workers register skills and customers book services.</p>
+      </div>
+
+      <div class="step">
+        <span>3</span>
+        <h3>Auto Match</h3>
+        <p>Firebase matches workers by skill and city.</p>
+      </div>
+
+      <div class="step">
+        <span>4</span>
+        <h3>Review Worker</h3>
+        <p>Customers can rate and review workers.</p>
       </div>
     </div>
   </section>
@@ -164,7 +289,7 @@
   <section class="section" id="book">
     <div class="section-title">
       <h2>Book a Worker</h2>
-      <p>Customer details will save in Firebase and match with a worker</p>
+      <p>Book a trusted worker based on your service and city</p>
     </div>
 
     <form class="form-box" id="bookingForm">
@@ -184,33 +309,32 @@
       </div>
 
       <div class="form-group">
-  <label>Your Skill</label>
-  <select id="workerSkill" required>
-    <option value="">Choose your skill</option>
-    <option>Electrician</option>
-    <option>Plumber</option>
-    <option>Cleaner</option>
-    <option>Tutor</option>
-    <option>Cook</option>
-    <option>Painter</option>
-    <option>AC Repair</option>
-    <option>Carpenter</option>
-    <option>Driver</option>
-    <option>Gardener</option>
-    <option>Security Guard</option>
-    <option>House Helper</option>
-    <option>Maid</option>
-    <option>Mechanic</option>
-    <option>Mobile Repair</option>
-    <option>Computer Repair</option>
-    <option>Photographer</option>
-    <option>Makeup Artist</option>
-    <option>Nurse / Caretaker</option>
-    <option>Delivery Boy</option>
-    <option>Event Helper</option>
-    <option>Freelancer</option>
-  </select>
-</div>
+        <label>Select Service</label>
+        <select id="serviceType" required>
+          <option value="">Choose service</option>
+          <option>Electrician</option>
+          <option>Plumber</option>
+          <option>Cleaner</option>
+          <option>Tutor</option>
+          <option>Cook</option>
+          <option>Painter</option>
+          <option>AC Repair</option>
+          <option>Carpenter</option>
+          <option>Driver</option>
+          <option>Gardener</option>
+          <option>Security Guard</option>
+          <option>House Helper</option>
+          <option>Maid</option>
+          <option>Mechanic</option>
+          <option>Mobile Repair</option>
+          <option>Computer Repair</option>
+          <option>Photographer</option>
+          <option>Makeup Artist</option>
+          <option>Nurse / Caretaker</option>
+          <option>Delivery Boy</option>
+          <option>Event Helper</option>
+        </select>
+      </div>
 
       <div class="form-group">
         <label>Your Address</label>
@@ -227,117 +351,81 @@
       <p class="form-message" id="bookingMessage"></p>
     </form>
 
-    <!-- Review Section -->
-<section class="section light-bg" id="reviews">
-  <div class="section-title">
-    <h2>Give Worker Review</h2>
-    <p>Rate your worker like Uber/Ola</p>
-  </div>
-
-  <form class="form-box" id="reviewForm">
-    <div class="form-group">
-      <label>Worker Phone Number</label>
-      <input type="tel" id="reviewWorkerPhone" placeholder="Enter worker phone number" required />
-    </div>
-
-    <div class="form-group">
-      <label>Rating</label>
-      <select id="reviewRating" required>
-        <option value="">Choose rating</option>
-        <option value="5">5 - Excellent</option>
-        <option value="4">4 - Good</option>
-        <option value="3">3 - Average</option>
-        <option value="2">2 - Poor</option>
-        <option value="1">1 - Bad</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Review</label>
-      <textarea id="reviewText" placeholder="Write your review" required></textarea>
-    </div>
-
-    <button type="submit" class="btn primary-btn full-btn">Submit Review</button>
-
-    <p class="form-message" id="reviewMessage"></p>
-  </form>
-</section>
-
-    <!-- Customer matching result will show here -->
     <div class="result-box" id="matchResult"></div>
   </section>
 
   <!-- Join as Worker Form -->
-  <!-- Join as Worker Form -->
-<section class="section light-bg" id="join">
-  <div class="section-title">
-    <h2>Join as Worker</h2>
-    <p>Worker data will save in Firebase database</p>
-  </div>
-
-  <form class="form-box" id="workerForm">
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" id="workerName" placeholder="Enter your full name" required />
+  <section class="section light-bg" id="join">
+    <div class="section-title">
+      <h2>Join as Worker</h2>
+      <p>Register your profile and start getting work</p>
     </div>
 
-    <div class="form-group">
-      <label>Mobile Number</label>
-      <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
-    </div>
+    <form class="form-box" id="workerForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="workerName" placeholder="Enter your full name" required />
+      </div>
 
-    <div class="form-group">
-      <label>Your Skill</label>
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
+      </div>
+
+      <div class="form-group">
+        <label>Your Skill</label>
         <select id="workerSkill" required>
-  <option value="">Choose your skill</option>
-  <option>Electrician</option>
-  <option>Plumber</option>
-  <option>Cleaner</option>
-  <option>Tutor</option>
-  <option>Cook</option>
-  <option>Painter</option>
-  <option>AC Repair</option>
-  <option>Carpenter</option>
-  <option>Driver</option>
-  <option>Gardener</option>
-  <option>Security Guard</option>
-  <option>House Helper</option>
-  <option>Maid</option>
-  <option>Mechanic</option>
-  <option>Mobile Repair</option>
-  <option>Computer Repair</option>
-  <option>Photographer</option>
-  <option>Makeup Artist</option>
-  <option>Nurse / Caretaker</option>
-  <option>Delivery Boy</option>
-  <option>Event Helper</option>
-  <option>Freelancer</option>
-</select>
-        <option value="">Choose your skill</option>
-        <option>Electrician</option>
-        <option>Plumber</option>
-        <option>Cleaner</option>
-        <option>Tutor</option>
-        <option>Cook</option>
-        <option>Painter</option>
-      </select>
-    </div>
+          <option value="">Choose your skill</option>
+          <option>Electrician</option>
+          <option>Plumber</option>
+          <option>Cleaner</option>
+          <option>Tutor</option>
+          <option>Cook</option>
+          <option>Painter</option>
+          <option>AC Repair</option>
+          <option>Carpenter</option>
+          <option>Driver</option>
+          <option>Gardener</option>
+          <option>Security Guard</option>
+          <option>House Helper</option>
+          <option>Maid</option>
+          <option>Mechanic</option>
+          <option>Mobile Repair</option>
+          <option>Computer Repair</option>
+          <option>Photographer</option>
+          <option>Makeup Artist</option>
+          <option>Nurse / Caretaker</option>
+          <option>Delivery Boy</option>
+          <option>Event Helper</option>
+        </select>
+      </div>
 
-    <div class="form-group">
-      <label>Experience</label>
-      <input type="text" id="workerExperience" placeholder="Example: 2 years" required />
-    </div>
+      <div class="form-group">
+        <label>Work Type</label>
+        <select id="workerType" required>
+          <option value="">Choose work type</option>
+          <option>Freelancer</option>
+          <option>Part-time</option>
+          <option>Full-time</option>
+          <option>Contract</option>
+        </select>
+      </div>
 
-    <div class="form-group">
-      <label>Area / City</label>
-      <input type="text" id="workerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
-    </div>
+      <div class="form-group">
+        <label>Experience</label>
+        <input type="text" id="workerExperience" placeholder="Example: 2 years" required />
+      </div>
 
-    <button type="submit" class="btn primary-btn full-btn">Register as Worker</button>
+      <div class="form-group">
+        <label>Area / City</label>
+        <input type="text" id="workerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
+      </div>
 
-    <p class="form-message" id="workerMessage"></p>
-  </form>
-</section>
+      <button type="submit" class="btn primary-btn full-btn">Register as Worker</button>
+
+      <p class="form-message" id="workerMessage"></p>
+    </form>
+  </section>
 
   <!-- Worker Dashboard -->
   <section class="section" id="worker-dashboard">
@@ -349,7 +437,7 @@
     <div class="form-box">
       <div class="form-group">
         <label>Enter Worker Mobile Number</label>
-        <input type="tel" id="dashboardWorkerPhone" placeholder="Enter your registered mobile number" />
+        <input type="tel" id="dashboardWorkerPhone" placeholder="Enter registered mobile number" />
       </div>
 
       <button class="btn primary-btn full-btn" id="loadJobsBtn">Load My Jobs</button>
@@ -357,8 +445,89 @@
       <p class="form-message" id="dashboardMessage"></p>
     </div>
 
-    <!-- Worker jobs will show here -->
     <div class="result-box" id="workerJobs"></div>
+  </section>
+
+  <!-- Review Section -->
+  <section class="section light-bg" id="reviews">
+    <div class="section-title">
+      <h2>Give Worker Review</h2>
+      <p>Rate your worker like Uber / Ola</p>
+    </div>
+
+    <form class="form-box" id="reviewForm">
+      <div class="form-group">
+        <label>Worker Phone Number</label>
+        <input type="tel" id="reviewWorkerPhone" placeholder="Enter worker phone number" required />
+      </div>
+
+      <div class="form-group">
+        <label>Rating</label>
+        <select id="reviewRating" required>
+          <option value="">Choose rating</option>
+          <option value="5">5 - Excellent</option>
+          <option value="4">4 - Good</option>
+          <option value="3">3 - Average</option>
+          <option value="2">2 - Poor</option>
+          <option value="1">1 - Bad</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Review</label>
+        <textarea id="reviewText" placeholder="Write your review" required></textarea>
+      </div>
+
+      <button type="submit" class="btn primary-btn full-btn">Submit Review</button>
+
+      <p class="form-message" id="reviewMessage"></p>
+    </form>
+  </section>
+
+  <!-- Trust Section -->
+  <section class="section" id="trust">
+    <div class="section-title">
+      <h2>Why Choose KaamConnect?</h2>
+      <p>Built for customers and workers</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="icon">✅</div>
+        <h3>Verified Workers</h3>
+        <p>Workers can be verified before assigning real jobs.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">⭐</div>
+        <h3>Ratings & Reviews</h3>
+        <p>Customers can rate workers after service.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">📍</div>
+        <h3>City-Based Matching</h3>
+        <p>Workers are matched by service and city.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">💼</div>
+        <h3>Freelancer Support</h3>
+        <p>Freelancers, part-time and full-time workers can register.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🔥</div>
+        <h3>Fast Booking</h3>
+        <p>Customers can book a worker in minutes.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">💰</div>
+        <h3>Earn Money</h3>
+        <p>Skilled workers can get local work opportunities.</p>
+      </div>
+    </div>
   </section>
 
   <!-- Contact Section -->
@@ -385,12 +554,12 @@
     </div>
   </section>
 
+  <!-- Footer -->
   <footer class="footer">
     <p>© 2026 KaamConnect. All Rights Reserved.</p>
-    <p>local worker hiring platform.</p>
+    <p>Firebase based local worker hiring platform.</p>
   </footer>
 
-  <!-- Firebase code needs module type -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
