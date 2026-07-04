@@ -133,7 +133,7 @@ if (workerForm) {
 
       console.log("Worker saved with ID:", docRef.id);
 
-      workerMessage.textContent = "Worker registered successfully. Data saved in Firebase.";
+      workerMessage.textContent = "Worker registered successfully.";
       workerForm.reset();
 
     } catch (error) {
