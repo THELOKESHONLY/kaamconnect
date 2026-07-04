@@ -40,7 +40,6 @@ const firebaseConfig = {
   measurementId: "G-25ZG5RB3FX"
 };
 
-
 // ===============================
 // Start Firebase
 // ===============================
@@ -85,6 +84,14 @@ function showMessage(id, message) {
   const element = document.getElementById(id);
   if (element) {
     element.textContent = message;
+  }
+}
+
+// Clear form automatically
+function clearForm(formId) {
+  const form = document.getElementById(formId);
+  if (form) {
+    form.reset();
   }
 }
 
@@ -162,6 +169,10 @@ if (signupBtn) {
       });
 
       showMessage("authMessage", "Account created successfully. You are logged in.");
+
+      // Clear login/register form after signup
+      clearForm("authForm");
+
     } catch (error) {
       console.error("Signup error:", error);
       showMessage("authMessage", "Signup Error: " + error.message);
@@ -181,8 +192,14 @@ if (loginBtn) {
 
     try {
       showMessage("authMessage", "Logging in...");
+
       await signInWithEmailAndPassword(auth, email, password);
+
       showMessage("authMessage", "Login successful.");
+
+      // Clear login form after login
+      clearForm("authForm");
+
     } catch (error) {
       console.error("Login error:", error);
       showMessage("authMessage", "Login Error: " + error.message);
@@ -194,7 +211,12 @@ if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     try {
       await signOut(auth);
+
       showMessage("authMessage", "Logged out successfully.");
+
+      // Clear form after logout
+      clearForm("authForm");
+
     } catch (error) {
       console.error("Logout error:", error);
       showMessage("authMessage", "Logout Error: " + error.message);
@@ -293,7 +315,9 @@ if (workerForm) {
         );
       }
 
-      workerForm.reset();
+      // Clear worker form after successful registration
+      clearForm("workerForm");
+
     } catch (error) {
       console.error("Worker registration error:", error);
       showMessage("workerMessage", "Firebase Error: " + error.message);
@@ -418,7 +442,9 @@ if (bookingForm) {
         }
       }
 
-      bookingForm.reset();
+      // Clear booking form after successful booking
+      clearForm("bookingForm");
+
     } catch (error) {
       console.error("Booking error:", error);
       showMessage("bookingMessage", "Firebase Error: " + error.message);
@@ -539,7 +565,6 @@ if (reviewForm) {
         createdAt: serverTimestamp()
       });
 
-      const workerRef = doc(db, "workers", workerPhone);
       const workerQuery = query(
         collection(db, "workers"),
         where("workerPhone", "==", workerPhone),
@@ -565,7 +590,10 @@ if (reviewForm) {
       }
 
       showMessage("reviewMessage", "Review submitted successfully.");
-      reviewForm.reset();
+
+      // Clear review form after successful review
+      clearForm("reviewForm");
+
     } catch (error) {
       console.error("Review error:", error);
       showMessage("reviewMessage", "Firebase Error: " + error.message);
