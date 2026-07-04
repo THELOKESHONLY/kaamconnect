@@ -10,7 +10,9 @@ import {
   where,
   limit,
   serverTimestamp,
-  updateDoc
+  updateDoc,
+  doc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Replace this config with your own Firebase web app config
@@ -184,14 +186,7 @@ workerForm.addEventListener("submit", async function (event) {
   const workerSkill = document.getElementById("workerSkill").value;
   const workerExperience = document.getElementById("workerExperience").value.trim();
   const workerCity = document.getElementById("workerCity").value.trim();
-
-  console.log("Worker data:", {
-    workerName,
-    workerPhone,
-    workerSkill,
-    workerExperience,
-    workerCity
-  });
+  const workerCityLower = cleanText(workerCity);
 
   if (!isValidPhone(workerPhone)) {
     workerMessage.textContent = "Please enter a valid 10 digit mobile number.";
@@ -199,24 +194,53 @@ workerForm.addEventListener("submit", async function (event) {
   }
 
   try {
-    const docRef = await addDoc(collection(db, "workers"), {
+    // Save worker automatically in Firebase
+    // Document ID will be worker phone number
+    await setDoc(doc(db, "workers", workerPhone), {
       workerName: workerName,
       workerPhone: workerPhone,
       workerSkill: workerSkill,
       workerExperience: workerExperience,
       workerCity: workerCity,
-      workerCityLower: cleanText(workerCity),
+      workerCityLower: workerCityLower,
       available: true,
       verified: true,
       createdAt: serverTimestamp()
     });
 
-    console.log("Worker saved with ID:", docRef.id);
+    workerMessage.textContent = "Worker registered successfully. Checking pending bookings...";
 
-    workerMessage.textContent =
-      "Worker registered successfully. Data saved in Firebase.";
+    // Now search pending bookings that match this worker
+    const pendingBookingQuery = query(
+      collection(db, "bookings"),
+      where("serviceType", "==", workerSkill),
+      where("customerCityLower", "==", workerCityLower),
+      where("bookingStatus", "==", "pending"),
+      limit(1)
+    );
+
+    const pendingBookingSnapshot = await getDocs(pendingBookingQuery);
+
+    if (!pendingBookingSnapshot.empty) {
+      const bookingDoc = pendingBookingSnapshot.docs[0];
+
+      // Assign this worker to pending booking
+      await updateDoc(bookingDoc.ref, {
+        bookingStatus: "assigned",
+        assignedWorkerId: workerPhone,
+        assignedWorkerName: workerName,
+        assignedWorkerPhone: workerPhone
+      });
+
+      workerMessage.textContent =
+        "Worker registered successfully and one pending booking is assigned to this worker.";
+    } else {
+      workerMessage.textContent =
+        "Worker registered successfully. No pending booking found right now.";
+    }
 
     workerForm.reset();
+
   } catch (error) {
     console.error("Worker registration error:", error);
     workerMessage.textContent = "Firebase Error: " + error.message;
