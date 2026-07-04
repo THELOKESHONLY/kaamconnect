@@ -20,6 +20,7 @@
 
       <ul class="nav-links" id="navLinks">
         <li><a href="#home">Home</a></li>
+        <li><a href="#login">Login</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#book">Book Worker</a></li>
         <li><a href="#join">Join as Worker</a></li>
@@ -225,6 +226,42 @@
 
       <p class="form-message" id="bookingMessage"></p>
     </form>
+
+    <!-- Review Section -->
+<section class="section light-bg" id="reviews">
+  <div class="section-title">
+    <h2>Give Worker Review</h2>
+    <p>Rate your worker like Uber/Ola</p>
+  </div>
+
+  <form class="form-box" id="reviewForm">
+    <div class="form-group">
+      <label>Worker Phone Number</label>
+      <input type="tel" id="reviewWorkerPhone" placeholder="Enter worker phone number" required />
+    </div>
+
+    <div class="form-group">
+      <label>Rating</label>
+      <select id="reviewRating" required>
+        <option value="">Choose rating</option>
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Bad</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Review</label>
+      <textarea id="reviewText" placeholder="Write your review" required></textarea>
+    </div>
+
+    <button type="submit" class="btn primary-btn full-btn">Submit Review</button>
+
+    <p class="form-message" id="reviewMessage"></p>
+  </form>
+</section>
 
     <!-- Customer matching result will show here -->
     <div class="result-box" id="matchResult"></div>
