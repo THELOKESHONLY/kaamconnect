@@ -31,12 +31,13 @@ import {
 // Replace these values with your real Firebase config
 // ===============================
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_REAL_API_KEY",
+  apiKey: "AIzaSyDylEdOuxEpqh7IxEO9cBoV7u9_9cK8DAc",
   authDomain: "kaamconnect-fdf87.firebaseapp.com",
   projectId: "kaamconnect-fdf87",
-  storageBucket: "kaamconnect-fdf87.appspot.com",
-  messagingSenderId: "PASTE_YOUR_REAL_MESSAGING_SENDER_ID",
-  appId: "PASTE_YOUR_REAL_APP_ID"
+  storageBucket: "kaamconnect-fdf87.firebasestorage.app",
+  messagingSenderId: "929567285202",
+  appId: "1:929567285202:web:7adb18836f12c8b69db20b",
+  measurementId: "G-25ZG5RB3FX"
 };
 
 
