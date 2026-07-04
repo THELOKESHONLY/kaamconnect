@@ -88,7 +88,7 @@ if (workerForm) {
   workerForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    workerMessage.textContent = "Saving worker registration...";
+    workerMessage.textContent = "waiting";
 
     const workerName = document.getElementById("workerName").value.trim();
     const workerPhone = cleanPhone(document.getElementById("workerPhone").value);
