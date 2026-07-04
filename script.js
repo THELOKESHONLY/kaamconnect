@@ -91,11 +91,22 @@ if (workerForm) {
 
     workerMessage.textContent = "Saving worker registration...";
 
-    const workerName = document.getElementById("workerName").value.trim();
-    const workerPhone = cleanPhone(document.getElementById("workerPhone").value);
-    const workerSkill = document.getElementById("workerSkill").value;
-    const workerExperience = document.getElementById("workerExperience").value.trim();
-    const workerCity = document.getElementById("workerCity").value.trim();
+    const workerNameInput = document.getElementById("workerName");
+    const workerPhoneInput = document.getElementById("workerPhone");
+    const workerSkillInput = document.getElementById("workerSkill");
+    const workerExperienceInput = document.getElementById("workerExperience");
+    const workerCityInput = document.getElementById("workerCity");
+
+    if (!workerNameInput || !workerPhoneInput || !workerSkillInput || !workerExperienceInput || !workerCityInput) {
+      workerMessage.textContent = "HTML ID error: Check worker form input IDs.";
+      return;
+    }
+
+    const workerName = workerNameInput.value.trim();
+    const workerPhone = cleanPhone(workerPhoneInput.value);
+    const workerSkill = workerSkillInput.value;
+    const workerExperience = workerExperienceInput.value.trim();
+    const workerCity = workerCityInput.value.trim();
 
     if (!workerName || !workerPhone || !workerSkill || !workerExperience || !workerCity) {
       workerMessage.textContent = "Please fill all worker details.";
@@ -131,7 +142,6 @@ if (workerForm) {
     }
   });
 }
-
 // ===============================
 // Book a Worker Form
 // ===============================
