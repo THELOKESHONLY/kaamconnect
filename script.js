@@ -89,7 +89,7 @@ if (workerForm) {
   workerForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    workerMessage.textContent = "waiting";
+    workerMessage.textContent = "Saving worker registration...";
 
     const workerName = document.getElementById("workerName").value.trim();
     const workerPhone = cleanPhone(document.getElementById("workerPhone").value);
@@ -103,59 +103,28 @@ if (workerForm) {
     }
 
     if (!isValidPhone(workerPhone)) {
-      workerMessage.textContent = "Please enter valid 10 digit mobile number.";
+      workerMessage.textContent = "Please enter a valid 10 digit mobile number.";
       return;
     }
 
     try {
-      // Save worker automatically
-      const workerRef = await withTimeout(
-        addDoc(collection(db, "workers"), {
-          workerName: workerName,
-          workerPhone: workerPhone,
-          workerSkill: workerSkill,
-          workerExperience: workerExperience,
-          workerCity: workerCity,
-          workerCityLower: cleanText(workerCity),
-          available: true,
-          verified: true,
-          createdAt: serverTimestamp()
-        })
-      );
+      const docRef = await addDoc(collection(db, "workers"), {
+        workerName: workerName,
+        workerPhone: workerPhone,
+        workerSkill: workerSkill,
+        workerExperience: workerExperience,
+        workerCity: workerCity,
+        workerCityLower: cleanText(workerCity),
+        available: true,
+        verified: true,
+        createdAt: serverTimestamp()
+      });
 
-      console.log("Worker saved:", workerRef.id);
+      console.log("Worker saved with ID:", docRef.id);
 
-      // Find one pending booking for this worker
-      const pendingBookingQuery = query(
-        collection(db, "bookings"),
-        where("serviceType", "==", workerSkill),
-        where("customerCityLower", "==", cleanText(workerCity)),
-        where("bookingStatus", "==", "pending"),
-        limit(1)
-      );
-
-      const pendingBookingSnapshot = await withTimeout(getDocs(pendingBookingQuery));
-
-      if (!pendingBookingSnapshot.empty) {
-        const bookingDoc = pendingBookingSnapshot.docs[0];
-
-        await withTimeout(
-          updateDoc(bookingDoc.ref, {
-            bookingStatus: "assigned",
-            assignedWorkerId: workerRef.id,
-            assignedWorkerName: workerName,
-            assignedWorkerPhone: workerPhone
-          })
-        );
-
-        workerMessage.textContent =
-          "Worker registered successfully and one pending booking assigned.";
-      } else {
-        workerMessage.textContent =
-          "Worker registered successfully. No pending booking found right now.";
-      }
-
+      workerMessage.textContent = "Worker registered successfully. Data saved in Firebase.";
       workerForm.reset();
+
     } catch (error) {
       console.error("Worker registration error:", error);
       workerMessage.textContent = "Firebase Error: " + error.message;
