@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>KaamConnect - Hire Trusted Local Workers</title>
@@ -23,26 +22,22 @@
         <li><a href="#login">Login</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#book">Book Worker</a></li>
-        <li><a href="#join">Join as Worker</a></li>
+        <li><a href="#join">Join Worker</a></li>
         <li><a href="#worker-dashboard">Worker Dashboard</a></li>
+        <li><a href="#customer-bids">My Bids</a></li>
         <li><a href="#reviews">Reviews</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- Home Section -->
+  <!-- Home -->
   <section class="hero" id="home">
     <div class="hero-content">
-      <h1>Hire Trusted Local Workers Near You</h1>
-      <p>
-        KaamConnect helps customers book verified local workers such as electricians,
-        plumbers, cleaners, drivers, maids, tutors, mechanics, caretakers and more.
-      </p>
       <h1>Book Trusted Local Workers in Minutes</h1>
       <p>
         Find verified electricians, plumbers, cleaners, drivers, maids, caretakers,
-        repair experts and freelancers near you with smart city-based matching.
+        repair experts and freelancers near you with smart city-based matching and bidding.
       </p>
 
       <div class="hero-buttons">
@@ -52,8 +47,8 @@
     </div>
 
     <div class="hero-card">
-      <h3>Smart Worker Matching</h3>
-      <p>Customer booking connects with matching workers using Firebase database.</p>
+      <h3>Smart Service Marketplace</h3>
+      <p>Customers post work, workers bid, and the best worker gets selected.</p>
 
       <div class="quick-info">
         <div>
@@ -61,14 +56,14 @@
           <p>Services</p>
         </div>
         <div>
-          <h2>Live</h2>
-          <p>Database</p>
+          <h2>Bid</h2>
+          <p>System</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Login / Register Section -->
+  <!-- Login / Register -->
   <section class="section light-bg" id="login">
     <div class="section-title">
       <h2>Login / Register</h2>
@@ -100,27 +95,17 @@
         </select>
       </div>
 
-      <button type="button" class="btn primary-btn full-btn" id="signupBtn">
-        Create Account
-      </button>
-
+      <button type="button" class="btn primary-btn full-btn" id="signupBtn">Create Account</button>
       <br><br>
-
-      <button type="button" class="btn secondary-btn full-btn" id="loginBtn">
-        Login
-      </button>
-
+      <button type="button" class="btn secondary-btn full-btn" id="loginBtn">Login</button>
       <br><br>
-
-      <button type="button" class="btn secondary-btn full-btn" id="logoutBtn">
-        Logout
-      </button>
+      <button type="button" class="btn secondary-btn full-btn" id="logoutBtn">Logout</button>
 
       <p class="form-message" id="authMessage"></p>
     </form>
   </section>
 
-  <!-- Services Section -->
+  <!-- Services -->
   <section class="section" id="services">
     <div class="section-title">
       <h2>Our Services</h2>
@@ -128,131 +113,27 @@
     </div>
 
     <div class="services-grid">
-      <div class="service-card">
-        <div class="icon">⚡</div>
-        <h3>Electrician</h3>
-        <p>Fan, light, switchboard and wiring repair.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🔧</div>
-        <h3>Plumber</h3>
-        <p>Tap repair, leakage, pipe fitting and bathroom work.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🧹</div>
-        <h3>Cleaner</h3>
-        <p>Home cleaning, office cleaning and deep cleaning.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">📚</div>
-        <h3>Tutor</h3>
-        <p>Home tuition and online tuition for students.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🍳</div>
-        <h3>Cook</h3>
-        <p>Daily cooking, home food and party cooking.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🎨</div>
-        <h3>Painter</h3>
-        <p>House painting, wall paint and repair paint work.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">❄️</div>
-        <h3>AC Repair</h3>
-        <p>AC servicing, repair, installation and gas refill.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🪚</div>
-        <h3>Carpenter</h3>
-        <p>Furniture repair, door fitting and wood work.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🚗</div>
-        <h3>Driver</h3>
-        <p>Local driver and personal driver services.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🌱</div>
-        <h3>Gardener</h3>
-        <p>Garden cleaning, plant care and maintenance.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🛡️</div>
-        <h3>Security Guard</h3>
-        <p>Home, office and event security support.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🏠</div>
-        <h3>House Helper</h3>
-        <p>Daily home help and household assistance.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🧺</div>
-        <h3>Maid</h3>
-        <p>Cleaning, washing and daily household support.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🛠️</div>
-        <h3>Mechanic</h3>
-        <p>Bike, car and machine repair support.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">📱</div>
-        <h3>Mobile Repair</h3>
-        <p>Screen, battery, charging and software issues.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">💻</div>
-        <h3>Computer Repair</h3>
-        <p>Laptop, desktop, software and hardware repair.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">📷</div>
-        <h3>Photographer</h3>
-        <p>Event, wedding, product and personal photography.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">💄</div>
-        <h3>Makeup Artist</h3>
-        <p>Party, bridal and event makeup services.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🩺</div>
-        <h3>Nurse / Caretaker</h3>
-        <p>Patient care, elder care and home assistance.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">📦</div>
-        <h3>Delivery Boy</h3>
-        <p>Local parcel delivery and pickup support.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🎪</div>
-        <h3>Event Helper</h3>
-        <p>Event setup, decoration and support staff.</p>
-      </div>
+      <div class="service-card"><div class="icon">⚡</div><h3>Electrician</h3><p>Fan, light, switchboard and wiring repair.</p></div>
+      <div class="service-card"><div class="icon">🔧</div><h3>Plumber</h3><p>Tap repair, leakage, pipe fitting and bathroom work.</p></div>
+      <div class="service-card"><div class="icon">🧹</div><h3>Cleaner</h3><p>Home cleaning, office cleaning and deep cleaning.</p></div>
+      <div class="service-card"><div class="icon">📚</div><h3>Tutor</h3><p>Home tuition and online tuition for students.</p></div>
+      <div class="service-card"><div class="icon">🍳</div><h3>Cook</h3><p>Daily cooking, home food and party cooking.</p></div>
+      <div class="service-card"><div class="icon">🎨</div><h3>Painter</h3><p>House painting, wall paint and repair paint work.</p></div>
+      <div class="service-card"><div class="icon">❄️</div><h3>AC Repair</h3><p>AC servicing, repair, installation and gas refill.</p></div>
+      <div class="service-card"><div class="icon">🪚</div><h3>Carpenter</h3><p>Furniture repair, door fitting and wood work.</p></div>
+      <div class="service-card"><div class="icon">🚗</div><h3>Driver</h3><p>Local driver and personal driver services.</p></div>
+      <div class="service-card"><div class="icon">🌱</div><h3>Gardener</h3><p>Garden cleaning, plant care and maintenance.</p></div>
+      <div class="service-card"><div class="icon">🛡️</div><h3>Security Guard</h3><p>Home, office and event security support.</p></div>
+      <div class="service-card"><div class="icon">🏠</div><h3>House Helper</h3><p>Daily home help and household assistance.</p></div>
+      <div class="service-card"><div class="icon">🧺</div><h3>Maid</h3><p>Cleaning, washing and daily household support.</p></div>
+      <div class="service-card"><div class="icon">🛠️</div><h3>Mechanic</h3><p>Bike, car and machine repair support.</p></div>
+      <div class="service-card"><div class="icon">📱</div><h3>Mobile Repair</h3><p>Screen, battery, charging and software issues.</p></div>
+      <div class="service-card"><div class="icon">💻</div><h3>Computer Repair</h3><p>Laptop, desktop, software and hardware repair.</p></div>
+      <div class="service-card"><div class="icon">📷</div><h3>Photographer</h3><p>Event, wedding, product and personal photography.</p></div>
+      <div class="service-card"><div class="icon">💄</div><h3>Makeup Artist</h3><p>Party, bridal and event makeup services.</p></div>
+      <div class="service-card"><div class="icon">🩺</div><h3>Nurse / Caretaker</h3><p>Patient care, elder care and home assistance.</p></div>
+      <div class="service-card"><div class="icon">📦</div><h3>Delivery Boy</h3><p>Local parcel delivery and pickup support.</p></div>
+      <div class="service-card"><div class="icon">🎪</div><h3>Event Helper</h3><p>Event setup, decoration and support staff.</p></div>
     </div>
   </section>
 
@@ -260,33 +141,14 @@
   <section class="section light-bg" id="how">
     <div class="section-title">
       <h2>How KaamConnect Works</h2>
-      <p>Simple booking and worker matching system</p>
+      <p>Simple booking, bidding and worker matching system</p>
     </div>
 
     <div class="steps-container">
-      <div class="step">
-        <span>1</span>
-        <h3>Create Account</h3>
-        <p>Customer or worker creates a free account.</p>
-      </div>
-
-      <div class="step">
-        <span>2</span>
-        <h3>Register / Book</h3>
-        <p>Workers register skills and customers book services.</p>
-      </div>
-
-      <div class="step">
-        <span>3</span>
-        <h3>Auto Match</h3>
-        <p>Firebase matches workers by skill and city.</p>
-      </div>
-
-      <div class="step">
-        <span>4</span>
-        <h3>Review Worker</h3>
-        <p>Customers can rate and review workers.</p>
-      </div>
+      <div class="step"><span>1</span><h3>Create Account</h3><p>Customer or worker creates an account.</p></div>
+      <div class="step"><span>2</span><h3>Post Work</h3><p>Customer posts service need with budget.</p></div>
+      <div class="step"><span>3</span><h3>Workers Bid</h3><p>Workers submit their price offers.</p></div>
+      <div class="step"><span>4</span><h3>Accept Bid</h3><p>Customer accepts the best worker bid.</p></div>
     </div>
   </section>
 
@@ -294,7 +156,7 @@
   <section class="section" id="book">
     <div class="section-title">
       <h2>Book a Worker</h2>
-      <p>Book a trusted worker based on your service and city</p>
+      <p>Post your work and receive worker bids</p>
     </div>
 
     <form class="form-box" id="bookingForm">
@@ -347,6 +209,11 @@
       </div>
 
       <div class="form-group">
+        <label>Your Budget / Expected Price ₹</label>
+        <input type="number" id="customerBudget" placeholder="Example: 500" required />
+      </div>
+
+      <div class="form-group">
         <label>Work Details</label>
         <textarea id="workDetails" placeholder="Explain your work requirement" required></textarea>
       </div>
@@ -359,7 +226,7 @@
     <div class="result-box" id="matchResult"></div>
   </section>
 
-  <!-- Join as Worker Form -->
+  <!-- Join as Worker -->
   <section class="section light-bg" id="join">
     <div class="section-title">
       <h2>Join as Worker</h2>
@@ -436,7 +303,7 @@
   <section class="section" id="worker-dashboard">
     <div class="section-title">
       <h2>Worker Dashboard</h2>
-      <p>Workers can check customer bookings assigned to them</p>
+      <p>Workers can see assigned jobs and open bidding jobs</p>
     </div>
 
     <div class="form-box">
@@ -445,7 +312,9 @@
         <input type="tel" id="dashboardWorkerPhone" placeholder="Enter registered mobile number" />
       </div>
 
-      <button class="btn primary-btn full-btn" id="loadJobsBtn">Load My Jobs</button>
+      <button class="btn primary-btn full-btn" id="loadJobsBtn">Load My Assigned Jobs</button>
+      <br><br>
+      <button class="btn secondary-btn full-btn" id="loadOpenJobsBtn">Find Open Jobs for Bidding</button>
 
       <p class="form-message" id="dashboardMessage"></p>
     </div>
@@ -453,8 +322,29 @@
     <div class="result-box" id="workerJobs"></div>
   </section>
 
-  <!-- Review Section -->
-  <section class="section light-bg" id="reviews">
+  <!-- Customer Bid Dashboard -->
+  <section class="section light-bg" id="customer-bids">
+    <div class="section-title">
+      <h2>Customer Bid Dashboard</h2>
+      <p>Customers can see worker bids and accept the best offer</p>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Enter Customer Mobile Number</label>
+        <input type="tel" id="bidCustomerPhone" placeholder="Enter your booking mobile number" />
+      </div>
+
+      <button class="btn primary-btn full-btn" id="loadCustomerBidsBtn">Load My Bids</button>
+
+      <p class="form-message" id="customerBidMessage"></p>
+    </div>
+
+    <div class="result-box" id="customerBidsResult"></div>
+  </section>
+
+  <!-- Reviews -->
+  <section class="section" id="reviews">
     <div class="section-title">
       <h2>Give Worker Review</h2>
       <p>Rate your worker like Uber / Ola</p>
@@ -490,52 +380,23 @@
   </section>
 
   <!-- Trust Section -->
-  <section class="section" id="trust">
+  <section class="section light-bg" id="trust">
     <div class="section-title">
       <h2>Why Choose KaamConnect?</h2>
-      <p>Built for customers and workers</p>
+      <p>Built for customers and skilled workers</p>
     </div>
 
     <div class="services-grid">
-      <div class="service-card">
-        <div class="icon">✅</div>
-        <h3>Verified Workers</h3>
-        <p>Workers can be verified before assigning real jobs.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">⭐</div>
-        <h3>Ratings & Reviews</h3>
-        <p>Customers can rate workers after service.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">📍</div>
-        <h3>City-Based Matching</h3>
-        <p>Workers are matched by service and city.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">💼</div>
-        <h3>Freelancer Support</h3>
-        <p>Freelancers, part-time and full-time workers can register.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">🔥</div>
-        <h3>Fast Booking</h3>
-        <p>Customers can book a worker in minutes.</p>
-      </div>
-
-      <div class="service-card">
-        <div class="icon">💰</div>
-        <h3>Earn Money</h3>
-        <p>Skilled workers can get local work opportunities.</p>
-      </div>
+      <div class="service-card"><div class="icon">✅</div><h3>Verified Workers</h3><p>Workers can be verified before assigning real jobs.</p></div>
+      <div class="service-card"><div class="icon">⭐</div><h3>Ratings & Reviews</h3><p>Customers can rate workers after service.</p></div>
+      <div class="service-card"><div class="icon">💰</div><h3>Bid System</h3><p>Workers can offer prices and customers can accept bids.</p></div>
+      <div class="service-card"><div class="icon">📍</div><h3>City Matching</h3><p>Workers are matched by service and city.</p></div>
+      <div class="service-card"><div class="icon">💼</div><h3>Freelancer Support</h3><p>Freelancers, part-time and full-time workers can register.</p></div>
+      <div class="service-card"><div class="icon">🔥</div><h3>Fast Booking</h3><p>Customers can post work in minutes.</p></div>
     </div>
   </section>
 
-  <!-- Contact Section -->
+  <!-- Contact -->
   <section class="section contact-section" id="contact">
     <div class="section-title">
       <h2>Contact Us</h2>
@@ -559,10 +420,9 @@
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="footer">
     <p>© 2026 KaamConnect. All Rights Reserved.</p>
-    <p>Professional worker hiring platform.</p>
+    <p>Hire trusted local workers and connect with skilled service providers near you.</p>
   </footer>
 
   <script type="module" src="script.js"></script>
