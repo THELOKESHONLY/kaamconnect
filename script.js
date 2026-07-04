@@ -91,11 +91,12 @@ if (workerForm) {
 
     workerMessage.textContent = "Saving worker registration...";
 
-    const workerNameInput = document.getElementById("workerName");
-    const workerPhoneInput = document.getElementById("workerPhone");
-    const workerSkillInput = document.getElementById("workerSkill");
-    const workerExperienceInput = document.getElementById("workerExperience");
-    const workerCityInput = document.getElementById("workerCity");
+   const workerName = document.getElementById("workerName").value.trim();
+const workerPhone = cleanPhone(document.getElementById("workerPhone").value);
+const workerSkill = document.getElementById("workerSkill").value;
+const workerType = document.getElementById("workerType").value;
+const workerExperience = document.getElementById("workerExperience").value.trim();
+const workerCity = document.getElementById("workerCity").value.trim();
 
     if (!workerNameInput || !workerPhoneInput || !workerSkillInput || !workerExperienceInput || !workerCityInput) {
       workerMessage.textContent = "HTML ID error: Check worker form input IDs.";
@@ -108,10 +109,10 @@ if (workerForm) {
     const workerExperience = workerExperienceInput.value.trim();
     const workerCity = workerCityInput.value.trim();
 
-    if (!workerName || !workerPhone || !workerSkill || !workerExperience || !workerCity) {
-      workerMessage.textContent = "Please fill all worker details.";
-      return;
-    }
+    if (!workerName || !workerPhone || !workerSkill || !workerType || !workerExperience || !workerCity) {
+  workerMessage.textContent = "Please fill all worker details.";
+  return;
+}
 
     if (!isValidPhone(workerPhone)) {
       workerMessage.textContent = "Please enter a valid 10 digit mobile number.";
