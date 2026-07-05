@@ -438,6 +438,29 @@ body {
   color: #e2e8f0;
 }
 
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.auth-tab {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.auth-tab.active {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  border-color: transparent;
+}
+
 .services-grid {
   max-width: 1200px;
   margin: auto;
@@ -536,9 +559,35 @@ body {
   font-weight: 900;
 }
 
-.green-badge {
+.green-badge,
+.verify-badge {
+  display: inline-block;
   color: var(--green);
   background: rgba(22, 163, 74, 0.12);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.pending-badge {
+  display: inline-block;
+  color: var(--yellow);
+  background: rgba(245, 158, 11, 0.12);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.reject-badge {
+  display: inline-block;
+  color: var(--red);
+  background: rgba(220, 38, 38, 0.12);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .worker-card h3 {
@@ -716,6 +765,71 @@ body {
   margin-top: 12px;
 }
 
+.tracking-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.track-step {
+  padding: 12px;
+  border-radius: 14px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 900;
+  text-align: center;
+  font-size: 13px;
+}
+
+.track-step.active {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+}
+
+.admin-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.map-box {
+  max-width: 1100px;
+  margin: 34px auto 0;
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid #e2e8f0;
+}
+
+#workersMap {
+  width: 100%;
+  height: 460px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.map-worker-card {
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 20px;
+  box-shadow: var(--soft-shadow);
+  border: 1px solid #e2e8f0;
+  border-left: 6px solid #f97316;
+  margin-bottom: 18px;
+}
+
+.map-worker-card h3 {
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+
+.map-worker-card p {
+  margin-bottom: 7px;
+}
+
 .contact-section {
   background:
     radial-gradient(circle at top right, rgba(249, 115, 22, 0.18), transparent 32%),
@@ -776,7 +890,8 @@ body {
 .data-card,
 .contact-card,
 .hero-card,
-.account-box {
+.account-box,
+.map-box {
   animation: fadeUp 0.7s ease both;
 }
 
@@ -916,7 +1031,9 @@ body {
 
   .services-grid,
   .worker-grid,
-  .steps-container {
+  .steps-container,
+  .tracking-steps,
+  .admin-actions {
     grid-template-columns: 1fr;
   }
 
@@ -934,6 +1051,10 @@ body {
 
   .worker-meta {
     flex-direction: column;
+  }
+
+  #workersMap {
+    height: 360px;
   }
 
   .mobile-sticky-cta {
@@ -967,94 +1088,5 @@ body {
 
   body {
     padding-bottom: 55px;
-  }
-}
-
-.auth-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.auth-tab {
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #0f172a;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.auth-tab.active {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  color: #ffffff;
-  border-color: transparent;
-}
-
-.tracking-steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin: 18px 0;
-}
-
-.track-step {
-  padding: 12px;
-  border-radius: 14px;
-  background: #f1f5f9;
-  color: #64748b;
-  font-weight: 900;
-  text-align: center;
-  font-size: 13px;
-}
-
-.track-step.active {
-  background: rgba(22, 163, 74, 0.12);
-  color: #16a34a;
-}
-
-.admin-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.verify-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  background: rgba(22, 163, 74, 0.12);
-  color: #16a34a;
-}
-
-.pending-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-}
-
-.reject-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  background: rgba(220, 38, 38, 0.12);
-  color: #dc2626;
-}
-
-@media (max-width: 780px) {
-  .tracking-steps,
-  .admin-actions {
-    grid-template-columns: 1fr;
   }
 }
