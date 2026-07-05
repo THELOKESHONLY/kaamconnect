@@ -706,6 +706,177 @@ body[dir="rtl"] {
   overflow: hidden;
 }
 
+.chat-box {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 26px;
+}
+
+.chat-header {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 18px 22px;
+}
+
+.chat-header h3 {
+  margin-bottom: 6px;
+}
+
+.chat-messages {
+  padding: 22px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: #f8fafc;
+}
+
+.chat-message {
+  max-width: 78%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.chat-message.mine {
+  margin-left: auto;
+  background: #f97316;
+  color: #ffffff;
+}
+
+.chat-message.other {
+  margin-right: auto;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+.chat-message small {
+  display: block;
+  opacity: 0.8;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.chat-input-area {
+  padding: 18px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 18px 0;
+}
+
+.portfolio-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+  min-height: 160px;
+}
+
+.portfolio-item img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.portfolio-placeholder {
+  height: 180px;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+  font-weight: 900;
+}
+
+.availability-pill {
+  display: inline-block;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.availability-pill.available {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+}
+
+.availability-pill.busy {
+  background: rgba(245, 158, 11, 0.13);
+  color: #f59e0b;
+}
+
+.availability-pill.offline {
+  background: rgba(100, 116, 139, 0.13);
+  color: #64748b;
+}
+
+.availability-pill.emergency {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+}
+
+.invoice-card {
+  background: #ffffff;
+  padding: 34px;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.invoice-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+}
+
+.invoice-title {
+  color: #0f172a;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+}
+
+.invoice-table th,
+.invoice-table td {
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.invoice-table th {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.filter-summary {
+  background: #fff7ed;
+  color: #9a3412;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+
 .contact-section {
   background:
     radial-gradient(circle at top right, rgba(249, 115, 22, 0.18), transparent 32%),
@@ -847,7 +1018,8 @@ body[dir="rtl"] {
   .stats-grid,
   .tracking-steps,
   .admin-actions,
-  .admin-panel {
+  .admin-panel,
+  .portfolio-grid {
     grid-template-columns: 1fr;
   }
 
@@ -874,6 +1046,14 @@ body[dir="rtl"] {
 
   #workersMap {
     height: 360px;
+  }
+
+  .chat-message {
+    max-width: 92%;
+  }
+
+  .invoice-top {
+    flex-direction: column;
   }
 
   .mobile-sticky-cta {
