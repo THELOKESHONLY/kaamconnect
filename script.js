@@ -44,6 +44,30 @@ let mapMarkers = [];
 
 const ADMIN_LOGIN_IDS = ["thelokeshonly"];
 
+const SERVICES = [
+  ["⚡", "Electrician", "Fan, light, switchboard and wiring repair."],
+  ["🔧", "Plumber", "Tap repair, leakage, pipe fitting and bathroom work."],
+  ["🧹", "Cleaner", "Home cleaning, office cleaning and deep cleaning."],
+  ["📚", "Tutor", "Home tuition and online tuition for students."],
+  ["🍳", "Cook", "Daily cooking, home food and party cooking."],
+  ["🎨", "Painter", "House painting, wall paint and repair paint work."],
+  ["❄️", "AC Repair", "AC service, repair, installation and gas refill."],
+  ["🪚", "Carpenter", "Furniture repair, door fitting and wood work."],
+  ["🚗", "Driver", "Local driver and personal driver services."],
+  ["🌱", "Gardener", "Garden cleaning, plant care and maintenance."],
+  ["🛡️", "Security Guard", "Home, office and event security support."],
+  ["🏠", "House Helper", "Daily home help and household assistance."],
+  ["🧺", "Maid", "Cleaning, washing and daily household support."],
+  ["🛠️", "Mechanic", "Bike, car and machine repair support."],
+  ["📱", "Mobile Repair", "Screen, battery, charging and software issues."],
+  ["💻", "Computer Repair", "Laptop, desktop, software and hardware repair."],
+  ["📷", "Photographer", "Event, wedding, product and personal photography."],
+  ["💄", "Makeup Artist", "Party, bridal and event makeup services."],
+  ["🩺", "Nurse / Caretaker", "Patient care, elder care and home assistance."],
+  ["📦", "Delivery Boy", "Local parcel delivery and pickup support."],
+  ["🎪", "Event Helper", "Event setup, decoration and support staff."]
+];
+
 const currencySymbols = {
   INR: "₹",
   USD: "$",
@@ -53,21 +77,172 @@ const currencySymbols = {
   AUD: "A$"
 };
 
+const TRANSLATIONS = {
+  en: {
+    home: "Home",
+    login: "Login",
+    services: "Services",
+    trust: "Trust",
+    contact: "Contact",
+    policies: "Policies",
+    report: "Report",
+    customerPortal: "Customer Portal",
+    myBids: "My Bids",
+    tracking: "Tracking",
+    map: "Map",
+    dataControl: "Data Control",
+    reviews: "Reviews",
+    workerProfile: "Worker Profile",
+    workerJobs: "Worker Jobs",
+    admin: "Admin",
+    heroBadge: "Local Work. Trusted Hands.",
+    heroTitle: "Find Trusted Local Workers Anywhere",
+    heroText: "Post your work, compare worker bids, choose the best price, track progress, and hire verified service providers safely.",
+    service: "Service",
+    city: "City",
+    startBooking: "Start Booking",
+    loginStart: "Login to Start",
+    trustSafety: "Trust & Safety",
+    safeHiring: "Safe Hiring System",
+    safeHiringText: "Verified workers, hidden contact, reports and tracking.",
+    secureAccess: "Secure Access",
+    accountAccess: "Account Access",
+    accountText: "Create an account or login with your User ID and password."
+  },
+  hi: {
+    home: "होम",
+    login: "लॉगिन",
+    services: "सेवाएं",
+    trust: "भरोसा",
+    contact: "संपर्क",
+    policies: "पॉलिसी",
+    report: "रिपोर्ट",
+    customerPortal: "कस्टमर पोर्टल",
+    myBids: "मेरी बोलियां",
+    tracking: "ट्रैकिंग",
+    map: "मैप",
+    dataControl: "डेटा कंट्रोल",
+    reviews: "रिव्यू",
+    workerProfile: "वर्कर प्रोफाइल",
+    workerJobs: "वर्कर जॉब्स",
+    admin: "एडमिन",
+    heroBadge: "स्थानीय काम। भरोसेमंद हाथ।",
+    heroTitle: "कहीं भी भरोसेमंद लोकल वर्कर खोजें",
+    heroText: "अपना काम पोस्ट करें, बोलियां देखें, सही कीमत चुनें, प्रोग्रेस ट्रैक करें और सुरक्षित verified वर्कर hire करें।",
+    service: "सेवा",
+    city: "शहर",
+    startBooking: "बुकिंग शुरू करें",
+    loginStart: "शुरू करने के लिए लॉगिन करें",
+    trustSafety: "भरोसा और सुरक्षा",
+    safeHiring: "सुरक्षित हायरिंग सिस्टम",
+    safeHiringText: "Verified workers, hidden contact, reports और tracking.",
+    secureAccess: "सुरक्षित एक्सेस",
+    accountAccess: "अकाउंट एक्सेस",
+    accountText: "User ID और password से अकाउंट बनाएं या login करें।"
+  },
+  es: {
+    home: "Inicio",
+    login: "Acceso",
+    services: "Servicios",
+    trust: "Confianza",
+    contact: "Contacto",
+    policies: "Políticas",
+    report: "Reporte",
+    customerPortal: "Portal Cliente",
+    myBids: "Mis ofertas",
+    tracking: "Seguimiento",
+    map: "Mapa",
+    dataControl: "Datos",
+    reviews: "Reseñas",
+    workerProfile: "Perfil trabajador",
+    workerJobs: "Trabajos",
+    admin: "Admin",
+    heroBadge: "Trabajo local. Manos confiables.",
+    heroTitle: "Encuentra trabajadores locales confiables",
+    heroText: "Publica tu trabajo, compara ofertas, elige el mejor precio, rastrea el progreso y contrata proveedores verificados.",
+    service: "Servicio",
+    city: "Ciudad",
+    startBooking: "Empezar",
+    loginStart: "Iniciar",
+    trustSafety: "Confianza",
+    safeHiring: "Sistema seguro",
+    safeHiringText: "Trabajadores verificados, contacto oculto, reportes y seguimiento.",
+    secureAccess: "Acceso seguro",
+    accountAccess: "Acceso de cuenta",
+    accountText: "Crea una cuenta o inicia sesión con usuario y contraseña."
+  },
+  ar: {
+    home: "الرئيسية",
+    login: "دخول",
+    services: "الخدمات",
+    trust: "الثقة",
+    contact: "اتصال",
+    policies: "السياسات",
+    report: "إبلاغ",
+    customerPortal: "بوابة العميل",
+    myBids: "عروضي",
+    tracking: "تتبع",
+    map: "الخريطة",
+    dataControl: "البيانات",
+    reviews: "التقييمات",
+    workerProfile: "ملف العامل",
+    workerJobs: "وظائف",
+    admin: "المدير",
+    heroBadge: "عمل محلي. أيدٍ موثوقة.",
+    heroTitle: "اعثر على عمال محليين موثوقين",
+    heroText: "انشر عملك، قارن العروض، اختر أفضل سعر، تتبع التقدم، واستأجر مزودي خدمات موثوقين.",
+    service: "الخدمة",
+    city: "المدينة",
+    startBooking: "ابدأ الحجز",
+    loginStart: "تسجيل الدخول",
+    trustSafety: "الثقة والسلامة",
+    safeHiring: "نظام توظيف آمن",
+    safeHiringText: "عمال موثوقون، إخفاء الاتصال، تقارير وتتبع.",
+    secureAccess: "وصول آمن",
+    accountAccess: "الوصول للحساب",
+    accountText: "أنشئ حسابًا أو سجل الدخول باسم المستخدم وكلمة المرور."
+  },
+  fr: {
+    home: "Accueil",
+    login: "Connexion",
+    services: "Services",
+    trust: "Confiance",
+    contact: "Contact",
+    policies: "Politiques",
+    report: "Signaler",
+    customerPortal: "Portail client",
+    myBids: "Mes offres",
+    tracking: "Suivi",
+    map: "Carte",
+    dataControl: "Données",
+    reviews: "Avis",
+    workerProfile: "Profil travailleur",
+    workerJobs: "Travaux",
+    admin: "Admin",
+    heroBadge: "Travail local. Mains fiables.",
+    heroTitle: "Trouvez des travailleurs locaux fiables",
+    heroText: "Publiez votre travail, comparez les offres, choisissez le meilleur prix, suivez l’avancement et embauchez des prestataires vérifiés.",
+    service: "Service",
+    city: "Ville",
+    startBooking: "Commencer",
+    loginStart: "Connexion",
+    trustSafety: "Confiance",
+    safeHiring: "Système sécurisé",
+    safeHiringText: "Travailleurs vérifiés, contact caché, signalements et suivi.",
+    secureAccess: "Accès sécurisé",
+    accountAccess: "Accès au compte",
+    accountText: "Créez un compte ou connectez-vous avec identifiant et mot de passe."
+  }
+};
+
 function cleanText(text = "") {
   return String(text).trim().toLowerCase();
 }
 
 function cleanPhone(phone = "") {
   let digits = String(phone).replace(/\D/g, "");
-
-  if (digits.startsWith("91") && digits.length === 12) {
-    digits = digits.slice(2);
-  }
-
-  if (digits.startsWith("0") && digits.length === 11) {
-    digits = digits.slice(1);
-  }
-
+  if (digits.startsWith("91") && digits.length === 12) digits = digits.slice(2);
+  if (digits.startsWith("0") && digits.length === 11) digits = digits.slice(1);
   return digits;
 }
 
@@ -82,16 +257,12 @@ function getValue(id) {
 
 function showMessage(id, message) {
   const element = document.getElementById(id);
-  if (element) {
-    element.textContent = message;
-  }
+  if (element) element.textContent = message;
 }
 
 function clearForm(formId) {
   const form = document.getElementById(formId);
-  if (form) {
-    form.reset();
-  }
+  if (form) form.reset();
 }
 
 function safeText(value) {
@@ -122,27 +293,15 @@ function formatMoney(amount, currency = selectedCurrency()) {
 
 function maskPhone(phone) {
   const digits = cleanPhone(phone);
-
-  if (!digits || digits.length < 7) {
-    return "Hidden";
-  }
-
+  if (!digits || digits.length < 7) return "Hidden";
   return digits.slice(0, 2) + "XXXX" + digits.slice(-2);
 }
 
 function normalizeLoginEmail(loginId) {
   const raw = String(loginId || "").trim().toLowerCase();
-
-  if (raw.includes("@")) {
-    return raw;
-  }
-
+  if (raw.includes("@")) return raw;
   const cleanId = raw.replace(/\s+/g, "").replace(/[^a-z0-9._-]/g, "");
-
-  if (!cleanId || cleanId.length < 3) {
-    return "";
-  }
-
+  if (!cleanId || cleanId.length < 3) return "";
   return cleanId + "@kaamconnect.local";
 }
 
@@ -151,11 +310,43 @@ function publicLoginId(loginId) {
 }
 
 function isAdminUser() {
-  if (!currentUser || !currentProfile) {
-    return false;
-  }
+  return currentUser && currentProfile && ADMIN_LOGIN_IDS.includes(currentProfile.loginId);
+}
 
-  return ADMIN_LOGIN_IDS.includes(currentProfile.loginId);
+function populateServices() {
+  document.querySelectorAll(".service-select").forEach((select) => {
+    const firstText = select.querySelector("option")?.textContent || "Choose service";
+    select.innerHTML = `<option value="">${firstText}</option>`;
+
+    SERVICES.forEach((item) => {
+      select.innerHTML += `<option>${item[1]}</option>`;
+    });
+  });
+
+  const grid = document.getElementById("servicesGrid");
+
+  if (grid) {
+    grid.innerHTML = SERVICES.map((item) => `
+      <div class="service-card">
+        <div class="icon">${item[0]}</div>
+        <h3>${item[1]}</h3>
+        <p>${item[2]}</p>
+      </div>
+    `).join("");
+  }
+}
+
+function applyLanguage() {
+  const lang = selectedLanguage();
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.en;
+
+  document.documentElement.lang = lang;
+  document.body.dir = lang === "ar" ? "rtl" : "ltr";
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    const key = element.getAttribute("data-i18n");
+    if (dict[key]) element.textContent = dict[key];
+  });
 }
 
 function saveGlobalSettings() {
@@ -169,13 +360,9 @@ function loadGlobalSettings() {
   const currency = localStorage.getItem("kaamconnect_currency");
   const language = localStorage.getItem("kaamconnect_language");
 
-  const countrySelector = document.getElementById("countrySelector");
-  const currencySelector = document.getElementById("currencySelector");
-  const languageSelector = document.getElementById("languageSelector");
-
-  if (countrySelector && country) countrySelector.value = country;
-  if (currencySelector && currency) currencySelector.value = currency;
-  if (languageSelector && language) languageSelector.value = language;
+  if (country && document.getElementById("countrySelector")) document.getElementById("countrySelector").value = country;
+  if (currency && document.getElementById("currencySelector")) document.getElementById("currencySelector").value = currency;
+  if (language && document.getElementById("languageSelector")) document.getElementById("languageSelector").value = language;
 
   applyGlobalSettings();
 }
@@ -185,12 +372,14 @@ function applyGlobalSettings() {
     item.textContent = currencySymbol();
   });
 
-  document.documentElement.lang = selectedLanguage();
+  applyLanguage();
 }
+
+populateServices();
+loadGlobalSettings();
 
 ["countrySelector", "currencySelector", "languageSelector"].forEach((id) => {
   const element = document.getElementById(id);
-
   if (element) {
     element.addEventListener("change", () => {
       saveGlobalSettings();
@@ -198,8 +387,6 @@ function applyGlobalSettings() {
     });
   }
 });
-
-loadGlobalSettings();
 
 const menuBtn = document.getElementById("menuBtn");
 const navLinks = document.getElementById("navLinks");
@@ -212,9 +399,7 @@ if (menuBtn && navLinks) {
 
 document.querySelectorAll(".nav-links a").forEach((link) => {
   link.addEventListener("click", () => {
-    if (navLinks) {
-      navLinks.classList.remove("active");
-    }
+    if (navLinks) navLinks.classList.remove("active");
   });
 });
 
@@ -223,33 +408,21 @@ const showLoginTab = document.getElementById("showLoginTab");
 const signupOnlyFields = document.getElementById("signupOnlyFields");
 
 function setAuthMode(mode) {
-  const authName = document.getElementById("authName");
-  const authRole = document.getElementById("authRole");
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn = document.getElementById("loginBtn");
-
   const isSignup = mode === "signup";
 
   if (signupOnlyFields) signupOnlyFields.classList.toggle("hidden", !isSignup);
   if (signupBtn) signupBtn.classList.toggle("hidden", !isSignup);
   if (loginBtn) loginBtn.classList.toggle("hidden", isSignup);
-
-  if (authName) authName.required = isSignup;
-  if (authRole) authRole.required = isSignup;
-
   if (showSignupTab) showSignupTab.classList.toggle("active", isSignup);
   if (showLoginTab) showLoginTab.classList.toggle("active", !isSignup);
 
   showMessage("authMessage", isSignup ? "Create a new account." : "Login with your User ID and password.");
 }
 
-if (showSignupTab) {
-  showSignupTab.addEventListener("click", () => setAuthMode("signup"));
-}
-
-if (showLoginTab) {
-  showLoginTab.addEventListener("click", () => setAuthMode("login"));
-}
+if (showSignupTab) showSignupTab.addEventListener("click", () => setAuthMode("signup"));
+if (showLoginTab) showLoginTab.addEventListener("click", () => setAuthMode("login"));
 
 setAuthMode("signup");
 
@@ -285,14 +458,10 @@ function setPortalVisibility() {
 
   const displayName = currentProfile?.name || currentUser.email || "User";
   const roleLabel = isAdmin ? "Admin" : currentRole === "worker" ? "Worker / Bidder" : "Customer";
+  const verifiedText = currentProfile?.phoneVerified ? "Phone Verified" : "Phone Pending Verification";
 
-  if (accountNameLine) {
-    accountNameLine.textContent = "Logged in: " + displayName;
-  }
-
-  if (accountRoleLine) {
-    accountRoleLine.textContent = "Active portal: " + roleLabel;
-  }
+  if (accountNameLine) accountNameLine.textContent = "Logged in: " + displayName;
+  if (accountRoleLine) accountRoleLine.textContent = "Active portal: " + roleLabel + " • " + verifiedText;
 }
 
 async function loadUserProfile(user) {
@@ -309,6 +478,9 @@ async function loadUserProfile(user) {
       email: user.email,
       loginId: user.email,
       role: "customer",
+      phone: "",
+      phoneVerified: false,
+      blocked: false,
       country: selectedCountry(),
       currency: selectedCurrency(),
       language: selectedLanguage(),
@@ -316,7 +488,6 @@ async function loadUserProfile(user) {
     };
 
     currentRole = "customer";
-
     await setDoc(userRef, currentProfile, { merge: true });
   }
 
@@ -331,7 +502,6 @@ onAuthStateChanged(auth, async (user) => {
       await loadUserProfile(user);
       showMessage("authMessage", "Logged in successfully.");
     } catch (error) {
-      console.error("Profile load error:", error);
       showMessage("authMessage", "Profile Error: " + error.message);
     }
   } else {
@@ -342,6 +512,53 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
+function requireLogin(messageId) {
+  if (!currentUser) {
+    showMessage(messageId, "Please login first.");
+    return false;
+  }
+
+  if (currentProfile?.blocked === true) {
+    showMessage(messageId, "Your account is blocked. Contact support.");
+    return false;
+  }
+
+  return true;
+}
+
+function requireCustomer(messageId) {
+  if (!requireLogin(messageId)) return false;
+  if (currentRole !== "customer") {
+    showMessage(messageId, "This section is only for customer accounts.");
+    return false;
+  }
+  return true;
+}
+
+function requireWorker(messageId) {
+  if (!requireLogin(messageId)) return false;
+  if (currentRole !== "worker") {
+    showMessage(messageId, "This section is only for worker / bidder accounts.");
+    return false;
+  }
+  return true;
+}
+
+function requireAdmin(messageId) {
+  if (!currentUser || !isAdminUser()) {
+    showMessage(messageId, "Admin access only.");
+    return false;
+  }
+  return true;
+}
+
+async function isPhoneBlocked(phone) {
+  const clean = cleanPhone(phone);
+  if (!clean) return false;
+  const blockSnap = await getDoc(doc(db, "blockedPhones", clean));
+  return blockSnap.exists() && blockSnap.data().active === true;
+}
+
 const signupBtn = document.getElementById("signupBtn");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -349,13 +566,19 @@ const logoutBtn = document.getElementById("logoutBtn");
 if (signupBtn) {
   signupBtn.addEventListener("click", async () => {
     const name = getValue("authName");
+    const phone = cleanPhone(getValue("authPhone"));
     const loginId = publicLoginId(getValue("authUserId"));
     const email = normalizeLoginEmail(loginId);
     const password = getValue("authPassword");
     const role = getValue("authRole");
 
-    if (!name || !loginId || !email || !password || !role) {
-      showMessage("authMessage", "Please fill name, User ID, password and account type.");
+    if (!name || !phone || !loginId || !email || !password || !role) {
+      showMessage("authMessage", "Please fill name, phone, User ID, password and account type.");
+      return;
+    }
+
+    if (!isValidPhone(phone)) {
+      showMessage("authMessage", "Please enter valid mobile number.");
       return;
     }
 
@@ -367,37 +590,43 @@ if (signupBtn) {
     try {
       showMessage("authMessage", "Creating account...");
 
+      const blocked = await isPhoneBlocked(phone);
+
+      if (blocked) {
+        showMessage("authMessage", "This phone number is blocked. Contact support.");
+        return;
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      await setDoc(doc(db, "users", user.uid), {
+      const profile = {
         uid: user.uid,
         name: name,
         email: email,
         loginId: loginId,
+        phone: phone,
         role: role,
+        phoneVerified: false,
+        verificationStatus: "pending",
+        blocked: false,
         country: selectedCountry(),
         currency: selectedCurrency(),
         language: selectedLanguage(),
         createdAt: serverTimestamp()
-      }, { merge: true });
+      };
+
+      await setDoc(doc(db, "users", user.uid), profile, { merge: true });
 
       currentRole = role;
-      currentProfile = {
-        uid: user.uid,
-        name: name,
-        email: email,
-        loginId: loginId,
-        role: role
-      };
+      currentProfile = profile;
 
       setPortalVisibility();
       clearForm("authForm");
 
-      showMessage("authMessage", "Account created. You can start now.");
+      showMessage("authMessage", "Account created. Phone verification is pending admin review.");
 
     } catch (error) {
-      console.error("Signup error:", error);
       showMessage("authMessage", "Signup Error: " + error.message);
     }
   });
@@ -416,14 +645,10 @@ if (loginBtn) {
 
     try {
       showMessage("authMessage", "Logging in...");
-
       await signInWithEmailAndPassword(auth, email, password);
-
       clearForm("authForm");
       showMessage("authMessage", "Login successful.");
-
     } catch (error) {
-      console.error("Login error:", error);
       showMessage("authMessage", "Login Error: " + error.message);
     }
   });
@@ -436,7 +661,6 @@ if (logoutBtn) {
       clearForm("authForm");
       showMessage("authMessage", "Logged out successfully.");
     } catch (error) {
-      console.error("Logout error:", error);
       showMessage("authMessage", "Logout Error: " + error.message);
     }
   });
@@ -459,8 +683,7 @@ if (quickFindBtn) {
     if (customerBudget && budget) customerBudget.value = budget;
 
     if (!currentUser) {
-      const loginSection = document.getElementById("login");
-      if (loginSection) loginSection.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("login")?.scrollIntoView({ behavior: "smooth" });
       showMessage("authMessage", "Login as customer to post a booking.");
       return;
     }
@@ -470,46 +693,8 @@ if (quickFindBtn) {
       return;
     }
 
-    const bookSection = document.getElementById("book");
-    if (bookSection) bookSection.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
   });
-}
-
-function requireCustomer(messageId) {
-  if (!currentUser) {
-    showMessage(messageId, "Please login first.");
-    return false;
-  }
-
-  if (currentRole !== "customer") {
-    showMessage(messageId, "This section is only for customer accounts.");
-    return false;
-  }
-
-  return true;
-}
-
-function requireWorker(messageId) {
-  if (!currentUser) {
-    showMessage(messageId, "Please login first.");
-    return false;
-  }
-
-  if (currentRole !== "worker") {
-    showMessage(messageId, "This section is only for worker / bidder accounts.");
-    return false;
-  }
-
-  return true;
-}
-
-function requireAdmin(messageId) {
-  if (!currentUser || !isAdminUser()) {
-    showMessage(messageId, "Admin access only.");
-    return false;
-  }
-
-  return true;
 }
 
 function getCurrentLocation(messageId) {
@@ -528,21 +713,14 @@ function getCurrentLocation(messageId) {
           lng: Number(position.coords.longitude.toFixed(6))
         });
       },
-      () => {
-        reject(new Error("Location permission denied. Please allow location access."));
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 60000
-      }
+      () => reject(new Error("Location permission denied. Please allow location access.")),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
     );
   });
 }
 
 function calculateDistanceKm(lat1, lng1, lat2, lng2) {
   const earthRadiusKm = 6371;
-
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
 
@@ -553,9 +731,7 @@ function calculateDistanceKm(lat1, lng1, lat2, lng2) {
     Math.sin(dLng / 2) *
     Math.sin(dLng / 2);
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return earthRadiusKm * c;
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function startMap(lat, lng) {
@@ -577,18 +753,12 @@ function startMap(lat, lng) {
     workersMap.setView([lat, lng], 13);
   }
 
-  setTimeout(() => {
-    workersMap.invalidateSize();
-  }, 300);
+  setTimeout(() => workersMap.invalidateSize(), 300);
 }
 
 function clearMapMarkers() {
   if (!workersMap) return;
-
-  mapMarkers.forEach((marker) => {
-    workersMap.removeLayer(marker);
-  });
-
+  mapMarkers.forEach((marker) => workersMap.removeLayer(marker));
   mapMarkers = [];
 }
 
@@ -601,11 +771,8 @@ if (getWorkerLocationBtn) {
     try {
       const location = await getCurrentLocation("workerLocationMessage");
 
-      const workerLatitude = document.getElementById("workerLatitude");
-      const workerLongitude = document.getElementById("workerLongitude");
-
-      if (workerLatitude) workerLatitude.value = location.lat;
-      if (workerLongitude) workerLongitude.value = location.lng;
+      document.getElementById("workerLatitude").value = location.lat;
+      document.getElementById("workerLongitude").value = location.lng;
 
       showMessage("workerLocationMessage", "Location added successfully. Now save your worker profile.");
     } catch (error) {
@@ -632,12 +799,8 @@ if (workerForm) {
     const workerCity = getValue("workerCity");
     const workerCityLower = cleanText(workerCity);
     const workerCountry = selectedCountry();
-
-    const workerLatitudeValue = Number(getValue("workerLatitude"));
-    const workerLongitudeValue = Number(getValue("workerLongitude"));
-
-    const workerLatitude = Number.isFinite(workerLatitudeValue) ? workerLatitudeValue : null;
-    const workerLongitude = Number.isFinite(workerLongitudeValue) ? workerLongitudeValue : null;
+    const lat = Number(getValue("workerLatitude"));
+    const lng = Number(getValue("workerLongitude"));
 
     if (!workerName || !workerPhone || !workerSkill || !workerType || !workerExperience || !workerCity) {
       showMessage("workerMessage", "Please fill all worker details.");
@@ -652,35 +815,30 @@ if (workerForm) {
     try {
       showMessage("workerMessage", "Saving worker profile...");
 
-      const workerRef = doc(db, "workers", workerPhone);
-      const existingWorker = await getDoc(workerRef);
-
-      if (existingWorker.exists()) {
-        const existingData = existingWorker.data();
-
-        if (existingData.userId && existingData.userId !== currentUser.uid) {
-          showMessage("workerMessage", "This phone number is already used by another worker account.");
-          return;
-        }
+      if (await isPhoneBlocked(workerPhone)) {
+        showMessage("workerMessage", "This phone number is blocked. Contact support.");
+        return;
       }
 
-      const oldData = existingWorker.exists() ? existingWorker.data() : {};
+      const workerRef = doc(db, "workers", currentUser.uid);
+      const oldSnap = await getDoc(workerRef);
+      const oldData = oldSnap.exists() ? oldSnap.data() : {};
       const isAlreadyVerified = oldData.verified === true;
 
-      await setDoc(workerRef, {
+      const privateWorker = {
         userId: currentUser.uid,
-        workerName: workerName,
-        workerPhone: workerPhone,
-        workerSkill: workerSkill,
-        workerType: workerType,
-        workerExperience: workerExperience,
+        workerName,
+        workerPhone,
+        workerSkill,
+        workerType,
+        workerExperience,
         workerIdProof: workerIdProof || "Not provided",
         workerAbout: workerAbout || "",
-        workerCity: workerCity,
-        workerCityLower: workerCityLower,
-        workerCountry: workerCountry,
-        workerLatitude: workerLatitude || oldData.workerLatitude || null,
-        workerLongitude: workerLongitude || oldData.workerLongitude || null,
+        workerCity,
+        workerCityLower,
+        workerCountry,
+        workerLatitude: Number.isFinite(lat) ? lat : oldData.workerLatitude || null,
+        workerLongitude: Number.isFinite(lng) ? lng : oldData.workerLongitude || null,
         currency: selectedCurrency(),
         available: true,
         verified: isAlreadyVerified,
@@ -688,20 +846,43 @@ if (workerForm) {
         verificationNote: isAlreadyVerified ? "Verified by admin" : "Waiting for admin verification",
         workerRating: oldData.workerRating || 0,
         totalReviews: oldData.totalReviews || 0,
+        blocked: false,
         updatedAt: serverTimestamp(),
         createdAt: oldData.createdAt || serverTimestamp()
-      }, { merge: true });
+      };
 
-      if (isAlreadyVerified) {
-        showMessage("workerMessage", "Worker profile updated. You can continue bidding.");
-      } else {
-        showMessage("workerMessage", "Worker profile saved. Admin verification is required before bidding.");
-      }
+      const publicWorker = {
+        userId: currentUser.uid,
+        workerName,
+        workerSkill,
+        workerType,
+        workerExperience,
+        workerAbout: workerAbout || "",
+        workerCity,
+        workerCityLower,
+        workerCountry,
+        workerLatitude: privateWorker.workerLatitude,
+        workerLongitude: privateWorker.workerLongitude,
+        available: true,
+        verified: isAlreadyVerified,
+        workerRating: oldData.workerRating || 0,
+        totalReviews: oldData.totalReviews || 0,
+        updatedAt: serverTimestamp()
+      };
+
+      await setDoc(workerRef, privateWorker, { merge: true });
+      await setDoc(doc(db, "workerPublic", currentUser.uid), publicWorker, { merge: true });
+
+      showMessage(
+        "workerMessage",
+        isAlreadyVerified
+          ? "Worker profile updated. You can continue bidding."
+          : "Worker profile saved. Admin verification is required before bidding."
+      );
 
       clearForm("workerForm");
 
     } catch (error) {
-      console.error("Worker error:", error);
       showMessage("workerMessage", "Database Error: " + error.message);
     }
   });
@@ -725,7 +906,7 @@ if (bookingForm) {
     const customerBudget = Number(getValue("customerBudget"));
     const workDetails = getValue("workDetails");
     const customerCountry = selectedCountry();
-    const bookingCurrency = selectedCurrency();
+    const currency = selectedCurrency();
 
     if (matchResult) matchResult.innerHTML = "";
 
@@ -742,42 +923,66 @@ if (bookingForm) {
     try {
       showMessage("bookingMessage", "Posting booking...");
 
-      await addDoc(collection(db, "bookings"), {
+      if (await isPhoneBlocked(customerPhone)) {
+        showMessage("bookingMessage", "This phone number is blocked. Contact support.");
+        return;
+      }
+
+      const privateBooking = {
         customerId: currentUser.uid,
-        customerName: customerName,
-        customerPhone: customerPhone,
-        customerCity: customerCity,
-        customerCityLower: customerCityLower,
-        customerCountry: customerCountry,
-        serviceType: serviceType,
-        customerAddress: customerAddress,
-        customerBudget: customerBudget,
-        currency: bookingCurrency,
-        workDetails: workDetails,
+        customerName,
+        customerPhone,
+        customerCity,
+        customerCityLower,
+        customerCountry,
+        serviceType,
+        customerAddress,
+        customerBudget,
+        currency,
+        workDetails,
         bookingStatus: "pending",
         jobProgress: "posted",
+        paymentStatus: "not_paid",
+        paymentProtection: "coming_soon",
         biddingOpen: true,
         acceptedBidId: "",
         acceptedBidAmount: 0,
-        assignedWorkerId: "",
+        assignedWorkerUserId: "",
         assignedWorkerName: "",
         assignedWorkerPhone: "",
+        createdAt: serverTimestamp()
+      };
+
+      const bookingRef = await addDoc(collection(db, "bookings"), privateBooking);
+
+      await setDoc(doc(db, "publicJobs", bookingRef.id), {
+        bookingId: bookingRef.id,
+        customerId: currentUser.uid,
+        customerName,
+        customerCity,
+        customerCityLower,
+        customerCountry,
+        serviceType,
+        customerBudget,
+        currency,
+        workDetails,
+        bookingStatus: "pending",
+        biddingOpen: true,
         createdAt: serverTimestamp()
       });
 
       const workerSnapshot = await getDocs(
-        query(collection(db, "workers"), where("workerSkill", "==", serviceType))
+        query(collection(db, "workerPublic"), where("workerSkill", "==", serviceType))
       );
 
       let matchedWorkersHtml = "";
 
       workerSnapshot.forEach((workerDoc) => {
         const worker = workerDoc.data();
-        const workerCountry = worker.workerCountry || "India";
 
         if (
           worker.workerCityLower === customerCityLower &&
-          workerCountry === customerCountry &&
+          worker.workerCountry === customerCountry &&
           worker.available === true &&
           worker.verified === true
         ) {
@@ -787,11 +992,10 @@ if (bookingForm) {
               <p><strong>Name:</strong> ${safeText(worker.workerName)}</p>
               <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
               <p><strong>Experience:</strong> ${safeText(worker.workerExperience)}</p>
-              <p><strong>About:</strong> ${safeText(worker.workerAbout || "No details added")}</p>
               <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
               <p><strong>Status:</strong> <span class="verify-badge">Verified</span></p>
               <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
-              <p class="safe-note">Worker contact is hidden until you accept a bid.</p>
+              <p class="safe-note">Worker phone is hidden until you accept a bid.</p>
             </div>
           `;
         }
@@ -806,9 +1010,9 @@ if (bookingForm) {
             <p><strong>Service:</strong> ${safeText(serviceType)}</p>
             <p><strong>City:</strong> ${safeText(customerCity)}</p>
             <p><strong>Country:</strong> ${safeText(customerCountry)}</p>
-            <p><strong>Budget:</strong> ${formatMoney(customerBudget, bookingCurrency)}</p>
+            <p><strong>Budget:</strong> ${formatMoney(customerBudget, currency)}</p>
             <p class="status-open">Status: Open for Bids</p>
-            <p class="safe-note">Your phone and address are hidden until you accept a worker bid.</p>
+            <p class="safe-note">Private phone and address are stored only in your private booking.</p>
           </div>
           ${matchedWorkersHtml}
         `;
@@ -817,34 +1021,24 @@ if (bookingForm) {
       clearForm("bookingForm");
 
     } catch (error) {
-      console.error("Booking error:", error);
       showMessage("bookingMessage", "Database Error: " + error.message);
     }
   });
 }
 
 const loadOpenJobsBtn = document.getElementById("loadOpenJobsBtn");
-const loadJobsBtn = document.getElementById("loadJobsBtn");
 const workerJobs = document.getElementById("workerJobs");
 
 if (loadOpenJobsBtn) {
   loadOpenJobsBtn.addEventListener("click", async () => {
     if (!requireWorker("dashboardMessage")) return;
 
-    const phone = cleanPhone(getValue("dashboardWorkerPhone"));
-
     if (workerJobs) workerJobs.innerHTML = "";
-
-    if (!isValidPhone(phone)) {
-      showMessage("dashboardMessage", "Please enter your registered mobile number.");
-      return;
-    }
 
     try {
       showMessage("dashboardMessage", "Finding open jobs...");
 
-      const workerRef = doc(db, "workers", phone);
-      const workerSnap = await getDoc(workerRef);
+      const workerSnap = await getDoc(doc(db, "workers", currentUser.uid));
 
       if (!workerSnap.exists()) {
         showMessage("dashboardMessage", "Worker profile not found. Save your worker profile first.");
@@ -853,8 +1047,8 @@ if (loadOpenJobsBtn) {
 
       const worker = workerSnap.data();
 
-      if (worker.userId && worker.userId !== currentUser.uid) {
-        showMessage("dashboardMessage", "This worker number is not linked with your login account.");
+      if (worker.blocked === true) {
+        showMessage("dashboardMessage", "Your worker profile is blocked. Contact support.");
         return;
       }
 
@@ -863,22 +1057,20 @@ if (loadOpenJobsBtn) {
         return;
       }
 
-      const openJobsSnapshot = await getDocs(
-        query(collection(db, "bookings"), where("serviceType", "==", worker.workerSkill))
+      const jobsSnapshot = await getDocs(
+        query(collection(db, "publicJobs"), where("serviceType", "==", worker.workerSkill))
       );
 
       let foundJobs = false;
 
-      openJobsSnapshot.forEach((jobDoc) => {
+      jobsSnapshot.forEach((jobDoc) => {
         const job = jobDoc.data();
-        const jobCountry = job.customerCountry || "India";
-        const workerCountry = worker.workerCountry || "India";
 
         if (
           job.bookingStatus === "pending" &&
           job.biddingOpen === true &&
           job.customerCityLower === worker.workerCityLower &&
-          jobCountry === workerCountry
+          job.customerCountry === worker.workerCountry
         ) {
           foundJobs = true;
 
@@ -887,13 +1079,11 @@ if (loadOpenJobsBtn) {
               <div class="data-card">
                 <h3>Open Job for Bidding</h3>
                 <p><strong>Customer:</strong> ${safeText(job.customerName)}</p>
-                <p><strong>Customer Phone:</strong> ${maskPhone(job.customerPhone)}</p>
                 <p><strong>Service:</strong> ${safeText(job.serviceType)}</p>
                 <p><strong>City:</strong> ${safeText(job.customerCity)}</p>
-                <p><strong>Country:</strong> ${safeText(jobCountry)}</p>
                 <p><strong>Work Details:</strong> ${safeText(job.workDetails)}</p>
                 <p><strong>Customer Budget:</strong> ${formatMoney(job.customerBudget || 0, job.currency || selectedCurrency())}</p>
-                <p class="safe-note">Full address and phone unlock only if customer accepts your bid.</p>
+                <p class="safe-note">Customer phone and address are hidden until your bid is accepted.</p>
 
                 <div class="form-group">
                   <label>Your Bid Amount ${currencySymbol(job.currency || selectedCurrency())}</label>
@@ -905,7 +1095,7 @@ if (loadOpenJobsBtn) {
                   <textarea id="bidMessage-${jobDoc.id}" placeholder="Example: I can complete this work today."></textarea>
                 </div>
 
-                <button class="btn primary-btn full-btn" onclick="placeBid('${jobDoc.id}', '${phone}')">
+                <button class="btn primary-btn full-btn" onclick="placeBid('${jobDoc.id}')">
                   Submit Bid
                 </button>
 
@@ -916,19 +1106,15 @@ if (loadOpenJobsBtn) {
         }
       });
 
-      showMessage(
-        "dashboardMessage",
-        foundJobs ? "Open jobs loaded." : "No open jobs found for your skill and city."
-      );
+      showMessage("dashboardMessage", foundJobs ? "Open jobs loaded." : "No open jobs found for your skill and city.");
 
     } catch (error) {
-      console.error("Open jobs error:", error);
       showMessage("dashboardMessage", "Database Error: " + error.message);
     }
   });
 }
 
-window.placeBid = async function (bookingId, workerPhone) {
+window.placeBid = async function (bookingId) {
   if (!requireWorker("dashboardMessage")) return;
 
   const bidAmount = Number(getValue("bidAmount-" + bookingId));
@@ -943,38 +1129,31 @@ window.placeBid = async function (bookingId, workerPhone) {
   try {
     showMessage(statusId, "Submitting bid...");
 
-    const workerRef = doc(db, "workers", workerPhone);
-    const workerSnap = await getDoc(workerRef);
+    const workerSnap = await getDoc(doc(db, "workers", currentUser.uid));
+    const publicWorkerSnap = await getDoc(doc(db, "workerPublic", currentUser.uid));
+    const publicJobSnap = await getDoc(doc(db, "publicJobs", bookingId));
 
-    if (!workerSnap.exists()) {
+    if (!workerSnap.exists() || !publicWorkerSnap.exists()) {
       showMessage(statusId, "Worker profile not found.");
       return;
     }
 
-    const worker = workerSnap.data();
-
-    if (worker.userId && worker.userId !== currentUser.uid) {
-      showMessage(statusId, "This worker profile is not linked with your login.");
+    if (!publicJobSnap.exists()) {
+      showMessage(statusId, "Job not found.");
       return;
     }
+
+    const worker = workerSnap.data();
+    const publicWorker = publicWorkerSnap.data();
+    const job = publicJobSnap.data();
 
     if (worker.verified !== true) {
       showMessage(statusId, "Admin verification required before bidding.");
       return;
     }
 
-    const bookingRef = doc(db, "bookings", bookingId);
-    const bookingSnap = await getDoc(bookingRef);
-
-    if (!bookingSnap.exists()) {
-      showMessage(statusId, "Booking not found.");
-      return;
-    }
-
-    const booking = bookingSnap.data();
-
-    if (booking.bookingStatus !== "pending" || booking.biddingOpen !== true) {
-      showMessage(statusId, "This booking is no longer open for bidding.");
+    if (job.bookingStatus !== "pending" || job.biddingOpen !== true) {
+      showMessage(statusId, "This job is no longer open for bidding.");
       return;
     }
 
@@ -986,10 +1165,7 @@ window.placeBid = async function (bookingId, workerPhone) {
 
     existingBidSnapshot.forEach((bidDoc) => {
       const bid = bidDoc.data();
-
-      if (bid.workerPhone === workerPhone) {
-        alreadyBid = true;
-      }
+      if (bid.workerUserId === currentUser.uid) alreadyBid = true;
     });
 
     if (alreadyBid) {
@@ -998,18 +1174,17 @@ window.placeBid = async function (bookingId, workerPhone) {
     }
 
     await addDoc(collection(db, "bids"), {
-      bookingId: bookingId,
+      bookingId,
       workerUserId: currentUser.uid,
-      workerPhone: workerPhone,
-      workerName: worker.workerName,
-      workerSkill: worker.workerSkill,
-      workerCity: worker.workerCity,
-      workerCountry: worker.workerCountry || selectedCountry(),
-      workerRating: worker.workerRating || 0,
-      totalReviews: worker.totalReviews || 0,
-      bidAmount: bidAmount,
-      currency: booking.currency || selectedCurrency(),
-      bidMessage: bidMessage,
+      workerName: publicWorker.workerName,
+      workerSkill: publicWorker.workerSkill,
+      workerCity: publicWorker.workerCity,
+      workerCountry: publicWorker.workerCountry,
+      workerRating: publicWorker.workerRating || 0,
+      totalReviews: publicWorker.totalReviews || 0,
+      bidAmount,
+      currency: job.currency || selectedCurrency(),
+      bidMessage,
       bidStatus: "pending",
       createdAt: serverTimestamp()
     });
@@ -1017,146 +1192,7 @@ window.placeBid = async function (bookingId, workerPhone) {
     showMessage(statusId, "Bid submitted successfully.");
 
   } catch (error) {
-    console.error("Bid error:", error);
     showMessage(statusId, "Database Error: " + error.message);
-  }
-};
-
-if (loadJobsBtn) {
-  loadJobsBtn.addEventListener("click", async () => {
-    if (!requireWorker("dashboardMessage")) return;
-
-    const phone = cleanPhone(getValue("dashboardWorkerPhone"));
-
-    if (workerJobs) workerJobs.innerHTML = "";
-
-    if (!isValidPhone(phone)) {
-      showMessage("dashboardMessage", "Please enter valid registered mobile number.");
-      return;
-    }
-
-    try {
-      showMessage("dashboardMessage", "Loading assigned jobs...");
-
-      const workerRef = doc(db, "workers", phone);
-      const workerSnap = await getDoc(workerRef);
-
-      if (!workerSnap.exists()) {
-        showMessage("dashboardMessage", "Worker profile not found.");
-        return;
-      }
-
-      const worker = workerSnap.data();
-
-      if (worker.userId && worker.userId !== currentUser.uid) {
-        showMessage("dashboardMessage", "This worker number is not linked with your login account.");
-        return;
-      }
-
-      const jobsSnapshot = await getDocs(
-        query(collection(db, "bookings"), where("assignedWorkerPhone", "==", phone))
-      );
-
-      if (jobsSnapshot.empty) {
-        showMessage("dashboardMessage", "No assigned jobs found.");
-        return;
-      }
-
-      jobsSnapshot.forEach((jobDoc) => {
-        const job = jobDoc.data();
-
-        if (workerJobs) {
-          workerJobs.innerHTML += `
-            <div class="data-card">
-              <h3>Assigned Customer Booking</h3>
-              <p><strong>Customer Name:</strong> ${safeText(job.customerName)}</p>
-              <p><strong>Customer Phone:</strong> ${safeText(job.customerPhone)}</p>
-              <p><strong>Service:</strong> ${safeText(job.serviceType)}</p>
-              <p><strong>City:</strong> ${safeText(job.customerCity)}</p>
-              <p><strong>Full Address:</strong> ${safeText(job.customerAddress)}</p>
-              <p><strong>Budget:</strong> ${formatMoney(job.customerBudget || 0, job.currency || selectedCurrency())}</p>
-              <p><strong>Accepted Amount:</strong> ${formatMoney(job.acceptedBidAmount || 0, job.currency || selectedCurrency())}</p>
-              <p><strong>Work Details:</strong> ${safeText(job.workDetails)}</p>
-              <p><strong>Progress:</strong> ${safeText(job.jobProgress || "assigned")}</p>
-              <p class="status-assigned">Status: Assigned</p>
-
-              <div class="admin-actions">
-                <button class="btn secondary-btn" onclick="updateJobProgress('${jobDoc.id}', 'on_the_way')">On The Way</button>
-                <button class="btn secondary-btn" onclick="updateJobProgress('${jobDoc.id}', 'started')">Work Started</button>
-                <button class="btn primary-btn" onclick="updateJobProgress('${jobDoc.id}', 'completed')">Completed</button>
-                <button class="btn outline-btn" onclick="updateJobProgress('${jobDoc.id}', 'cancelled')">Cancel</button>
-              </div>
-
-              <p class="form-message" id="progressStatus-${jobDoc.id}"></p>
-            </div>
-          `;
-        }
-      });
-
-      showMessage("dashboardMessage", "Assigned jobs loaded.");
-
-    } catch (error) {
-      console.error("Assigned jobs error:", error);
-      showMessage("dashboardMessage", "Database Error: " + error.message);
-    }
-  });
-}
-
-window.updateJobProgress = async function (bookingId, progress) {
-  if (!requireWorker("dashboardMessage")) return;
-
-  try {
-    const bookingRef = doc(db, "bookings", bookingId);
-    const bookingSnap = await getDoc(bookingRef);
-
-    if (!bookingSnap.exists()) {
-      showMessage("progressStatus-" + bookingId, "Booking not found.");
-      return;
-    }
-
-    const booking = bookingSnap.data();
-
-    if (!booking.assignedWorkerPhone) {
-      showMessage("progressStatus-" + bookingId, "No assigned worker found.");
-      return;
-    }
-
-    const workerSnap = await getDoc(doc(db, "workers", booking.assignedWorkerPhone));
-
-    if (!workerSnap.exists()) {
-      showMessage("progressStatus-" + bookingId, "Worker profile not found.");
-      return;
-    }
-
-    const worker = workerSnap.data();
-
-    if (worker.userId !== currentUser.uid) {
-      showMessage("progressStatus-" + bookingId, "You can update only your assigned jobs.");
-      return;
-    }
-
-    const updateData = {
-      jobProgress: progress,
-      updatedAt: serverTimestamp()
-    };
-
-    if (progress === "completed") {
-      updateData.bookingStatus = "completed";
-      updateData.biddingOpen = false;
-    }
-
-    if (progress === "cancelled") {
-      updateData.bookingStatus = "cancelled";
-      updateData.biddingOpen = false;
-    }
-
-    await updateDoc(bookingRef, updateData);
-
-    showMessage("progressStatus-" + bookingId, "Progress updated: " + progress);
-
-  } catch (error) {
-    console.error("Progress error:", error);
-    showMessage("progressStatus-" + bookingId, "Database Error: " + error.message);
   }
 };
 
@@ -1190,38 +1226,32 @@ if (loadCustomerBidsBtn) {
           query(collection(db, "bids"), where("bookingId", "==", bookingDoc.id))
         );
 
-        if (customerBidsResult) {
-          customerBidsResult.innerHTML += `
-            <div class="data-card">
-              <h3>Your Booking</h3>
-              <p><strong>Service:</strong> ${safeText(booking.serviceType)}</p>
-              <p><strong>City:</strong> ${safeText(booking.customerCity)}</p>
-              <p><strong>Budget:</strong> ${formatMoney(booking.customerBudget || 0, booking.currency || selectedCurrency())}</p>
-              <p><strong>Status:</strong> ${safeText(booking.bookingStatus)}</p>
-              <p><strong>Progress:</strong> ${safeText(booking.jobProgress || "posted")}</p>
-              <p class="safe-note">Worker phone is hidden until you accept a bid.</p>
-            </div>
-          `;
-        }
+        customerBidsResult.innerHTML += `
+          <div class="data-card">
+            <h3>Your Booking</h3>
+            <p><strong>Service:</strong> ${safeText(booking.serviceType)}</p>
+            <p><strong>City:</strong> ${safeText(booking.customerCity)}</p>
+            <p><strong>Budget:</strong> ${formatMoney(booking.customerBudget || 0, booking.currency || selectedCurrency())}</p>
+            <p><strong>Status:</strong> ${safeText(booking.bookingStatus)}</p>
+            <p><strong>Progress:</strong> ${safeText(booking.jobProgress || "posted")}</p>
+            <p><strong>Payment:</strong> ${safeText(booking.paymentStatus || "not_paid")}</p>
+            <p class="safe-note">Worker phone unlocks after accepting a bid.</p>
+          </div>
+        `;
 
-        if (!bidSnapshot.empty) {
-          foundAnyBid = true;
-        }
+        if (!bidSnapshot.empty) foundAnyBid = true;
 
         bidSnapshot.forEach((bidDoc) => {
           const bid = bidDoc.data();
 
-          const isAcceptedBid =
-            booking.acceptedBidId === bidDoc.id ||
-            bid.bidStatus === "accepted";
-
+          const isAcceptedBid = booking.acceptedBidId === bidDoc.id || bid.bidStatus === "accepted";
           const canAccept =
             booking.bookingStatus === "pending" &&
             booking.biddingOpen === true &&
             bid.bidStatus === "pending";
 
-          const phoneHtml = isAcceptedBid
-            ? `<p><strong>Worker Phone:</strong> ${safeText(bid.workerPhone)}</p>`
+          const phoneHtml = isAcceptedBid && booking.assignedWorkerPhone
+            ? `<p><strong>Worker Phone:</strong> ${safeText(booking.assignedWorkerPhone)}</p>`
             : `<p><strong>Worker Phone:</strong> Hidden until accepted</p>`;
 
           const actionHtml = canAccept
@@ -1230,33 +1260,27 @@ if (loadCustomerBidsBtn) {
               ? `<p class="status-accepted">This bid is accepted.</p>`
               : `<p class="status-rejected">Closed or another bid accepted.</p>`;
 
-          if (customerBidsResult) {
-            customerBidsResult.innerHTML += `
-              <div class="data-card">
-                <h3>Worker Bid</h3>
-                <p><strong>Worker:</strong> ${safeText(bid.workerName)}</p>
-                <p><strong>Skill:</strong> ${safeText(bid.workerSkill)}</p>
-                <p><strong>City:</strong> ${safeText(bid.workerCity)}</p>
-                <p><strong>Rating:</strong> ${bid.workerRating || 0} ⭐ (${bid.totalReviews || 0} reviews)</p>
-                <p><strong>Bid Amount:</strong> ${formatMoney(bid.bidAmount, bid.currency || booking.currency || selectedCurrency())}</p>
-                <p><strong>Message:</strong> ${safeText(bid.bidMessage || "No message")}</p>
-                <p><strong>Bid Status:</strong> ${safeText(bid.bidStatus)}</p>
-                ${phoneHtml}
-                ${actionHtml}
-                <p class="form-message" id="acceptStatus-${bidDoc.id}"></p>
-              </div>
-            `;
-          }
+          customerBidsResult.innerHTML += `
+            <div class="data-card">
+              <h3>Worker Bid</h3>
+              <p><strong>Worker:</strong> ${safeText(bid.workerName)}</p>
+              <p><strong>Skill:</strong> ${safeText(bid.workerSkill)}</p>
+              <p><strong>City:</strong> ${safeText(bid.workerCity)}</p>
+              <p><strong>Rating:</strong> ${bid.workerRating || 0} ⭐ (${bid.totalReviews || 0} reviews)</p>
+              <p><strong>Bid Amount:</strong> ${formatMoney(bid.bidAmount, bid.currency || booking.currency || selectedCurrency())}</p>
+              <p><strong>Message:</strong> ${safeText(bid.bidMessage || "No message")}</p>
+              <p><strong>Bid Status:</strong> ${safeText(bid.bidStatus)}</p>
+              ${phoneHtml}
+              ${actionHtml}
+              <p class="form-message" id="acceptStatus-${bidDoc.id}"></p>
+            </div>
+          `;
         });
       }
 
-      showMessage(
-        "customerBidMessage",
-        foundAnyBid ? "Bids loaded successfully." : "Bookings loaded. No bids received yet."
-      );
+      showMessage("customerBidMessage", foundAnyBid ? "Bids loaded successfully." : "Bookings loaded. No bids received yet.");
 
     } catch (error) {
-      console.error("Customer bids error:", error);
       showMessage("customerBidMessage", "Database Error: " + error.message);
     }
   });
@@ -1269,28 +1293,27 @@ window.acceptBid = async function (bookingId, bidId) {
     showMessage("acceptStatus-" + bidId, "Accepting bid...");
 
     const bookingRef = doc(db, "bookings", bookingId);
+    const publicJobRef = doc(db, "publicJobs", bookingId);
     const bidRef = doc(db, "bids", bidId);
 
     const bookingSnap = await getDoc(bookingRef);
     const bidSnap = await getDoc(bidRef);
 
-    if (!bookingSnap.exists()) {
-      showMessage("acceptStatus-" + bidId, "Booking not found.");
-      return;
-    }
-
-    if (!bidSnap.exists()) {
-      showMessage("acceptStatus-" + bidId, "Bid not found.");
+    if (!bookingSnap.exists() || !bidSnap.exists()) {
+      showMessage("acceptStatus-" + bidId, "Booking or bid not found.");
       return;
     }
 
     const booking = bookingSnap.data();
     const bid = bidSnap.data();
 
-    if (booking.customerId && booking.customerId !== currentUser.uid) {
+    if (booking.customerId !== currentUser.uid) {
       showMessage("acceptStatus-" + bidId, "You can accept only your own booking bids.");
       return;
     }
+
+    const workerPrivateSnap = await getDoc(doc(db, "workers", bid.workerUserId));
+    const workerPrivate = workerPrivateSnap.exists() ? workerPrivateSnap.data() : {};
 
     await updateDoc(bookingRef, {
       bookingStatus: "assigned",
@@ -1298,9 +1321,24 @@ window.acceptBid = async function (bookingId, bidId) {
       biddingOpen: false,
       acceptedBidId: bidId,
       acceptedBidAmount: Number(bid.bidAmount || 0),
-      assignedWorkerId: bid.workerPhone,
+      assignedWorkerUserId: bid.workerUserId,
       assignedWorkerName: bid.workerName,
-      assignedWorkerPhone: bid.workerPhone
+      assignedWorkerPhone: workerPrivate.workerPhone || "",
+      updatedAt: serverTimestamp()
+    });
+
+    await updateDoc(publicJobRef, {
+      bookingStatus: "assigned",
+      biddingOpen: false,
+      assignedWorkerUserId: bid.workerUserId,
+      updatedAt: serverTimestamp()
+    });
+
+    await setDoc(doc(db, "contactAccess", currentUser.uid + "_" + bid.workerUserId), {
+      customerId: currentUser.uid,
+      workerUserId: bid.workerUserId,
+      bookingId,
+      createdAt: serverTimestamp()
     });
 
     const allBidsSnapshot = await getDocs(
@@ -1308,18 +1346,116 @@ window.acceptBid = async function (bookingId, bidId) {
     );
 
     for (const bidDocument of allBidsSnapshot.docs) {
-      if (bidDocument.id === bidId) {
-        await updateDoc(bidDocument.ref, { bidStatus: "accepted" });
-      } else {
-        await updateDoc(bidDocument.ref, { bidStatus: "rejected" });
-      }
+      await updateDoc(bidDocument.ref, {
+        bidStatus: bidDocument.id === bidId ? "accepted" : "rejected"
+      });
     }
 
     showMessage("acceptStatus-" + bidId, "Bid accepted. Worker contact is now unlocked.");
 
   } catch (error) {
-    console.error("Accept bid error:", error);
     showMessage("acceptStatus-" + bidId, "Database Error: " + error.message);
+  }
+};
+
+const loadJobsBtn = document.getElementById("loadJobsBtn");
+
+if (loadJobsBtn) {
+  loadJobsBtn.addEventListener("click", async () => {
+    if (!requireWorker("dashboardMessage")) return;
+
+    if (workerJobs) workerJobs.innerHTML = "";
+
+    try {
+      showMessage("dashboardMessage", "Loading assigned jobs...");
+
+      const jobsSnapshot = await getDocs(
+        query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid))
+      );
+
+      if (jobsSnapshot.empty) {
+        showMessage("dashboardMessage", "No assigned jobs found.");
+        return;
+      }
+
+      jobsSnapshot.forEach((jobDoc) => {
+        const job = jobDoc.data();
+
+        workerJobs.innerHTML += `
+          <div class="data-card">
+            <h3>Assigned Customer Booking</h3>
+            <p><strong>Customer Name:</strong> ${safeText(job.customerName)}</p>
+            <p><strong>Customer Phone:</strong> ${safeText(job.customerPhone)}</p>
+            <p><strong>Service:</strong> ${safeText(job.serviceType)}</p>
+            <p><strong>City:</strong> ${safeText(job.customerCity)}</p>
+            <p><strong>Full Address:</strong> ${safeText(job.customerAddress)}</p>
+            <p><strong>Budget:</strong> ${formatMoney(job.customerBudget || 0, job.currency || selectedCurrency())}</p>
+            <p><strong>Accepted Amount:</strong> ${formatMoney(job.acceptedBidAmount || 0, job.currency || selectedCurrency())}</p>
+            <p><strong>Work Details:</strong> ${safeText(job.workDetails)}</p>
+            <p><strong>Progress:</strong> ${safeText(job.jobProgress || "assigned")}</p>
+
+            <div class="admin-actions">
+              <button class="btn secondary-btn" onclick="updateJobProgress('${jobDoc.id}', 'on_the_way')">On The Way</button>
+              <button class="btn secondary-btn" onclick="updateJobProgress('${jobDoc.id}', 'started')">Work Started</button>
+              <button class="btn primary-btn" onclick="updateJobProgress('${jobDoc.id}', 'completed')">Completed</button>
+              <button class="btn outline-btn" onclick="updateJobProgress('${jobDoc.id}', 'cancelled')">Cancel</button>
+            </div>
+
+            <p class="form-message" id="progressStatus-${jobDoc.id}"></p>
+          </div>
+        `;
+      });
+
+      showMessage("dashboardMessage", "Assigned jobs loaded.");
+
+    } catch (error) {
+      showMessage("dashboardMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+window.updateJobProgress = async function (bookingId, progress) {
+  if (!requireWorker("dashboardMessage")) return;
+
+  try {
+    const bookingRef = doc(db, "bookings", bookingId);
+    const publicJobRef = doc(db, "publicJobs", bookingId);
+    const bookingSnap = await getDoc(bookingRef);
+
+    if (!bookingSnap.exists()) {
+      showMessage("progressStatus-" + bookingId, "Booking not found.");
+      return;
+    }
+
+    const booking = bookingSnap.data();
+
+    if (booking.assignedWorkerUserId !== currentUser.uid) {
+      showMessage("progressStatus-" + bookingId, "You can update only your assigned jobs.");
+      return;
+    }
+
+    const updateData = {
+      jobProgress: progress,
+      updatedAt: serverTimestamp()
+    };
+
+    if (progress === "completed") {
+      updateData.bookingStatus = "completed";
+      updateData.biddingOpen = false;
+    }
+
+    if (progress === "cancelled") {
+      updateData.bookingStatus = "cancelled";
+      updateData.biddingOpen = false;
+    }
+
+    await updateDoc(bookingRef, updateData);
+    await updateDoc(publicJobRef, updateData);
+
+    showMessage("progressStatus-" + bookingId, "Progress updated: " + progress);
+
+  } catch (error) {
+    showMessage("progressStatus-" + bookingId, "Database Error: " + error.message);
   }
 };
 
@@ -1375,27 +1511,24 @@ if (loadTrackingBtn) {
           ? `<p><strong>Worker Phone:</strong> ${safeText(booking.assignedWorkerPhone)}</p>`
           : `<p><strong>Worker Phone:</strong> Hidden until bid accepted</p>`;
 
-        if (trackingResult) {
-          trackingResult.innerHTML += `
-            <div class="data-card">
-              <h3>Booking Tracking</h3>
-              <p><strong>Service:</strong> ${safeText(booking.serviceType)}</p>
-              <p><strong>City:</strong> ${safeText(booking.customerCity)}</p>
-              <p><strong>Budget:</strong> ${formatMoney(booking.customerBudget || 0, booking.currency || selectedCurrency())}</p>
-              <p><strong>Status:</strong> ${safeText(booking.bookingStatus)}</p>
-              <p><strong>Progress:</strong> ${safeText(booking.jobProgress || "posted")}</p>
-              <p><strong>Assigned Worker:</strong> ${safeText(booking.assignedWorkerName || "Not assigned yet")}</p>
-              ${workerPhoneHtml}
-              ${trackingSteps(booking.jobProgress, booking.bookingStatus)}
-            </div>
-          `;
-        }
+        trackingResult.innerHTML += `
+          <div class="data-card">
+            <h3>Booking Tracking</h3>
+            <p><strong>Service:</strong> ${safeText(booking.serviceType)}</p>
+            <p><strong>City:</strong> ${safeText(booking.customerCity)}</p>
+            <p><strong>Budget:</strong> ${formatMoney(booking.customerBudget || 0, booking.currency || selectedCurrency())}</p>
+            <p><strong>Status:</strong> ${safeText(booking.bookingStatus)}</p>
+            <p><strong>Progress:</strong> ${safeText(booking.jobProgress || "posted")}</p>
+            <p><strong>Assigned Worker:</strong> ${safeText(booking.assignedWorkerName || "Not assigned yet")}</p>
+            ${workerPhoneHtml}
+            ${trackingSteps(booking.jobProgress, booking.bookingStatus)}
+          </div>
+        `;
       });
 
       showMessage("trackingMessage", "Tracking loaded.");
 
     } catch (error) {
-      console.error("Tracking error:", error);
       showMessage("trackingMessage", "Database Error: " + error.message);
     }
   });
@@ -1422,9 +1555,7 @@ if (findNearbyWorkersBtn) {
       startMap(customerLocation.lat, customerLocation.lng);
       clearMapMarkers();
 
-      if (nearbyWorkersList) {
-        nearbyWorkersList.innerHTML = "";
-      }
+      if (nearbyWorkersList) nearbyWorkersList.innerHTML = "";
 
       const Leaflet = window.L;
 
@@ -1435,7 +1566,7 @@ if (findNearbyWorkersBtn) {
       mapMarkers.push(customerMarker);
 
       const workerSnapshot = await getDocs(
-        query(collection(db, "workers"), where("workerSkill", "==", serviceType))
+        query(collection(db, "workerPublic"), where("workerSkill", "==", serviceType))
       );
 
       const nearbyWorkers = [];
@@ -1457,11 +1588,7 @@ if (findNearbyWorkersBtn) {
           );
 
           if (distance <= radiusKm) {
-            nearbyWorkers.push({
-              id: workerDoc.id,
-              ...worker,
-              distance: distance
-            });
+            nearbyWorkers.push({ id: workerDoc.id, ...worker, distance });
           }
         }
       });
@@ -1488,168 +1615,161 @@ if (findNearbyWorkersBtn) {
 
         mapMarkers.push(marker);
 
-        if (nearbyWorkersList) {
-          nearbyWorkersList.innerHTML += `
-            <div class="map-worker-card">
-              <h3>${safeText(worker.workerName)} <span class="verify-badge">Verified</span></h3>
-              <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
-              <p><strong>Work Type:</strong> ${safeText(worker.workerType || "Worker")}</p>
-              <p><strong>Experience:</strong> ${safeText(worker.workerExperience || "Not added")}</p>
-              <p><strong>City:</strong> ${safeText(worker.workerCity || "")}</p>
-              <p><strong>Distance:</strong> ${worker.distance.toFixed(1)} km away</p>
-              <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
-              <p class="safe-note">Phone is hidden. Contact unlocks only after accepted bid.</p>
-            </div>
-          `;
-        }
+        nearbyWorkersList.innerHTML += `
+          <div class="map-worker-card">
+            <h3>${safeText(worker.workerName)} <span class="verify-badge">Verified</span></h3>
+            <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
+            <p><strong>Work Type:</strong> ${safeText(worker.workerType || "Worker")}</p>
+            <p><strong>Experience:</strong> ${safeText(worker.workerExperience || "Not added")}</p>
+            <p><strong>City:</strong> ${safeText(worker.workerCity || "")}</p>
+            <p><strong>Distance:</strong> ${worker.distance.toFixed(1)} km away</p>
+            <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
+            <p class="safe-note">Phone is hidden. Contact unlocks only after accepted bid.</p>
+          </div>
+        `;
       });
 
       showMessage("mapMessage", nearbyWorkers.length + " nearby verified worker(s) found.");
 
     } catch (error) {
-      console.error("Map error:", error);
       showMessage("mapMessage", error.message);
     }
   });
 }
 
-const loadPendingWorkersBtn = document.getElementById("loadPendingWorkersBtn");
-const loadAdminBookingsBtn = document.getElementById("loadAdminBookingsBtn");
-const adminResult = document.getElementById("adminResult");
+const loadMyDataBtn = document.getElementById("loadMyDataBtn");
+const removeMyLocationBtn = document.getElementById("removeMyLocationBtn");
+const requestDeleteAccountBtn = document.getElementById("requestDeleteAccountBtn");
+const dataControlResult = document.getElementById("dataControlResult");
 
-if (loadPendingWorkersBtn) {
-  loadPendingWorkersBtn.addEventListener("click", async () => {
-    if (!requireAdmin("adminMessage")) return;
+if (loadMyDataBtn) {
+  loadMyDataBtn.addEventListener("click", async () => {
+    if (!requireLogin("dataControlMessage")) return;
 
-    if (adminResult) adminResult.innerHTML = "";
+    dataControlResult.innerHTML = "";
 
     try {
-      showMessage("adminMessage", "Loading pending workers...");
+      let workerHtml = "";
 
-      const workerSnapshot = await getDocs(collection(db, "workers"));
+      if (currentRole === "worker") {
+        const workerSnap = await getDoc(doc(db, "workers", currentUser.uid));
 
-      let found = false;
-
-      workerSnapshot.forEach((workerDoc) => {
-        const worker = workerDoc.data();
-
-        if (worker.verified !== true) {
-          found = true;
-
-          if (adminResult) {
-            adminResult.innerHTML += `
-              <div class="data-card">
-                <h3>Worker Verification Request</h3>
-                <p><strong>Name:</strong> ${safeText(worker.workerName)}</p>
-                <p><strong>Phone:</strong> ${safeText(worker.workerPhone)}</p>
-                <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
-                <p><strong>Experience:</strong> ${safeText(worker.workerExperience)}</p>
-                <p><strong>ID Proof:</strong> ${safeText(worker.workerIdProof || "Not provided")}</p>
-                <p><strong>About:</strong> ${safeText(worker.workerAbout || "No details")}</p>
-                <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
-                <p><strong>Location:</strong> ${worker.workerLatitude && worker.workerLongitude ? "Added" : "Not added"}</p>
-                <p><strong>Status:</strong> <span class="pending-badge">${safeText(worker.verificationStatus || "pending")}</span></p>
-
-                <div class="admin-actions">
-                  <button class="btn primary-btn" onclick="adminVerifyWorker('${workerDoc.id}')">Verify Worker</button>
-                  <button class="btn outline-btn" onclick="adminRejectWorker('${workerDoc.id}')">Reject Worker</button>
-                </div>
-
-                <p class="form-message" id="adminWorkerStatus-${workerDoc.id}"></p>
-              </div>
-            `;
-          }
+        if (workerSnap.exists()) {
+          const worker = workerSnap.data();
+          workerHtml = `
+            <h3>Worker Data</h3>
+            <p><strong>Name:</strong> ${safeText(worker.workerName)}</p>
+            <p><strong>Phone:</strong> ${safeText(worker.workerPhone)}</p>
+            <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
+            <p><strong>Verification:</strong> ${safeText(worker.verificationStatus)}</p>
+            <p><strong>Location:</strong> ${worker.workerLatitude ? "Saved" : "Not saved"}</p>
+          `;
         }
-      });
+      }
 
-      showMessage("adminMessage", found ? "Pending workers loaded." : "No pending workers found.");
+      dataControlResult.innerHTML = `
+        <div class="data-card">
+          <h3>My Account Data</h3>
+          <p><strong>Name:</strong> ${safeText(currentProfile.name)}</p>
+          <p><strong>User ID:</strong> ${safeText(currentProfile.loginId)}</p>
+          <p><strong>Phone:</strong> ${safeText(currentProfile.phone)}</p>
+          <p><strong>Role:</strong> ${safeText(currentProfile.role)}</p>
+          <p><strong>Phone Verified:</strong> ${currentProfile.phoneVerified ? "Yes" : "Pending"}</p>
+          <p><strong>Country:</strong> ${safeText(currentProfile.country)}</p>
+          ${workerHtml}
+        </div>
+      `;
+
+      showMessage("dataControlMessage", "Your data loaded.");
 
     } catch (error) {
-      console.error("Admin workers error:", error);
-      showMessage("adminMessage", "Database Error: " + error.message);
+      showMessage("dataControlMessage", "Database Error: " + error.message);
     }
   });
 }
 
-window.adminVerifyWorker = async function (workerId) {
-  if (!requireAdmin("adminMessage")) return;
-
-  try {
-    await updateDoc(doc(db, "workers", workerId), {
-      verified: true,
-      verificationStatus: "verified",
-      verificationNote: "Verified by admin",
-      verifiedAt: serverTimestamp()
-    });
-
-    showMessage("adminWorkerStatus-" + workerId, "Worker verified successfully.");
-
-  } catch (error) {
-    console.error("Verify error:", error);
-    showMessage("adminWorkerStatus-" + workerId, "Database Error: " + error.message);
-  }
-};
-
-window.adminRejectWorker = async function (workerId) {
-  if (!requireAdmin("adminMessage")) return;
-
-  try {
-    await updateDoc(doc(db, "workers", workerId), {
-      verified: false,
-      verificationStatus: "rejected",
-      verificationNote: "Rejected by admin",
-      rejectedAt: serverTimestamp()
-    });
-
-    showMessage("adminWorkerStatus-" + workerId, "Worker rejected.");
-
-  } catch (error) {
-    console.error("Reject error:", error);
-    showMessage("adminWorkerStatus-" + workerId, "Database Error: " + error.message);
-  }
-};
-
-if (loadAdminBookingsBtn) {
-  loadAdminBookingsBtn.addEventListener("click", async () => {
-    if (!requireAdmin("adminMessage")) return;
-
-    if (adminResult) adminResult.innerHTML = "";
+if (removeMyLocationBtn) {
+  removeMyLocationBtn.addEventListener("click", async () => {
+    if (!requireWorker("dataControlMessage")) return;
 
     try {
-      showMessage("adminMessage", "Loading bookings...");
-
-      const bookingSnapshot = await getDocs(collection(db, "bookings"));
-
-      if (bookingSnapshot.empty) {
-        showMessage("adminMessage", "No bookings found.");
-        return;
-      }
-
-      bookingSnapshot.forEach((bookingDoc) => {
-        const booking = bookingDoc.data();
-
-        if (adminResult) {
-          adminResult.innerHTML += `
-            <div class="data-card">
-              <h3>Booking</h3>
-              <p><strong>Customer:</strong> ${safeText(booking.customerName)}</p>
-              <p><strong>Phone:</strong> ${safeText(booking.customerPhone)}</p>
-              <p><strong>Service:</strong> ${safeText(booking.serviceType)}</p>
-              <p><strong>City:</strong> ${safeText(booking.customerCity)}</p>
-              <p><strong>Budget:</strong> ${formatMoney(booking.customerBudget || 0, booking.currency || selectedCurrency())}</p>
-              <p><strong>Status:</strong> ${safeText(booking.bookingStatus)}</p>
-              <p><strong>Progress:</strong> ${safeText(booking.jobProgress || "posted")}</p>
-              <p><strong>Assigned Worker:</strong> ${safeText(booking.assignedWorkerName || "Not assigned")}</p>
-            </div>
-          `;
-        }
+      await updateDoc(doc(db, "workers", currentUser.uid), {
+        workerLatitude: null,
+        workerLongitude: null,
+        updatedAt: serverTimestamp()
       });
 
-      showMessage("adminMessage", "Bookings loaded.");
+      await updateDoc(doc(db, "workerPublic", currentUser.uid), {
+        workerLatitude: null,
+        workerLongitude: null,
+        updatedAt: serverTimestamp()
+      });
+
+      showMessage("dataControlMessage", "Worker location removed successfully.");
 
     } catch (error) {
-      console.error("Admin bookings error:", error);
-      showMessage("adminMessage", "Database Error: " + error.message);
+      showMessage("dataControlMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+if (requestDeleteAccountBtn) {
+  requestDeleteAccountBtn.addEventListener("click", async () => {
+    if (!requireLogin("dataControlMessage")) return;
+
+    try {
+      await addDoc(collection(db, "deletionRequests"), {
+        userId: currentUser.uid,
+        name: currentProfile.name || "",
+        loginId: currentProfile.loginId || "",
+        phone: currentProfile.phone || "",
+        role: currentProfile.role || "",
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
+
+      showMessage("dataControlMessage", "Account deletion request submitted.");
+
+    } catch (error) {
+      showMessage("dataControlMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+const reportForm = document.getElementById("reportForm");
+
+if (reportForm) {
+  reportForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!requireLogin("reportMessage")) return;
+
+    const reportType = getValue("reportType");
+    const reportedIdentity = getValue("reportedIdentity");
+    const reportDetails = getValue("reportDetails");
+
+    if (!reportType || !reportDetails) {
+      showMessage("reportMessage", "Please fill report type and details.");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "reports"), {
+        reporterId: currentUser.uid,
+        reporterName: currentProfile?.name || "",
+        reporterRole: currentProfile?.role || "",
+        reportType,
+        reportedIdentity,
+        reportDetails,
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
+
+      showMessage("reportMessage", "Report submitted. Admin will review it.");
+      clearForm("reportForm");
+
+    } catch (error) {
+      showMessage("reportMessage", "Database Error: " + error.message);
     }
   });
 }
@@ -1671,32 +1791,51 @@ if (reviewForm) {
       return;
     }
 
-    if (!isValidPhone(workerPhone)) {
-      showMessage("reviewMessage", "Please enter valid worker phone number.");
-      return;
-    }
-
     try {
-      showMessage("reviewMessage", "Saving review...");
+      showMessage("reviewMessage", "Checking completed booking...");
+
+      const bookingSnapshot = await getDocs(
+        query(collection(db, "bookings"), where("customerId", "==", currentUser.uid))
+      );
+
+      let matchedBooking = null;
+
+      bookingSnapshot.forEach((bookingDoc) => {
+        const booking = bookingDoc.data();
+
+        if (
+          booking.bookingStatus === "completed" &&
+          cleanPhone(booking.assignedWorkerPhone) === workerPhone
+        ) {
+          matchedBooking = { id: bookingDoc.id, ...booking };
+        }
+      });
+
+      if (!matchedBooking) {
+        showMessage("reviewMessage", "Review allowed only after completed booking with this worker.");
+        return;
+      }
 
       await addDoc(collection(db, "reviews"), {
-        workerPhone: workerPhone,
+        bookingId: matchedBooking.id,
+        workerUserId: matchedBooking.assignedWorkerUserId,
+        workerPhone,
         customerId: currentUser.uid,
         customerName: currentProfile?.name || "",
-        rating: rating,
-        reviewText: reviewText,
+        rating,
+        reviewText,
+        verifiedBookingReview: true,
         createdAt: serverTimestamp()
       });
 
-      const workerRef = doc(db, "workers", workerPhone);
+      const workerRef = doc(db, "workers", matchedBooking.assignedWorkerUserId);
+      const publicWorkerRef = doc(db, "workerPublic", matchedBooking.assignedWorkerUserId);
       const workerSnap = await getDoc(workerRef);
 
       if (workerSnap.exists()) {
         const workerData = workerSnap.data();
-
         const oldRating = workerData.workerRating || 0;
         const oldTotal = workerData.totalReviews || 0;
-
         const newTotal = oldTotal + 1;
         const newRating = ((oldRating * oldTotal) + rating) / newTotal;
 
@@ -1704,250 +1843,314 @@ if (reviewForm) {
           workerRating: Number(newRating.toFixed(1)),
           totalReviews: newTotal
         });
+
+        await updateDoc(publicWorkerRef, {
+          workerRating: Number(newRating.toFixed(1)),
+          totalReviews: newTotal
+        });
       }
 
-      showMessage("reviewMessage", "Review submitted successfully.");
+      showMessage("reviewMessage", "Verified booking review submitted.");
       clearForm("reviewForm");
 
     } catch (error) {
-      console.error("Review error:", error);
       showMessage("reviewMessage", "Database Error: " + error.message);
     }
   });
 }
 
-const KC_TRANSLATIONS = {
-  en: {
-    home: "Home",
-    login: "Login",
-    services: "Services",
-    contact: "Contact",
-    heroBadge: "Local Work. Trusted Hands.",
-    heroTitle: "Find Trusted Local Workers Anywhere",
-    heroText: "Post your work, compare worker bids, choose the best price, track progress, and hire verified service providers safely.",
-    startBooking: "Start Booking",
-    loginStart: "Login to Start",
-    exploreServices: "Explore Services",
-    accountAccess: "Account Access",
-    accountText: "Create an account or login with your User ID and password.",
-    signup: "Sign Up",
-    createAccount: "Create Account",
-    userId: "User ID / Email",
-    password: "Password",
-    popularServices: "Popular Services",
-    customerPortal: "Customer Portal",
-    workerPortal: "Worker Profile",
-    workerJobs: "Worker Jobs",
-    myBids: "My Bids",
-    tracking: "Tracking",
-    map: "Map",
-    reviews: "Reviews",
-    postBooking: "Post a Booking",
-    workerDashboard: "Worker Dashboard",
-    nearestWorkers: "Find Nearest Verified Workers",
-    admin: "Admin",
-    support: "Contact Us"
-  },
+const loadPendingWorkersBtn = document.getElementById("loadPendingWorkersBtn");
+const loadPendingCustomersBtn = document.getElementById("loadPendingCustomersBtn");
+const loadAdminReportsBtn = document.getElementById("loadAdminReportsBtn");
+const loadAdminBookingsBtn = document.getElementById("loadAdminBookingsBtn");
+const adminBlockPhoneBtn = document.getElementById("adminBlockPhoneBtn");
+const adminResult = document.getElementById("adminResult");
 
-  hi: {
-    home: "होम",
-    login: "लॉगिन",
-    services: "सेवाएं",
-    contact: "संपर्क",
-    heroBadge: "स्थानीय काम। भरोसेमंद हाथ।",
-    heroTitle: "कहीं भी भरोसेमंद लोकल वर्कर खोजें",
-    heroText: "अपना काम पोस्ट करें, वर्कर की बोली देखें, सही कीमत चुनें, प्रोग्रेस ट्रैक करें और सुरक्षित तरीके से verified वर्कर hire करें।",
-    startBooking: "बुकिंग शुरू करें",
-    loginStart: "शुरू करने के लिए लॉगिन करें",
-    exploreServices: "सेवाएं देखें",
-    accountAccess: "अकाउंट एक्सेस",
-    accountText: "User ID और password से अकाउंट बनाएं या login करें।",
-    signup: "साइन अप",
-    createAccount: "अकाउंट बनाएं",
-    userId: "यूजर आईडी / ईमेल",
-    password: "पासवर्ड",
-    popularServices: "लोकप्रिय सेवाएं",
-    customerPortal: "कस्टमर पोर्टल",
-    workerPortal: "वर्कर प्रोफाइल",
-    workerJobs: "वर्कर जॉब्स",
-    myBids: "मेरी बोलियां",
-    tracking: "ट्रैकिंग",
-    map: "मैप",
-    reviews: "रिव्यू",
-    postBooking: "बुकिंग पोस्ट करें",
-    workerDashboard: "वर्कर डैशबोर्ड",
-    nearestWorkers: "नजदीकी verified वर्कर खोजें",
-    admin: "एडमिन",
-    support: "संपर्क करें"
-  },
+if (loadPendingWorkersBtn) {
+  loadPendingWorkersBtn.addEventListener("click", async () => {
+    if (!requireAdmin("adminMessage")) return;
 
-  es: {
-    home: "Inicio",
-    login: "Iniciar sesión",
-    services: "Servicios",
-    contact: "Contacto",
-    heroBadge: "Trabajo local. Manos confiables.",
-    heroTitle: "Encuentra trabajadores locales confiables en cualquier lugar",
-    heroText: "Publica tu trabajo, compara ofertas, elige el mejor precio, rastrea el progreso y contrata proveedores verificados de forma segura.",
-    startBooking: "Empezar reserva",
-    loginStart: "Iniciar para empezar",
-    exploreServices: "Explorar servicios",
-    accountAccess: "Acceso a cuenta",
-    accountText: "Crea una cuenta o inicia sesión con tu ID de usuario y contraseña.",
-    signup: "Registrarse",
-    createAccount: "Crear cuenta",
-    userId: "ID de usuario / Email",
-    password: "Contraseña",
-    popularServices: "Servicios populares",
-    customerPortal: "Portal del cliente",
-    workerPortal: "Perfil del trabajador",
-    workerJobs: "Trabajos",
-    myBids: "Mis ofertas",
-    tracking: "Seguimiento",
-    map: "Mapa",
-    reviews: "Reseñas",
-    postBooking: "Publicar trabajo",
-    workerDashboard: "Panel del trabajador",
-    nearestWorkers: "Encontrar trabajadores verificados cercanos",
-    admin: "Admin",
-    support: "Contacto"
-  },
+    adminResult.innerHTML = "";
 
-  ar: {
-    home: "الرئيسية",
-    login: "تسجيل الدخول",
-    services: "الخدمات",
-    contact: "اتصل بنا",
-    heroBadge: "عمل محلي. أيدٍ موثوقة.",
-    heroTitle: "اعثر على عمال محليين موثوقين في أي مكان",
-    heroText: "انشر عملك، قارن العروض، اختر أفضل سعر، تتبع التقدم، واستأجر مزودي خدمات موثوقين بأمان.",
-    startBooking: "ابدأ الحجز",
-    loginStart: "سجل الدخول للبدء",
-    exploreServices: "استكشف الخدمات",
-    accountAccess: "الدخول إلى الحساب",
-    accountText: "أنشئ حسابًا أو سجل الدخول باستخدام اسم المستخدم وكلمة المرور.",
-    signup: "إنشاء حساب",
-    createAccount: "إنشاء حساب",
-    userId: "اسم المستخدم / البريد الإلكتروني",
-    password: "كلمة المرور",
-    popularServices: "الخدمات الشائعة",
-    customerPortal: "بوابة العميل",
-    workerPortal: "ملف العامل",
-    workerJobs: "وظائف العامل",
-    myBids: "عروضي",
-    tracking: "التتبع",
-    map: "الخريطة",
-    reviews: "التقييمات",
-    postBooking: "نشر حجز",
-    workerDashboard: "لوحة العامل",
-    nearestWorkers: "اعثر على أقرب عمال موثوقين",
-    admin: "المشرف",
-    support: "اتصل بنا"
-  },
+    try {
+      const workerSnapshot = await getDocs(collection(db, "workers"));
+      let found = false;
 
-  fr: {
-    home: "Accueil",
-    login: "Connexion",
-    services: "Services",
-    contact: "Contact",
-    heroBadge: "Travail local. Mains de confiance.",
-    heroTitle: "Trouvez des travailleurs locaux fiables partout",
-    heroText: "Publiez votre travail, comparez les offres, choisissez le meilleur prix, suivez l’avancement et embauchez des prestataires vérifiés en toute sécurité.",
-    startBooking: "Commencer",
-    loginStart: "Se connecter",
-    exploreServices: "Voir les services",
-    accountAccess: "Accès au compte",
-    accountText: "Créez un compte ou connectez-vous avec votre identifiant et mot de passe.",
-    signup: "S’inscrire",
-    createAccount: "Créer un compte",
-    userId: "Identifiant / Email",
-    password: "Mot de passe",
-    popularServices: "Services populaires",
-    customerPortal: "Portail client",
-    workerPortal: "Profil travailleur",
-    workerJobs: "Travaux",
-    myBids: "Mes offres",
-    tracking: "Suivi",
-    map: "Carte",
-    reviews: "Avis",
-    postBooking: "Publier une demande",
-    workerDashboard: "Tableau du travailleur",
-    nearestWorkers: "Trouver les travailleurs vérifiés proches",
-    admin: "Admin",
-    support: "Contact"
-  }
-};
+      workerSnapshot.forEach((workerDoc) => {
+        const worker = workerDoc.data();
 
-function kcSetText(selector, text) {
-  const element = document.querySelector(selector);
-  if (element && text) {
-    element.textContent = text;
-  }
-}
+        if (worker.verified !== true) {
+          found = true;
 
-function kcSetAllLinks() {
-  const t = KC_TRANSLATIONS[selectedLanguage()] || KC_TRANSLATIONS.en;
+          adminResult.innerHTML += `
+            <div class="data-card">
+              <h3>Worker Verification Request</h3>
+              <p><strong>Name:</strong> ${safeText(worker.workerName)}</p>
+              <p><strong>Phone:</strong> ${safeText(worker.workerPhone)}</p>
+              <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
+              <p><strong>ID Proof Type:</strong> ${safeText(worker.workerIdProof || "Not provided")}</p>
+              <p><strong>About:</strong> ${safeText(worker.workerAbout || "No details")}</p>
+              <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
+              <p><strong>Location:</strong> ${worker.workerLatitude ? "Added" : "Not added"}</p>
+              <p><strong>Status:</strong> <span class="pending-badge">${safeText(worker.verificationStatus || "pending")}</span></p>
 
-  document.querySelectorAll('a[href="#home"]').forEach((e) => e.textContent = t.home);
-  document.querySelectorAll('a[href="#login"]').forEach((e) => e.textContent = t.login);
-  document.querySelectorAll('a[href="#services"]').forEach((e) => e.textContent = t.services);
-  document.querySelectorAll('a[href="#contact"]').forEach((e) => e.textContent = t.contact);
-  document.querySelectorAll('a[href="#book"]').forEach((e) => e.textContent = t.customerPortal);
-  document.querySelectorAll('a[href="#customer-bids"]').forEach((e) => e.textContent = t.myBids);
-  document.querySelectorAll('a[href="#tracking"]').forEach((e) => e.textContent = t.tracking);
-  document.querySelectorAll('a[href="#nearest-workers"]').forEach((e) => e.textContent = t.map);
-  document.querySelectorAll('a[href="#reviews"]').forEach((e) => e.textContent = t.reviews);
-  document.querySelectorAll('a[href="#join"]').forEach((e) => e.textContent = t.workerPortal);
-  document.querySelectorAll('a[href="#worker-dashboard"]').forEach((e) => e.textContent = t.workerJobs);
-  document.querySelectorAll('a[href="#admin"]').forEach((e) => e.textContent = t.admin);
-}
+              <div class="admin-actions">
+                <button class="btn primary-btn" onclick="adminVerifyWorker('${workerDoc.id}')">Verify Worker</button>
+                <button class="btn outline-btn" onclick="adminRejectWorker('${workerDoc.id}')">Reject Worker</button>
+              </div>
 
-function kcTranslatePage() {
-  const lang = selectedLanguage();
-  const t = KC_TRANSLATIONS[lang] || KC_TRANSLATIONS.en;
+              <p class="form-message" id="adminWorkerStatus-${workerDoc.id}"></p>
+            </div>
+          `;
+        }
+      });
 
-  document.documentElement.lang = lang;
-  document.body.dir = lang === "ar" ? "rtl" : "ltr";
+      showMessage("adminMessage", found ? "Pending workers loaded." : "No pending workers found.");
 
-  kcSetAllLinks();
-
-  kcSetText(".hero-badge", t.heroBadge);
-  kcSetText(".hero-content h1", t.heroTitle);
-  kcSetText(".hero-text", t.heroText);
-  kcSetText("#quickFindBtn", t.startBooking);
-  kcSetText('.hero-buttons a[href="#login"]', t.loginStart);
-  kcSetText('.hero-buttons a[href="#services"]', t.exploreServices);
-
-  kcSetText("#login .section-title h2", t.accountAccess);
-  kcSetText("#login .section-title p", t.accountText);
-  kcSetText("#showSignupTab", t.signup);
-  kcSetText("#showLoginTab", t.login);
-  kcSetText("#signupBtn", t.createAccount);
-  kcSetText("#loginBtn", t.login);
-
-  const userIdLabel = document.querySelector('label[for="authUserId"]');
-  if (userIdLabel) userIdLabel.textContent = t.userId;
-
-  const authUserIdLabel = document.querySelector("#authUserId")?.closest(".form-group")?.querySelector("label");
-  if (authUserIdLabel) authUserIdLabel.textContent = t.userId;
-
-  const authPasswordLabel = document.querySelector("#authPassword")?.closest(".form-group")?.querySelector("label");
-  if (authPasswordLabel) authPasswordLabel.textContent = t.password;
-
-  kcSetText("#services .section-title h2", t.popularServices);
-  kcSetText("#book .section-title h2", t.postBooking);
-  kcSetText("#worker-dashboard .section-title h2", t.workerDashboard);
-  kcSetText("#nearest-workers .section-title h2", t.nearestWorkers);
-  kcSetText("#contact .section-title h2", t.support);
-}
-
-const kcLanguageSelector = document.getElementById("languageSelector");
-
-if (kcLanguageSelector) {
-  kcLanguageSelector.addEventListener("change", () => {
-    localStorage.setItem("kaamconnect_language", selectedLanguage());
-    kcTranslatePage();
+    } catch (error) {
+      showMessage("adminMessage", "Database Error: " + error.message);
+    }
   });
 }
 
-kcTranslatePage();
+window.adminVerifyWorker = async function (workerUserId) {
+  if (!requireAdmin("adminMessage")) return;
+
+  try {
+    await updateDoc(doc(db, "workers", workerUserId), {
+      verified: true,
+      verificationStatus: "verified",
+      verificationNote: "Verified by admin",
+      verifiedAt: serverTimestamp()
+    });
+
+    await updateDoc(doc(db, "workerPublic", workerUserId), {
+      verified: true,
+      updatedAt: serverTimestamp()
+    });
+
+    showMessage("adminWorkerStatus-" + workerUserId, "Worker verified successfully.");
+
+  } catch (error) {
+    showMessage("adminWorkerStatus-" + workerUserId, "Database Error: " + error.message);
+  }
+};
+
+window.adminRejectWorker = async function (workerUserId) {
+  if (!requireAdmin("adminMessage")) return;
+
+  try {
+    await updateDoc(doc(db, "workers", workerUserId), {
+      verified: false,
+      verificationStatus: "rejected",
+      verificationNote: "Rejected by admin",
+      rejectedAt: serverTimestamp()
+    });
+
+    await updateDoc(doc(db, "workerPublic", workerUserId), {
+      verified: false,
+      updatedAt: serverTimestamp()
+    });
+
+    showMessage("adminWorkerStatus-" + workerUserId, "Worker rejected.");
+
+  } catch (error) {
+    showMessage("adminWorkerStatus-" + workerUserId, "Database Error: " + error.message);
+  }
+};
+
+if (loadPendingCustomersBtn) {
+  loadPendingCustomersBtn.addEventListener("click", async () => {
+    if (!requireAdmin("adminMessage")) return;
+
+    adminResult.innerHTML = "";
+
+    try {
+      const userSnapshot = await getDocs(collection(db, "users"));
+      let found = false;
+
+      userSnapshot.forEach((userDoc) => {
+        const user = userDoc.data();
+
+        if (user.role === "customer" && user.phoneVerified !== true) {
+          found = true;
+
+          adminResult.innerHTML += `
+            <div class="data-card">
+              <h3>Customer Verification</h3>
+              <p><strong>Name:</strong> ${safeText(user.name)}</p>
+              <p><strong>User ID:</strong> ${safeText(user.loginId)}</p>
+              <p><strong>Phone:</strong> ${safeText(user.phone)}</p>
+              <p><strong>Status:</strong> <span class="pending-badge">Phone Pending</span></p>
+
+              <button class="btn primary-btn full-btn" onclick="adminVerifyCustomer('${userDoc.id}')">
+                Mark Phone Verified
+              </button>
+
+              <p class="form-message" id="adminCustomerStatus-${userDoc.id}"></p>
+            </div>
+          `;
+        }
+      });
+
+      showMessage("adminMessage", found ? "Pending customers loaded." : "No pending customers found.");
+
+    } catch (error) {
+      showMessage("adminMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+window.adminVerifyCustomer = async function (userId) {
+  if (!requireAdmin("adminMessage")) return;
+
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      phoneVerified: true,
+      verificationStatus: "verified",
+      verifiedAt: serverTimestamp()
+    });
+
+    showMessage("adminCustomerStatus-" + userId, "Customer phone verified.");
+
+  } catch (error) {
+    showMessage("adminCustomerStatus-" + userId, "Database Error: " + error.message);
+  }
+};
+
+if (loadAdminReportsBtn) {
+  loadAdminReportsBtn.addEventListener("click", async () => {
+    if (!requireAdmin("adminMessage")) return;
+
+    adminResult.innerHTML = "";
+
+    try {
+      const reportSnapshot = await getDocs(collection(db, "reports"));
+
+      if (reportSnapshot.empty) {
+        showMessage("adminMessage", "No reports found.");
+        return;
+      }
+
+      reportSnapshot.forEach((reportDoc) => {
+        const report = reportDoc.data();
+        const cleanReportedPhone = cleanPhone(report.reportedIdentity || "");
+
+        adminResult.innerHTML += `
+          <div class="data-card">
+            <h3>Report</h3>
+            <p><strong>Type:</strong> ${safeText(report.reportType)}</p>
+            <p><strong>Reporter:</strong> ${safeText(report.reporterName)} (${safeText(report.reporterRole)})</p>
+            <p><strong>Reported:</strong> ${safeText(report.reportedIdentity || "Not provided")}</p>
+            <p><strong>Details:</strong> ${safeText(report.reportDetails)}</p>
+            <p><strong>Status:</strong> ${safeText(report.status || "pending")}</p>
+
+            <div class="admin-actions">
+              <button class="btn primary-btn" onclick="adminMarkReportReviewed('${reportDoc.id}')">Mark Reviewed</button>
+              ${
+                cleanReportedPhone
+                  ? `<button class="btn outline-btn" onclick="adminBlockPhone('${cleanReportedPhone}')">Block Reported Phone</button>`
+                  : ""
+              }
+            </div>
+
+            <p class="form-message" id="adminReportStatus-${reportDoc.id}"></p>
+          </div>
+        `;
+      });
+
+      showMessage("adminMessage", "Reports loaded.");
+
+    } catch (error) {
+      showMessage("adminMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+window.adminMarkReportReviewed = async function (reportId) {
+  if (!requireAdmin("adminMessage")) return;
+
+  try {
+    await updateDoc(doc(db, "reports", reportId), {
+      status: "reviewed",
+      reviewedAt: serverTimestamp()
+    });
+
+    showMessage("adminReportStatus-" + reportId, "Report marked as reviewed.");
+
+  } catch (error) {
+    showMessage("adminReportStatus-" + reportId, "Database Error: " + error.message);
+  }
+};
+
+window.adminBlockPhone = async function (phone) {
+  if (!requireAdmin("adminMessage")) return;
+
+  const clean = cleanPhone(phone);
+
+  if (!clean) {
+    showMessage("adminMessage", "Enter valid phone number.");
+    return;
+  }
+
+  try {
+    await setDoc(doc(db, "blockedPhones", clean), {
+      phone: clean,
+      active: true,
+      blockedBy: currentUser.uid,
+      createdAt: serverTimestamp()
+    }, { merge: true });
+
+    showMessage("adminMessage", "Phone blocked: " + clean);
+
+  } catch (error) {
+    showMessage("adminMessage", "Database Error: " + error.message);
+  }
+};
+
+if (adminBlockPhoneBtn) {
+  adminBlockPhoneBtn.addEventListener("click", () => {
+    window.adminBlockPhone(getValue("adminBlockPhone"));
+  });
+}
+
+if (loadAdminBookingsBtn) {
+  loadAdminBookingsBtn.addEventListener("click", async () => {
+    if (!requireAdmin("adminMessage")) return;
+
+    adminResult.innerHTML = "";
+
+    try {
+      const bookingSnapshot = await getDocs(collection(db, "bookings"));
+
+      if (bookingSnapshot.empty) {
+        showMessage("adminMessage", "No bookings found.");
+        return;
+      }
+
+      bookingSnapshot.forEach((bookingDoc) => {
+        const booking = bookingDoc.data();
+
+        adminResult.innerHTML += `
+          <div class="data-card">
+            <h3>Booking</h3>
+            <p><strong>Customer:</strong> ${safeText(booking.customerName)}</p>
+            <p><strong>Phone:</strong> ${safeText(booking.customerPhone)}</p>
+            <p><strong>Service:</strong> ${safeText(booking.serviceType)}</p>
+            <p><strong>City:</strong> ${safeText(booking.customerCity)}</p>
+            <p><strong>Budget:</strong> ${formatMoney(booking.customerBudget || 0, booking.currency || selectedCurrency())}</p>
+            <p><strong>Status:</strong> ${safeText(booking.bookingStatus)}</p>
+            <p><strong>Progress:</strong> ${safeText(booking.jobProgress || "posted")}</p>
+            <p><strong>Worker:</strong> ${safeText(booking.assignedWorkerName || "Not assigned")}</p>
+            <p><strong>Payment:</strong> ${safeText(booking.paymentStatus || "not_paid")}</p>
+          </div>
+        `;
+      });
+
+      showMessage("adminMessage", "Bookings loaded.");
+
+    } catch (error) {
+      showMessage("adminMessage", "Database Error: " + error.message);
+    }
+  });
+}
