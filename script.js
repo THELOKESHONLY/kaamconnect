@@ -18,7 +18,6 @@ import {
   getDocs,
   query,
   where,
-  limit,
   serverTimestamp,
   updateDoc,
   doc,
@@ -29,15 +28,15 @@ import {
 
 // ===============================
 // Firebase Config
-// Replace these values with your real Firebase config
 // ===============================
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_REAL_API_KEY",
+  apiKey: "AIzaSyDylEdOuxEpqh7IxEO9cBoV7u9_9cK8DAc",
   authDomain: "kaamconnect-fdf87.firebaseapp.com",
   projectId: "kaamconnect-fdf87",
-  storageBucket: "kaamconnect-fdf87.appspot.com",
-  messagingSenderId: "PASTE_YOUR_REAL_MESSAGING_SENDER_ID",
-  appId: "PASTE_YOUR_REAL_APP_ID"
+  storageBucket: "kaamconnect-fdf87.firebasestorage.app",
+  messagingSenderId: "929567285202",
+  appId: "1:929567285202:web:7adb18836f12c8b69db20b",
+  measurementId: "G-25ZG5RB3FX"
 };
 
 
@@ -54,12 +53,12 @@ let currentUser = null;
 // ===============================
 // Helper Functions
 // ===============================
-function cleanText(text) {
-  return text.trim().toLowerCase();
+function cleanText(text = "") {
+  return String(text).trim().toLowerCase();
 }
 
-function cleanPhone(phone) {
-  let digits = phone.replace(/\D/g, "");
+function cleanPhone(phone = "") {
+  let digits = String(phone).replace(/\D/g, "");
 
   if (digits.startsWith("91") && digits.length === 12) {
     digits = digits.slice(2);
@@ -95,6 +94,26 @@ function clearForm(formId) {
   }
 }
 
+function formatMoney(amount) {
+  return Number(amount || 0).toLocaleString("en-IN");
+}
+
+function maskPhone(phone) {
+  const digits = cleanPhone(phone);
+
+  if (!digits || digits.length < 10) {
+    return "Hidden";
+  }
+
+  return digits.slice(0, 2) + "XXXXXX" + digits.slice(-2);
+}
+
+function safeText(value) {
+  const div = document.createElement("div");
+  div.textContent = value == null ? "" : String(value);
+  return div.innerHTML;
+}
+
 
 // ===============================
 // Mobile Menu
@@ -115,6 +134,48 @@ document.querySelectorAll(".nav-links a").forEach((link) => {
     }
   });
 });
+
+
+// ===============================
+// Hero Quick Search
+// ===============================
+const quickFindBtn = document.getElementById("quickFindBtn");
+
+if (quickFindBtn) {
+  quickFindBtn.addEventListener("click", () => {
+    const service = getValue("quickService");
+    const city = getValue("quickCity");
+    const budget = getValue("quickBudget");
+
+    if (service) {
+      const serviceType = document.getElementById("serviceType");
+      if (serviceType) {
+        serviceType.value = service;
+      }
+    }
+
+    if (city) {
+      const customerCity = document.getElementById("customerCity");
+      if (customerCity) {
+        customerCity.value = city;
+      }
+    }
+
+    if (budget) {
+      const customerBudget = document.getElementById("customerBudget");
+      if (customerBudget) {
+        customerBudget.value = budget;
+      }
+    }
+
+    const bookSection = document.getElementById("book");
+    if (bookSection) {
+      bookSection.scrollIntoView({ behavior: "smooth" });
+    }
+
+    showMessage("bookingMessage", "Quick search added. Fill remaining booking details.");
+  });
+}
 
 
 // ===============================
@@ -259,42 +320,10 @@ if (workerForm) {
         createdAt: serverTimestamp()
       });
 
-      showMessage("workerMessage", "Worker registered successfully. Checking pending bookings...");
-
-      const bookingQuery = query(
-        collection(db, "bookings"),
-        where("serviceType", "==", workerSkill)
+      showMessage(
+        "workerMessage",
+        "Worker registered successfully. Go to Worker Dashboard and find open jobs for bidding."
       );
-
-      const bookingSnapshot = await getDocs(bookingQuery);
-
-      let assignedBooking = false;
-
-      for (const bookingDoc of bookingSnapshot.docs) {
-        const booking = bookingDoc.data();
-
-        if (
-          booking.bookingStatus === "pending" &&
-          booking.customerCityLower === workerCityLower
-        ) {
-          await updateDoc(bookingDoc.ref, {
-            bookingStatus: "assigned",
-            biddingOpen: false,
-            assignedWorkerId: workerPhone,
-            assignedWorkerName: workerName,
-            assignedWorkerPhone: workerPhone
-          });
-
-          assignedBooking = true;
-          break;
-        }
-      }
-
-      if (assignedBooking) {
-        showMessage("workerMessage", "Worker registered successfully and one pending booking assigned.");
-      } else {
-        showMessage("workerMessage", "Worker registered successfully. No pending booking found right now.");
-      }
 
       clearForm("workerForm");
 
@@ -316,7 +345,7 @@ if (bookingForm) {
   bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    showMessage("bookingMessage", "Saving booking and searching worker...");
+    showMessage("bookingMessage", "Posting booking...");
 
     if (matchResult) {
       matchResult.innerHTML = "";
@@ -342,7 +371,7 @@ if (bookingForm) {
     }
 
     try {
-      const bookingRef = await addDoc(collection(db, "bookings"), {
+      await addDoc(collection(db, "bookings"), {
         customerId: currentUser ? currentUser.uid : "",
         customerName: customerName,
         customerPhone: customerPhone,
@@ -381,31 +410,30 @@ if (bookingForm) {
         ) {
           matchedWorkersHtml += `
             <div class="data-card">
-              <h3>Matching Worker Found</h3>
-              <p><strong>Name:</strong> ${worker.workerName}</p>
-              <p><strong>Skill:</strong> ${worker.workerSkill}</p>
-              <p><strong>Work Type:</strong> ${worker.workerType}</p>
-              <p><strong>Experience:</strong> ${worker.workerExperience}</p>
-              <p><strong>City:</strong> ${worker.workerCity}</p>
-              <p><strong>Phone:</strong> ${worker.workerPhone}</p>
+              <h3>Matching Worker Available</h3>
+              <p><strong>Name:</strong> ${safeText(worker.workerName)}</p>
+              <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
+              <p><strong>Work Type:</strong> ${safeText(worker.workerType)}</p>
+              <p><strong>Experience:</strong> ${safeText(worker.workerExperience)}</p>
+              <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
               <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
-              <p class="status-pending">Booking is open for bids. Workers can bid from dashboard.</p>
+              <p class="safe-note">Worker phone is hidden. It will show only after you accept a bid.</p>
             </div>
           `;
         }
       });
 
-      showMessage("bookingMessage", "Booking saved successfully. Workers can now bid on your work.");
+      showMessage("bookingMessage", "Booking posted successfully. Workers can now submit bids.");
 
       if (matchResult) {
         matchResult.innerHTML = `
           <div class="data-card">
             <h3>Booking Posted Successfully</h3>
-            <p><strong>Service:</strong> ${serviceType}</p>
-            <p><strong>City:</strong> ${customerCity}</p>
-            <p><strong>Your Budget:</strong> ₹${customerBudget}</p>
-            <p><strong>Status:</strong> Pending / Open for Bids</p>
-            <p>Ask workers to check Worker Dashboard and submit bids.</p>
+            <p><strong>Service:</strong> ${safeText(serviceType)}</p>
+            <p><strong>City:</strong> ${safeText(customerCity)}</p>
+            <p><strong>Your Budget:</strong> ₹${formatMoney(customerBudget)}</p>
+            <p class="status-open">Status: Open for Bids</p>
+            <p class="safe-note">Your phone and full address are hidden from workers until you accept a bid.</p>
           </div>
           ${matchedWorkersHtml || ""}
         `;
@@ -422,7 +450,7 @@ if (bookingForm) {
 
 
 // ===============================
-// Worker Assigned Jobs Dashboard
+// Worker Dashboard
 // ===============================
 const loadJobsBtn = document.getElementById("loadJobsBtn");
 const loadOpenJobsBtn = document.getElementById("loadOpenJobsBtn");
@@ -465,19 +493,20 @@ if (loadJobsBtn) {
           workerJobs.innerHTML += `
             <div class="data-card">
               <h3>Assigned Customer Booking</h3>
-              <p><strong>Customer Name:</strong> ${job.customerName}</p>
-              <p><strong>Customer Phone:</strong> ${job.customerPhone}</p>
-              <p><strong>Service:</strong> ${job.serviceType}</p>
-              <p><strong>City:</strong> ${job.customerCity}</p>
-              <p><strong>Address:</strong> ${job.customerAddress}</p>
-              <p><strong>Budget:</strong> ₹${job.customerBudget || 0}</p>
-              <p><strong>Accepted Amount:</strong> ₹${job.acceptedBidAmount || 0}</p>
-              <p><strong>Work Details:</strong> ${job.workDetails}</p>
-              <p class="status-assigned">Status: ${job.bookingStatus}</p>
+              <p><strong>Customer Name:</strong> ${safeText(job.customerName)}</p>
+              <p><strong>Customer Phone:</strong> ${safeText(job.customerPhone)}</p>
+              <p><strong>Service:</strong> ${safeText(job.serviceType)}</p>
+              <p><strong>City:</strong> ${safeText(job.customerCity)}</p>
+              <p><strong>Full Address:</strong> ${safeText(job.customerAddress)}</p>
+              <p><strong>Customer Budget:</strong> ₹${formatMoney(job.customerBudget || 0)}</p>
+              <p><strong>Accepted Amount:</strong> ₹${formatMoney(job.acceptedBidAmount || 0)}</p>
+              <p><strong>Work Details:</strong> ${safeText(job.workDetails)}</p>
+              <p class="status-assigned">Status: Assigned</p>
             </div>
           `;
         }
       });
+
     } catch (error) {
       console.error("Dashboard error:", error);
       showMessage("dashboardMessage", "Firebase Error: " + error.message);
@@ -487,7 +516,7 @@ if (loadJobsBtn) {
 
 
 // ===============================
-// Worker Open Jobs Bidding System
+// Worker Open Jobs Bidding
 // ===============================
 if (loadOpenJobsBtn) {
   loadOpenJobsBtn.addEventListener("click", async () => {
@@ -538,12 +567,13 @@ if (loadOpenJobsBtn) {
             workerJobs.innerHTML += `
               <div class="data-card">
                 <h3>Open Job for Bidding</h3>
-                <p><strong>Customer:</strong> ${job.customerName}</p>
-                <p><strong>Service:</strong> ${job.serviceType}</p>
-                <p><strong>City:</strong> ${job.customerCity}</p>
-                <p><strong>Address:</strong> ${job.customerAddress}</p>
-                <p><strong>Work Details:</strong> ${job.workDetails}</p>
-                <p><strong>Customer Budget:</strong> ₹${job.customerBudget || 0}</p>
+                <p><strong>Customer:</strong> ${safeText(job.customerName)}</p>
+                <p><strong>Customer Phone:</strong> ${maskPhone(job.customerPhone)}</p>
+                <p><strong>Service:</strong> ${safeText(job.serviceType)}</p>
+                <p><strong>City:</strong> ${safeText(job.customerCity)}</p>
+                <p><strong>Work Details:</strong> ${safeText(job.workDetails)}</p>
+                <p><strong>Customer Budget:</strong> ₹${formatMoney(job.customerBudget || 0)}</p>
+                <p class="safe-note">Full address and phone will unlock only if customer accepts your bid.</p>
 
                 <div class="form-group">
                   <label>Your Bid Amount ₹</label>
@@ -630,7 +660,7 @@ window.placeBid = async function (bookingId, workerPhone) {
 
 
 // ===============================
-// Customer Load Bids System
+// Customer Load Bids
 // ===============================
 const loadCustomerBidsBtn = document.getElementById("loadCustomerBidsBtn");
 const customerBidsResult = document.getElementById("customerBidsResult");
@@ -682,10 +712,11 @@ if (loadCustomerBidsBtn) {
             customerBidsResult.innerHTML += `
               <div class="data-card">
                 <h3>Your Booking</h3>
-                <p><strong>Service:</strong> ${booking.serviceType}</p>
-                <p><strong>City:</strong> ${booking.customerCity}</p>
-                <p><strong>Your Budget:</strong> ₹${booking.customerBudget || 0}</p>
-                <p><strong>Status:</strong> ${booking.bookingStatus}</p>
+                <p><strong>Service:</strong> ${safeText(booking.serviceType)}</p>
+                <p><strong>City:</strong> ${safeText(booking.customerCity)}</p>
+                <p><strong>Your Budget:</strong> ₹${formatMoney(booking.customerBudget || 0)}</p>
+                <p><strong>Status:</strong> ${safeText(booking.bookingStatus)}</p>
+                <p class="safe-note">Worker phone is hidden until you accept a bid.</p>
               </div>
             `;
           }
@@ -693,22 +724,52 @@ if (loadCustomerBidsBtn) {
           bidSnapshot.forEach((bidDoc) => {
             const bid = bidDoc.data();
 
+            const isAcceptedBid =
+              booking.acceptedBidId === bidDoc.id ||
+              bid.bidStatus === "accepted";
+
+            const canAccept =
+              booking.bookingStatus === "pending" &&
+              booking.biddingOpen === true &&
+              bid.bidStatus === "pending";
+
+            let phoneHtml = `
+              <p><strong>Worker Phone:</strong> Hidden until bid accepted</p>
+            `;
+
+            if (isAcceptedBid) {
+              phoneHtml = `
+                <p><strong>Worker Phone:</strong> ${safeText(bid.workerPhone)}</p>
+              `;
+            }
+
+            let buttonHtml = "";
+
+            if (canAccept) {
+              buttonHtml = `
+                <button class="btn primary-btn full-btn" onclick="acceptBid('${bookingDoc.id}', '${bidDoc.id}')">
+                  Accept This Bid
+                </button>
+              `;
+            } else if (isAcceptedBid) {
+              buttonHtml = `<p class="status-accepted">This bid is accepted.</p>`;
+            } else {
+              buttonHtml = `<p class="status-rejected">Booking closed or another bid accepted.</p>`;
+            }
+
             if (customerBidsResult) {
               customerBidsResult.innerHTML += `
                 <div class="data-card">
                   <h3>Worker Bid</h3>
-                  <p><strong>Worker:</strong> ${bid.workerName}</p>
-                  <p><strong>Skill:</strong> ${bid.workerSkill}</p>
-                  <p><strong>City:</strong> ${bid.workerCity}</p>
+                  <p><strong>Worker:</strong> ${safeText(bid.workerName)}</p>
+                  <p><strong>Skill:</strong> ${safeText(bid.workerSkill)}</p>
+                  <p><strong>City:</strong> ${safeText(bid.workerCity)}</p>
                   <p><strong>Rating:</strong> ${bid.workerRating || 0} ⭐ (${bid.totalReviews || 0} reviews)</p>
-                  <p><strong>Bid Amount:</strong> ₹${bid.bidAmount}</p>
-                  <p><strong>Message:</strong> ${bid.bidMessage || "No message"}</p>
-                  <p><strong>Bid Status:</strong> ${bid.bidStatus}</p>
-
-                  <button class="btn primary-btn full-btn" onclick="acceptBid('${bookingDoc.id}', '${bidDoc.id}', '${bid.workerPhone}', '${bid.workerName}', ${bid.bidAmount})">
-                    Accept This Bid
-                  </button>
-
+                  <p><strong>Bid Amount:</strong> ₹${formatMoney(bid.bidAmount)}</p>
+                  <p><strong>Message:</strong> ${safeText(bid.bidMessage || "No message")}</p>
+                  <p><strong>Bid Status:</strong> ${safeText(bid.bidStatus)}</p>
+                  ${phoneHtml}
+                  ${buttonHtml}
                   <p class="form-message" id="acceptStatus-${bidDoc.id}"></p>
                 </div>
               `;
@@ -732,30 +793,54 @@ if (loadCustomerBidsBtn) {
 
 
 // ===============================
-// Accept Bid Function
+// Accept Bid
 // ===============================
-window.acceptBid = async function (bookingId, bidId, workerPhone, workerName, bidAmount) {
+window.acceptBid = async function (bookingId, bidId) {
   try {
     showMessage("acceptStatus-" + bidId, "Accepting bid...");
 
     const bookingRef = doc(db, "bookings", bookingId);
     const bidRef = doc(db, "bids", bidId);
 
+    const bidSnap = await getDoc(bidRef);
+
+    if (!bidSnap.exists()) {
+      showMessage("acceptStatus-" + bidId, "Bid not found.");
+      return;
+    }
+
+    const bid = bidSnap.data();
+
     await updateDoc(bookingRef, {
       bookingStatus: "assigned",
       biddingOpen: false,
       acceptedBidId: bidId,
-      acceptedBidAmount: bidAmount,
-      assignedWorkerId: workerPhone,
-      assignedWorkerName: workerName,
-      assignedWorkerPhone: workerPhone
+      acceptedBidAmount: Number(bid.bidAmount || 0),
+      assignedWorkerId: bid.workerPhone,
+      assignedWorkerName: bid.workerName,
+      assignedWorkerPhone: bid.workerPhone
     });
 
-    await updateDoc(bidRef, {
-      bidStatus: "accepted"
-    });
+    const allBidsQuery = query(
+      collection(db, "bids"),
+      where("bookingId", "==", bookingId)
+    );
 
-    showMessage("acceptStatus-" + bidId, "Bid accepted successfully. Worker assigned.");
+    const allBidsSnapshot = await getDocs(allBidsQuery);
+
+    for (const bidDocument of allBidsSnapshot.docs) {
+      if (bidDocument.id === bidId) {
+        await updateDoc(bidDocument.ref, {
+          bidStatus: "accepted"
+        });
+      } else {
+        await updateDoc(bidDocument.ref, {
+          bidStatus: "rejected"
+        });
+      }
+    }
+
+    showMessage("acceptStatus-" + bidId, "Bid accepted successfully. Worker phone is now visible.");
 
   } catch (error) {
     console.error("Accept bid error:", error);
