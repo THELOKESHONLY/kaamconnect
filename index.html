@@ -3,75 +3,163 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>KaamConnect - Trusted Local Worker Marketplace</title>
-  <meta name="description" content="Book trusted local workers, compare bids, and hire skilled service providers near you." />
-
+  <title>KaamConnect - Trusted Local Worker Hiring Platform</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <header class="header">
     <nav class="navbar">
-      <div class="logo">Kaam<span>Connect</span></div>
-
-      <button class="menu-btn" id="menuBtn">☰</button>
-
+      <a href="#home" class="logo">Kaam<span>Connect</span></a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
       <ul class="nav-links" id="navLinks">
         <li><a href="#home">Home</a></li>
-        <li><a href="#login">Login</a></li>
         <li><a href="#services">Services</a></li>
-        <li><a href="#book">Customer Portal</a></li>
-        <li><a href="#join">Worker Portal</a></li>
-        <li><a href="#customer-bids">My Bids</a></li>
-        <li><a href="#worker-dashboard">Worker Jobs</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="#login">Login</a></li>
+        <li><a href="#book">Book</a></li>
+        <li><a href="#join">Join</a></li>
+        <li><a href="#customer-dashboard">Customer</a></li>
+        <li><a href="#worker-dashboard">Worker</a></li>
+        <li><a href="#admin-dashboard">Admin</a></li>
       </ul>
-
-      <div class="global-tools">
-        <select id="countrySelector">
-          <option value="India">India</option>
-          <option value="United States">USA</option>
-          <option value="United Kingdom">UK</option>
-          <option value="Canada">Canada</option>
-          <option value="UAE">UAE</option>
-          <option value="Australia">Australia</option>
-        </select>
-
-        <select id="currencySelector">
-          <option value="INR">₹ INR</option>
-          <option value="USD">$ USD</option>
-          <option value="GBP">£ GBP</option>
-          <option value="CAD">C$ CAD</option>
-          <option value="AED">د.إ AED</option>
-          <option value="AUD">A$ AUD</option>
-        </select>
-
-        <select id="languageSelector">
-          <option value="en">English</option>
-          <option value="hi">Hindi</option>
-          <option value="es">Spanish</option>
-          <option value="ar">Arabic</option>
-          <option value="fr">French</option>
-        </select>
-      </div>
     </nav>
   </header>
 
-  <section class="hero" id="home">
-    <div class="hero-content">
-      <p class="hero-badge">Local Work. Trusted Hands.</p>
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <p class="eyebrow">Local service marketplace</p>
+        <h1>Book trusted workers near you in minutes.</h1>
+        <p class="hero-subtitle">
+          KaamConnect connects customers with verified electricians, plumbers, cleaners,
+          tutors, cooks, painters, freelancers and other skilled workers.
+        </p>
+        <div class="hero-buttons">
+          <a href="#book" class="btn primary-btn">Book a Worker</a>
+          <a href="#join" class="btn secondary-btn">Join as Worker</a>
+        </div>
+      </div>
 
-      <h1>Find Trusted Local Workers Anywhere</h1>
+      <div class="hero-card">
+        <h3>Smart Matching</h3>
+        <p>Firebase powered booking, worker profile, dashboard and review system.</p>
+        <div class="quick-info">
+          <div><h2>20+</h2><p>Skills</p></div>
+          <div><h2>5★</h2><p>Reviews</p></div>
+        </div>
+      </div>
+    </section>
 
-      <p class="hero-text">
-        Post your work, compare worker bids, choose the best price, and get your work done safely.
-      </p>
+    <section class="section stats-section">
+      <div class="stats-grid">
+        <div class="stat-card"><h3>Verified Workers</h3><p>Admin verification before matching.</p></div>
+        <div class="stat-card"><h3>Live Dashboard</h3><p>Customers and workers can track jobs.</p></div>
+        <div class="stat-card"><h3>Rating System</h3><p>Customers can review completed work.</p></div>
+        <div class="stat-card"><h3>Secure Login</h3><p>Email/password login using Firebase Auth.</p></div>
+      </div>
+    </section>
 
-      <div class="hero-search">
-        <div class="search-field">
-          <label>Service</label>
-          <select id="quickService">
+    <section class="section light-bg" id="services">
+      <div class="section-title">
+        <h2>Popular Services</h2>
+        <p>Choose from home, local, freelance and daily work services.</p>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card"><div class="icon">⚡</div><h3>Electrician</h3><p>Fan, light, wiring and repair work.</p><strong>From ₹199</strong></div>
+        <div class="service-card"><div class="icon">🔧</div><h3>Plumber</h3><p>Leakage, tap, pipe and bathroom work.</p><strong>From ₹149</strong></div>
+        <div class="service-card"><div class="icon">🧹</div><h3>Cleaner</h3><p>Home, office and deep cleaning.</p><strong>From ₹299</strong></div>
+        <div class="service-card"><div class="icon">❄️</div><h3>AC Repair</h3><p>AC service, cooling issue and installation.</p><strong>From ₹399</strong></div>
+        <div class="service-card"><div class="icon">💻</div><h3>Computer Repair</h3><p>Laptop, desktop and software support.</p><strong>From ₹299</strong></div>
+        <div class="service-card"><div class="icon">🧑‍💼</div><h3>Freelancer</h3><p>Flexible skilled workers for short projects.</p><strong>Custom</strong></div>
+      </div>
+    </section>
+
+    <section class="section" id="login">
+      <div class="section-title">
+        <h2>Login / Register</h2>
+        <p>Create your account and access your dashboard anytime.</p>
+      </div>
+
+      <div class="two-column">
+        <form class="form-box" id="authForm">
+          <h3>Create account or login</h3>
+
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="authName" placeholder="Enter your full name" />
+          </div>
+
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="tel" id="authPhone" placeholder="Enter 10 digit mobile number" />
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="authEmail" placeholder="Enter email" required />
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="authPassword" placeholder="Minimum 6 characters" required />
+          </div>
+
+          <div class="form-group">
+            <label>Account Type</label>
+            <select id="authRole" required>
+              <option value="">Choose account type</option>
+              <option value="customer">Customer</option>
+              <option value="worker">Worker</option>
+            </select>
+          </div>
+
+          <div class="button-row">
+            <button type="button" class="btn primary-btn" id="signupBtn">Create Account</button>
+            <button type="button" class="btn secondary-btn" id="loginBtn">Login</button>
+            <button type="button" class="btn outline-btn" id="logoutBtn">Logout</button>
+          </div>
+
+          <p class="form-message" id="authMessage">Not logged in.</p>
+        </form>
+
+        <div class="info-panel">
+          <h3>How It Works</h3>
+          <ol>
+            <li>Customer creates account and books a service.</li>
+            <li>Worker creates account and completes worker profile.</li>
+            <li>Admin verifies worker profile.</li>
+            <li>System matches customer with verified worker.</li>
+            <li>Customer reviews worker after completion.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light-bg" id="book">
+      <div class="section-title">
+        <h2>Book a Worker</h2>
+        <p>Booking will be saved in Firebase and matched with a verified worker.</p>
+      </div>
+
+      <form class="form-box" id="bookingForm">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="customerName" placeholder="Enter your name" required />
+        </div>
+
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="tel" id="customerPhone" placeholder="Enter 10 digit mobile number" required />
+        </div>
+
+        <div class="form-group">
+          <label>Your City / Area</label>
+          <input type="text" id="customerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
+        </div>
+
+        <div class="form-group">
+          <label>Select Service</label>
+          <select id="serviceType" required>
             <option value="">Choose service</option>
             <option>Electrician</option>
             <option>Plumber</option>
@@ -94,503 +182,217 @@
             <option>Nurse / Caretaker</option>
             <option>Delivery Boy</option>
             <option>Event Helper</option>
+            <option>Freelancer</option>
           </select>
         </div>
 
-        <div class="search-field">
-          <label>City</label>
-          <input type="text" id="quickCity" placeholder="Delhi, Dubai, London" />
+        <div class="form-group">
+          <label>Address</label>
+          <textarea id="customerAddress" placeholder="Enter your full address" required></textarea>
         </div>
 
-        <div class="search-field">
-          <label>Budget <span class="currency-symbol">₹</span></label>
-          <input type="number" id="quickBudget" placeholder="500" />
+        <div class="form-group">
+          <label>Work Details</label>
+          <textarea id="workDetails" placeholder="Explain your work requirement" required></textarea>
         </div>
 
-        <button class="btn primary-btn search-btn" id="quickFindBtn">
-          Start Booking
-        </button>
+        <button type="submit" class="btn primary-btn full-btn">Submit Booking</button>
+        <p class="form-message" id="bookingMessage"></p>
+      </form>
+
+      <div class="result-box" id="matchResult"></div>
+    </section>
+
+    <section class="section" id="join">
+      <div class="section-title">
+        <h2>Join as Worker</h2>
+        <p>Create your worker profile. Admin can verify it from dashboard.</p>
       </div>
 
-      <div class="hero-buttons">
-        <a href="#login" class="btn primary-btn">Login to Start</a>
-        <a href="#services" class="btn secondary-btn">Explore Services</a>
-      </div>
-    </div>
-
-    <div class="hero-card">
-      <div class="hero-card-top">
-        <div>
-          <h3>Smart Bid System</h3>
-          <p>Customers post work. Workers bid. Best offer wins.</p>
+      <form class="form-box" id="workerForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="workerName" placeholder="Enter your full name" required />
         </div>
-        <span class="live-dot"></span>
-      </div>
 
-      <div class="mini-worker-card">
-        <div class="avatar">RS</div>
-        <div>
-          <h4>Rahul Sharma</h4>
-          <p>Cleaner • Delhi • ⭐ 4.8</p>
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
         </div>
-        <span class="verified">Verified</span>
-      </div>
 
-      <div class="mini-worker-card">
-        <div class="avatar">AK</div>
-        <div>
-          <h4>Amit Kumar</h4>
-          <p>Electrician • Gurgaon • ⭐ 4.7</p>
+        <div class="form-group">
+          <label>Your Skill</label>
+          <select id="workerSkill" required>
+            <option value="">Choose your skill</option>
+            <option>Electrician</option>
+            <option>Plumber</option>
+            <option>Cleaner</option>
+            <option>Tutor</option>
+            <option>Cook</option>
+            <option>Painter</option>
+            <option>AC Repair</option>
+            <option>Carpenter</option>
+            <option>Driver</option>
+            <option>Gardener</option>
+            <option>Security Guard</option>
+            <option>House Helper</option>
+            <option>Maid</option>
+            <option>Mechanic</option>
+            <option>Mobile Repair</option>
+            <option>Computer Repair</option>
+            <option>Photographer</option>
+            <option>Makeup Artist</option>
+            <option>Nurse / Caretaker</option>
+            <option>Delivery Boy</option>
+            <option>Event Helper</option>
+            <option>Freelancer</option>
+          </select>
         </div>
-        <span class="verified">Verified</span>
-      </div>
 
-      <div class="quick-info">
-        <div>
-          <h2>20+</h2>
-          <p>Services</p>
+        <div class="form-group">
+          <label>Work Type</label>
+          <select id="workerType" required>
+            <option value="">Choose work type</option>
+            <option>Freelancer</option>
+            <option>Part-time</option>
+            <option>Full-time</option>
+            <option>Contract</option>
+          </select>
         </div>
-        <div>
-          <h2>Global</h2>
-          <p>Ready</p>
+
+        <div class="form-group">
+          <label>Experience</label>
+          <input type="text" id="workerExperience" placeholder="Example: 2 years" required />
+        </div>
+
+        <div class="form-group">
+          <label>Starting Price</label>
+          <input type="number" id="workerPrice" placeholder="Example: 299" required />
+        </div>
+
+        <div class="form-group">
+          <label>Area / City</label>
+          <input type="text" id="workerCity" placeholder="Example: Delhi, Rohtak, Gurgaon" required />
+        </div>
+
+        <div class="form-group">
+          <label>About Your Work</label>
+          <textarea id="workerBio" placeholder="Tell customers about your work experience" required></textarea>
+        </div>
+
+        <label class="check-row">
+          <input type="checkbox" id="workerAvailable" checked /> Available for work
+        </label>
+
+        <button type="submit" class="btn primary-btn full-btn">Save Worker Profile</button>
+        <p class="form-message" id="workerMessage"></p>
+      </form>
+    </section>
+
+    <section class="section light-bg" id="customer-dashboard">
+      <div class="section-title">
+        <h2>Customer Dashboard</h2>
+        <p>Track your bookings and review completed work.</p>
+      </div>
+
+      <div class="dashboard-actions">
+        <button class="btn primary-btn" id="loadCustomerBookingsBtn">Load My Bookings</button>
+      </div>
+
+      <p class="form-message" id="customerDashboardMessage"></p>
+      <div class="result-box" id="customerBookings"></div>
+    </section>
+
+    <section class="section" id="worker-dashboard">
+      <div class="section-title">
+        <h2>Worker Dashboard</h2>
+        <p>Accept, reject or complete assigned jobs.</p>
+      </div>
+
+      <div class="dashboard-actions">
+        <button class="btn primary-btn" id="loadWorkerJobsBtn">Load My Jobs</button>
+      </div>
+
+      <p class="form-message" id="workerDashboardMessage"></p>
+      <div class="result-box" id="workerJobs"></div>
+    </section>
+
+    <section class="section light-bg" id="reviews">
+      <div class="section-title">
+        <h2>Give Review</h2>
+        <p>Rate a completed booking like Uber/Ola.</p>
+      </div>
+
+      <form class="form-box" id="reviewForm">
+        <div class="form-group">
+          <label>Booking ID</label>
+          <input type="text" id="reviewBookingId" placeholder="Paste completed booking ID" required />
+        </div>
+
+        <div class="form-group">
+          <label>Rating</label>
+          <select id="reviewRating" required>
+            <option value="">Choose rating</option>
+            <option value="5">5 - Excellent</option>
+            <option value="4">4 - Good</option>
+            <option value="3">3 - Average</option>
+            <option value="2">2 - Poor</option>
+            <option value="1">1 - Bad</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Review</label>
+          <textarea id="reviewText" placeholder="Write your review" required></textarea>
+        </div>
+
+        <button type="submit" class="btn primary-btn full-btn">Submit Review</button>
+        <p class="form-message" id="reviewMessage"></p>
+      </form>
+    </section>
+
+    <section class="section" id="admin-dashboard">
+      <div class="section-title">
+        <h2>Admin Dashboard</h2>
+        <p>Verify workers and monitor bookings.</p>
+      </div>
+
+      <div class="dashboard-actions">
+        <button class="btn primary-btn" id="loadAdminBtn">Load Admin Dashboard</button>
+      </div>
+
+      <p class="form-message" id="adminMessage"></p>
+      <div class="admin-stats" id="adminStats"></div>
+      <div class="result-box" id="adminContent"></div>
+    </section>
+
+    <section class="section contact-section" id="contact">
+      <div class="section-title">
+        <h2>Contact</h2>
+        <p>Need help with KaamConnect?</p>
+      </div>
+
+      <div class="contact-container">
+        <div class="contact-card">
+          <h3>Support</h3>
+          <p><strong>Phone:</strong> +91 7303041394</p>
+          <p><strong>Email:</strong> support@kaamconnect.com</p>
+          <p><strong>Location:</strong> India</p>
+        </div>
+
+        <div class="contact-card">
+          <h3>Business Hours</h3>
+          <p>Monday - Saturday</p>
+          <p>9:00 AM - 8:00 PM</p>
+          <p>Sunday: Emergency support only</p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section class="section light-bg" id="login">
-    <div class="section-title">
-      <span>Secure Access</span>
-      <h2>Login / Create Account</h2>
-      <p>Use a User ID and password to access the customer or worker portal.</p>
-    </div>
-
-    <div class="account-box" id="currentAccountBox">
-      <h3>Account Status</h3>
-      <p id="accountNameLine">Not logged in</p>
-      <p id="accountRoleLine">Choose account type and login to start.</p>
-    </div>
-
-    <form class="form-box" id="authForm">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="authName" placeholder="Enter your full name" />
-      </div>
-
-      <div class="form-group">
-        <label>User ID / Email</label>
-        <input type="text" id="authUserId" placeholder="Example: lokesh123 or your@email.com" required />
-      </div>
-
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="authPassword" placeholder="Enter password" required />
-      </div>
-
-      <div class="form-group">
-        <label>Account Type</label>
-        <select id="authRole" required>
-          <option value="">Choose account type</option>
-          <option value="customer">Customer</option>
-          <option value="worker">Worker / Bidder</option>
-        </select>
-      </div>
-
-      <button type="button" class="btn primary-btn full-btn" id="signupBtn">
-        Create Account
-      </button>
-
-      <button type="button" class="btn secondary-btn full-btn" id="loginBtn">
-        Login
-      </button>
-
-      <button type="button" class="btn outline-btn full-btn" id="logoutBtn">
-        Logout
-      </button>
-
-      <p class="form-message" id="authMessage"></p>
-    </form>
-  </section>
-
-  <section class="section" id="services">
-    <div class="section-title">
-      <span>Marketplace</span>
-      <h2>Popular Services</h2>
-      <p>Browse professional service categories for home, repair, care, transport and freelance work.</p>
-    </div>
-
-    <div class="services-grid">
-      <div class="service-card"><div class="icon">⚡</div><h3>Electrician</h3><p>Fan, light, switchboard and wiring repair.</p></div>
-      <div class="service-card"><div class="icon">🔧</div><h3>Plumber</h3><p>Tap repair, leakage, pipe fitting and bathroom work.</p></div>
-      <div class="service-card"><div class="icon">🧹</div><h3>Cleaner</h3><p>Home cleaning, office cleaning and deep cleaning.</p></div>
-      <div class="service-card"><div class="icon">📚</div><h3>Tutor</h3><p>Home tuition and online tuition for students.</p></div>
-      <div class="service-card"><div class="icon">🍳</div><h3>Cook</h3><p>Daily cooking, home food and party cooking.</p></div>
-      <div class="service-card"><div class="icon">🎨</div><h3>Painter</h3><p>House painting, wall paint and repair paint work.</p></div>
-      <div class="service-card"><div class="icon">❄️</div><h3>AC Repair</h3><p>AC service, repair, installation and gas refill.</p></div>
-      <div class="service-card"><div class="icon">🪚</div><h3>Carpenter</h3><p>Furniture repair, door fitting and wood work.</p></div>
-      <div class="service-card"><div class="icon">🚗</div><h3>Driver</h3><p>Local driver and personal driver services.</p></div>
-      <div class="service-card"><div class="icon">🌱</div><h3>Gardener</h3><p>Garden cleaning, plant care and maintenance.</p></div>
-      <div class="service-card"><div class="icon">🛡️</div><h3>Security Guard</h3><p>Home, office and event security support.</p></div>
-      <div class="service-card"><div class="icon">🏠</div><h3>House Helper</h3><p>Daily home help and household assistance.</p></div>
-      <div class="service-card"><div class="icon">🧺</div><h3>Maid</h3><p>Cleaning, washing and daily household support.</p></div>
-      <div class="service-card"><div class="icon">🛠️</div><h3>Mechanic</h3><p>Bike, car and machine repair support.</p></div>
-      <div class="service-card"><div class="icon">📱</div><h3>Mobile Repair</h3><p>Screen, battery, charging and software issues.</p></div>
-      <div class="service-card"><div class="icon">💻</div><h3>Computer Repair</h3><p>Laptop, desktop, software and hardware repair.</p></div>
-      <div class="service-card"><div class="icon">📷</div><h3>Photographer</h3><p>Event, wedding, product and personal photography.</p></div>
-      <div class="service-card"><div class="icon">💄</div><h3>Makeup Artist</h3><p>Party, bridal and event makeup services.</p></div>
-      <div class="service-card"><div class="icon">🩺</div><h3>Nurse / Caretaker</h3><p>Patient care, elder care and home assistance.</p></div>
-      <div class="service-card"><div class="icon">📦</div><h3>Delivery Boy</h3><p>Local parcel delivery and pickup support.</p></div>
-      <div class="service-card"><div class="icon">🎪</div><h3>Event Helper</h3><p>Event setup, decoration and support staff.</p></div>
-    </div>
-  </section>
-
-  <section class="section light-bg" id="featured-workers">
-    <div class="section-title">
-      <span>Worker Profiles</span>
-      <h2>Verified Worker Cards</h2>
-      <p>Professional profile cards build trust before customers post work.</p>
-    </div>
-
-    <div class="worker-grid">
-      <div class="worker-card">
-        <div class="worker-top">
-          <div class="worker-avatar">RS</div>
-          <span class="badge green-badge">Verified</span>
-        </div>
-        <h3>Rahul Sharma</h3>
-        <p class="worker-skill">Cleaner • Delhi</p>
-        <p>3 years experience in home and office cleaning.</p>
-        <div class="worker-meta">
-          <span>⭐ 4.8</span>
-          <span><span class="currency-symbol">₹</span>499 starting</span>
-        </div>
-        <p class="hidden-phone">Contact unlocks after accepted bid</p>
-      </div>
-
-      <div class="worker-card">
-        <div class="worker-top">
-          <div class="worker-avatar">AK</div>
-          <span class="badge green-badge">Verified</span>
-        </div>
-        <h3>Amit Kumar</h3>
-        <p class="worker-skill">Electrician • Gurgaon</p>
-        <p>Switchboard, fan, light and wiring repair expert.</p>
-        <div class="worker-meta">
-          <span>⭐ 4.7</span>
-          <span><span class="currency-symbol">₹</span>299 starting</span>
-        </div>
-        <p class="hidden-phone">Contact unlocks after accepted bid</p>
-      </div>
-
-      <div class="worker-card">
-        <div class="worker-top">
-          <div class="worker-avatar">SP</div>
-          <span class="badge green-badge">Verified</span>
-        </div>
-        <h3>Suresh Pal</h3>
-        <p class="worker-skill">Plumber • Delhi</p>
-        <p>Tap, leakage, bathroom and pipe fitting work.</p>
-        <div class="worker-meta">
-          <span>⭐ 4.9</span>
-          <span><span class="currency-symbol">₹</span>399 starting</span>
-        </div>
-        <p class="hidden-phone">Contact unlocks after accepted bid</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="how">
-    <div class="section-title">
-      <span>Process</span>
-      <h2>How It Works</h2>
-      <p>One platform with separate customer and worker portals.</p>
-    </div>
-
-    <div class="steps-container">
-      <div class="step"><span>1</span><h3>Login</h3><p>Customer or worker logs in using User ID and password.</p></div>
-      <div class="step"><span>2</span><h3>Post Work</h3><p>Customer posts service, city and budget.</p></div>
-      <div class="step"><span>3</span><h3>Workers Bid</h3><p>Matching workers submit price offers.</p></div>
-      <div class="step"><span>4</span><h3>Accept Bid</h3><p>Contact details unlock after acceptance.</p></div>
-    </div>
-  </section>
-
-  <section class="section light-bg customer-only hidden" id="book">
-    <div class="section-title">
-      <span>Customer Portal</span>
-      <h2>Post a Booking</h2>
-      <p>Only customer accounts can post work and receive bids.</p>
-    </div>
-
-    <form class="form-box" id="bookingForm">
-      <div class="form-group">
-        <label>Your Name</label>
-        <input type="text" id="customerName" placeholder="Enter your name" required />
-      </div>
-
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input type="tel" id="customerPhone" placeholder="Enter 10 digit mobile number" required />
-      </div>
-
-      <div class="form-group">
-        <label>Your City / Area</label>
-        <input type="text" id="customerCity" placeholder="Example: Delhi, Dubai, London" required />
-      </div>
-
-      <div class="form-group">
-        <label>Select Service</label>
-        <select id="serviceType" required>
-          <option value="">Choose service</option>
-          <option>Electrician</option>
-          <option>Plumber</option>
-          <option>Cleaner</option>
-          <option>Tutor</option>
-          <option>Cook</option>
-          <option>Painter</option>
-          <option>AC Repair</option>
-          <option>Carpenter</option>
-          <option>Driver</option>
-          <option>Gardener</option>
-          <option>Security Guard</option>
-          <option>House Helper</option>
-          <option>Maid</option>
-          <option>Mechanic</option>
-          <option>Mobile Repair</option>
-          <option>Computer Repair</option>
-          <option>Photographer</option>
-          <option>Makeup Artist</option>
-          <option>Nurse / Caretaker</option>
-          <option>Delivery Boy</option>
-          <option>Event Helper</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Your Address</label>
-        <textarea id="customerAddress" placeholder="Full address unlocks only after bid acceptance." required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Budget / Expected Price <span class="currency-symbol">₹</span></label>
-        <input type="number" id="customerBudget" placeholder="Example: 500" required />
-      </div>
-
-      <div class="form-group">
-        <label>Work Details</label>
-        <textarea id="workDetails" placeholder="Explain your work requirement" required></textarea>
-      </div>
-
-      <button type="submit" class="btn primary-btn full-btn">Post Booking</button>
-
-      <p class="form-message" id="bookingMessage"></p>
-    </form>
-
-    <div class="result-box" id="matchResult"></div>
-  </section>
-
-  <section class="section worker-only hidden" id="join">
-    <div class="section-title">
-      <span>Worker Portal</span>
-      <h2>Register Worker Profile</h2>
-      <p>Only worker accounts can register profiles and bid on jobs.</p>
-    </div>
-
-    <form class="form-box" id="workerForm">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="workerName" placeholder="Enter your full name" required />
-      </div>
-
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
-      </div>
-
-      <div class="form-group">
-        <label>Your Skill</label>
-        <select id="workerSkill" required>
-          <option value="">Choose your skill</option>
-          <option>Electrician</option>
-          <option>Plumber</option>
-          <option>Cleaner</option>
-          <option>Tutor</option>
-          <option>Cook</option>
-          <option>Painter</option>
-          <option>AC Repair</option>
-          <option>Carpenter</option>
-          <option>Driver</option>
-          <option>Gardener</option>
-          <option>Security Guard</option>
-          <option>House Helper</option>
-          <option>Maid</option>
-          <option>Mechanic</option>
-          <option>Mobile Repair</option>
-          <option>Computer Repair</option>
-          <option>Photographer</option>
-          <option>Makeup Artist</option>
-          <option>Nurse / Caretaker</option>
-          <option>Delivery Boy</option>
-          <option>Event Helper</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Work Type</label>
-        <select id="workerType" required>
-          <option value="">Choose work type</option>
-          <option>Freelancer</option>
-          <option>Part-time</option>
-          <option>Full-time</option>
-          <option>Contract</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Experience</label>
-        <input type="text" id="workerExperience" placeholder="Example: 2 years" required />
-      </div>
-
-      <div class="form-group">
-        <label>Area / City</label>
-        <input type="text" id="workerCity" placeholder="Example: Delhi, Dubai, London" required />
-      </div>
-
-      <button type="submit" class="btn primary-btn full-btn">Save Worker Profile</button>
-
-      <p class="form-message" id="workerMessage"></p>
-    </form>
-  </section>
-
-  <section class="section light-bg worker-only hidden" id="worker-dashboard">
-    <div class="section-title">
-      <span>Worker Jobs</span>
-      <h2>Worker Dashboard</h2>
-      <p>Find open jobs, submit bids, and view assigned work.</p>
-    </div>
-
-    <div class="form-box">
-      <div class="form-group">
-        <label>Registered Worker Mobile Number</label>
-        <input type="tel" id="dashboardWorkerPhone" placeholder="Enter your registered mobile number" />
-      </div>
-
-      <button class="btn primary-btn full-btn" id="loadOpenJobsBtn">Find Open Jobs for Bidding</button>
-      <button class="btn secondary-btn full-btn" id="loadJobsBtn">Load My Assigned Jobs</button>
-
-      <p class="form-message" id="dashboardMessage"></p>
-    </div>
-
-    <div class="result-box" id="workerJobs"></div>
-  </section>
-
-  <section class="section customer-only hidden" id="customer-bids">
-    <div class="section-title">
-      <span>Customer Bids</span>
-      <h2>Customer Bid Dashboard</h2>
-      <p>View bids from workers and accept the best offer.</p>
-    </div>
-
-    <div class="form-box">
-      <div class="form-group">
-        <label>Optional Mobile Number Lookup</label>
-        <input type="tel" id="customerPhoneLookup" placeholder="Use only for old bookings if needed" />
-      </div>
-
-      <button class="btn primary-btn full-btn" id="loadCustomerBidsBtn">
-        Load My Bookings & Bids
-      </button>
-
-      <p class="form-message" id="customerBidMessage"></p>
-    </div>
-
-    <div class="result-box" id="customerBidsResult"></div>
-  </section>
-
-  <section class="section light-bg customer-only hidden" id="reviews">
-    <div class="section-title">
-      <span>Ratings</span>
-      <h2>Give Worker Review</h2>
-      <p>Rate your worker after the service is completed.</p>
-    </div>
-
-    <form class="form-box" id="reviewForm">
-      <div class="form-group">
-        <label>Worker Phone Number</label>
-        <input type="tel" id="reviewWorkerPhone" placeholder="Enter accepted worker phone number" required />
-      </div>
-
-      <div class="form-group">
-        <label>Rating</label>
-        <select id="reviewRating" required>
-          <option value="">Choose rating</option>
-          <option value="5">5 - Excellent</option>
-          <option value="4">4 - Good</option>
-          <option value="3">3 - Average</option>
-          <option value="2">2 - Poor</option>
-          <option value="1">1 - Bad</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Review</label>
-        <textarea id="reviewText" placeholder="Write your review" required></textarea>
-      </div>
-
-      <button type="submit" class="btn primary-btn full-btn">Submit Review</button>
-
-      <p class="form-message" id="reviewMessage"></p>
-    </form>
-  </section>
-
-  <section class="section" id="trust">
-    <div class="section-title">
-      <span>Trust & Safety</span>
-      <h2>Why Choose KaamConnect?</h2>
-      <p>Built for customers and skilled workers with a safer hiring process.</p>
-    </div>
-
-    <div class="services-grid">
-      <div class="service-card"><div class="icon">✅</div><h3>Verified Workers</h3><p>Workers can be verified before real job assignment.</p></div>
-      <div class="service-card"><div class="icon">⭐</div><h3>Ratings & Reviews</h3><p>Customers can rate workers after service.</p></div>
-      <div class="service-card"><div class="icon">💰</div><h3>Bid System</h3><p>Workers offer prices and customers accept bids.</p></div>
-      <div class="service-card"><div class="icon">🔒</div><h3>Safe Contact Sharing</h3><p>Phone and address show only after bid acceptance.</p></div>
-      <div class="service-card"><div class="icon">🌐</div><h3>Global Settings</h3><p>Country, language and currency selector included.</p></div>
-      <div class="service-card"><div class="icon">💼</div><h3>Worker Portal</h3><p>Separate experience for workers and bidders.</p></div>
-    </div>
-  </section>
-
-  <section class="section contact-section" id="contact">
-    <div class="section-title">
-      <span>Support</span>
-      <h2>Contact Us</h2>
-      <p>Need help? Contact KaamConnect support.</p>
-    </div>
-
-    <div class="contact-container">
-      <div class="contact-card">
-        <h3>KaamConnect Support</h3>
-        <p><strong>Phone:</strong> +91 7303041394</p>
-        <p><strong>Email:</strong> support@kaamconnect.com</p>
-        <p><strong>Location:</strong> India</p>
-      </div>
-
-      <div class="contact-card">
-        <h3>Business Hours</h3>
-        <p>Monday - Saturday</p>
-        <p>9:00 AM - 8:00 PM</p>
-        <p>Sunday: Emergency support only</p>
-      </div>
-    </div>
-  </section>
-
-  <div class="mobile-sticky-cta">
-    <a href="#login">Login</a>
-    <a href="#services">Services</a>
-  </div>
+    </section>
+  </main>
 
   <footer class="footer">
     <p>© 2026 KaamConnect. All Rights Reserved.</p>
-    <p>Hire trusted local workers and connect with skilled service providers near you.</p>
+    <p>Professional Firebase MVP for local worker hiring.</p>
   </footer>
 
   <script type="module" src="script.js"></script>
