@@ -1,11 +1,12 @@
-const CACHE_NAME = "kaamconnect-v1";
+const CACHE_NAME = "kaamconnect-ly-v1";
 
 const FILES_TO_CACHE = [
   "/",
-  "/index.html",
-  "/style.css",
-  "/script.js",
-  "/manifest.json"
+  "/LY1",
+  "/LY2",
+  "/LY3",
+  "/LY4",
+  "/LY5"
 ];
 
 self.addEventListener("install", (event) => {
