@@ -39,6 +39,8 @@ const auth = getAuth(app);
 let currentUser = null;
 let currentProfile = null;
 let currentRole = "";
+let workersMap = null;
+let mapMarkers = [];
 
 const ADMIN_LOGIN_IDS = ["thelokeshonly"];
 
@@ -510,6 +512,108 @@ function requireAdmin(messageId) {
   return true;
 }
 
+function getCurrentLocation(messageId) {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Location is not supported in this browser."));
+      return;
+    }
+
+    showMessage(messageId, "Getting your location...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: Number(position.coords.latitude.toFixed(6)),
+          lng: Number(position.coords.longitude.toFixed(6))
+        });
+      },
+      () => {
+        reject(new Error("Location permission denied. Please allow location access."));
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000
+      }
+    );
+  });
+}
+
+function calculateDistanceKm(lat1, lng1, lat2, lng2) {
+  const earthRadiusKm = 6371;
+
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return earthRadiusKm * c;
+}
+
+function startMap(lat, lng) {
+  const Leaflet = window.L;
+
+  if (!Leaflet) {
+    showMessage("mapMessage", "Map library not loaded. Please refresh the page.");
+    return;
+  }
+
+  if (!workersMap) {
+    workersMap = Leaflet.map("workersMap").setView([lat, lng], 13);
+
+    Leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(workersMap);
+  } else {
+    workersMap.setView([lat, lng], 13);
+  }
+
+  setTimeout(() => {
+    workersMap.invalidateSize();
+  }, 300);
+}
+
+function clearMapMarkers() {
+  if (!workersMap) return;
+
+  mapMarkers.forEach((marker) => {
+    workersMap.removeLayer(marker);
+  });
+
+  mapMarkers = [];
+}
+
+const getWorkerLocationBtn = document.getElementById("getWorkerLocationBtn");
+
+if (getWorkerLocationBtn) {
+  getWorkerLocationBtn.addEventListener("click", async () => {
+    if (!requireWorker("workerLocationMessage")) return;
+
+    try {
+      const location = await getCurrentLocation("workerLocationMessage");
+
+      const workerLatitude = document.getElementById("workerLatitude");
+      const workerLongitude = document.getElementById("workerLongitude");
+
+      if (workerLatitude) workerLatitude.value = location.lat;
+      if (workerLongitude) workerLongitude.value = location.lng;
+
+      showMessage("workerLocationMessage", "Location added successfully. Now save your worker profile.");
+    } catch (error) {
+      showMessage("workerLocationMessage", error.message);
+    }
+  });
+}
+
 const workerForm = document.getElementById("workerForm");
 
 if (workerForm) {
@@ -528,6 +632,12 @@ if (workerForm) {
     const workerCity = getValue("workerCity");
     const workerCityLower = cleanText(workerCity);
     const workerCountry = selectedCountry();
+
+    const workerLatitudeValue = Number(getValue("workerLatitude"));
+    const workerLongitudeValue = Number(getValue("workerLongitude"));
+
+    const workerLatitude = Number.isFinite(workerLatitudeValue) ? workerLatitudeValue : null;
+    const workerLongitude = Number.isFinite(workerLongitudeValue) ? workerLongitudeValue : null;
 
     if (!workerName || !workerPhone || !workerSkill || !workerType || !workerExperience || !workerCity) {
       showMessage("workerMessage", "Please fill all worker details.");
@@ -569,6 +679,8 @@ if (workerForm) {
         workerCity: workerCity,
         workerCityLower: workerCityLower,
         workerCountry: workerCountry,
+        workerLatitude: workerLatitude || oldData.workerLatitude || null,
+        workerLongitude: workerLongitude || oldData.workerLongitude || null,
         currency: selectedCurrency(),
         available: true,
         verified: isAlreadyVerified,
@@ -1289,6 +1401,118 @@ if (loadTrackingBtn) {
   });
 }
 
+const findNearbyWorkersBtn = document.getElementById("findNearbyWorkersBtn");
+const nearbyWorkersList = document.getElementById("nearbyWorkersList");
+
+if (findNearbyWorkersBtn) {
+  findNearbyWorkersBtn.addEventListener("click", async () => {
+    if (!requireCustomer("mapMessage")) return;
+
+    const serviceType = getValue("mapServiceType");
+    const radiusKm = Number(getValue("mapRadiusKm")) || 20;
+
+    if (!serviceType) {
+      showMessage("mapMessage", "Please select service.");
+      return;
+    }
+
+    try {
+      const customerLocation = await getCurrentLocation("mapMessage");
+
+      startMap(customerLocation.lat, customerLocation.lng);
+      clearMapMarkers();
+
+      if (nearbyWorkersList) {
+        nearbyWorkersList.innerHTML = "";
+      }
+
+      const Leaflet = window.L;
+
+      const customerMarker = Leaflet.marker([customerLocation.lat, customerLocation.lng])
+        .addTo(workersMap)
+        .bindPopup("<strong>Your Location</strong>");
+
+      mapMarkers.push(customerMarker);
+
+      const workerSnapshot = await getDocs(
+        query(collection(db, "workers"), where("workerSkill", "==", serviceType))
+      );
+
+      const nearbyWorkers = [];
+
+      workerSnapshot.forEach((workerDoc) => {
+        const worker = workerDoc.data();
+
+        if (
+          worker.verified === true &&
+          worker.available === true &&
+          worker.workerLatitude &&
+          worker.workerLongitude
+        ) {
+          const distance = calculateDistanceKm(
+            customerLocation.lat,
+            customerLocation.lng,
+            Number(worker.workerLatitude),
+            Number(worker.workerLongitude)
+          );
+
+          if (distance <= radiusKm) {
+            nearbyWorkers.push({
+              id: workerDoc.id,
+              ...worker,
+              distance: distance
+            });
+          }
+        }
+      });
+
+      nearbyWorkers.sort((a, b) => a.distance - b.distance);
+
+      if (nearbyWorkers.length === 0) {
+        showMessage("mapMessage", "No verified workers found nearby. Try increasing radius.");
+        return;
+      }
+
+      nearbyWorkers.forEach((worker) => {
+        const marker = Leaflet.marker([
+          Number(worker.workerLatitude),
+          Number(worker.workerLongitude)
+        ])
+          .addTo(workersMap)
+          .bindPopup(`
+            <strong>${safeText(worker.workerName)}</strong><br>
+            ${safeText(worker.workerSkill)}<br>
+            ${worker.distance.toFixed(1)} km away<br>
+            ⭐ ${worker.workerRating || 0}
+          `);
+
+        mapMarkers.push(marker);
+
+        if (nearbyWorkersList) {
+          nearbyWorkersList.innerHTML += `
+            <div class="map-worker-card">
+              <h3>${safeText(worker.workerName)} <span class="verify-badge">Verified</span></h3>
+              <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
+              <p><strong>Work Type:</strong> ${safeText(worker.workerType || "Worker")}</p>
+              <p><strong>Experience:</strong> ${safeText(worker.workerExperience || "Not added")}</p>
+              <p><strong>City:</strong> ${safeText(worker.workerCity || "")}</p>
+              <p><strong>Distance:</strong> ${worker.distance.toFixed(1)} km away</p>
+              <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
+              <p class="safe-note">Phone is hidden. Contact unlocks only after accepted bid.</p>
+            </div>
+          `;
+        }
+      });
+
+      showMessage("mapMessage", nearbyWorkers.length + " nearby verified worker(s) found.");
+
+    } catch (error) {
+      console.error("Map error:", error);
+      showMessage("mapMessage", error.message);
+    }
+  });
+}
+
 const loadPendingWorkersBtn = document.getElementById("loadPendingWorkersBtn");
 const loadAdminBookingsBtn = document.getElementById("loadAdminBookingsBtn");
 const adminResult = document.getElementById("adminResult");
@@ -1323,6 +1547,7 @@ if (loadPendingWorkersBtn) {
                 <p><strong>ID Proof:</strong> ${safeText(worker.workerIdProof || "Not provided")}</p>
                 <p><strong>About:</strong> ${safeText(worker.workerAbout || "No details")}</p>
                 <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
+                <p><strong>Location:</strong> ${worker.workerLatitude && worker.workerLongitude ? "Added" : "Not added"}</p>
                 <p><strong>Status:</strong> <span class="pending-badge">${safeText(worker.verificationStatus || "pending")}</span></p>
 
                 <div class="admin-actions">
