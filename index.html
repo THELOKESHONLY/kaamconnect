@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>KaamConnect - Trusted Local Worker Marketplace</title>
-  <meta name="description" content="Hire trusted local workers, compare bids, track work, and connect with verified professionals safely." />
+  <meta name="description" content="Hire trusted local workers, compare bids, track work, chat safely, and connect with verified professionals." />
 
-  <link rel="manifest" href="manifest.json" />
+  <link rel="manifest" href="LY4" />
   <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%23f97316"/><text x="50" y="62" text-anchor="middle" font-size="42" font-family="Arial" font-weight="700" fill="white">KC</text></svg>' />
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="LY2" />
 </head>
+
 <body>
 
 <header class="header">
@@ -30,22 +31,27 @@
       <li><a href="#services" data-i18n="services">Services</a></li>
       <li><a href="#trust-center" data-i18n="trust">Trust</a></li>
 
-      <li class="customer-only hidden"><a href="#book" data-i18n="customerPortal">Customer</a></li>
-      <li class="customer-only hidden"><a href="#customer-bids" data-i18n="myBids">Bids</a></li>
-      <li class="customer-only hidden"><a href="#customer-history" data-i18n="history">History</a></li>
-      <li class="customer-only hidden"><a href="#tracking" data-i18n="tracking">Tracking</a></li>
-      <li class="customer-only hidden"><a href="#nearest-workers" data-i18n="map">Map</a></li>
-      <li class="customer-only hidden"><a href="#reviews" data-i18n="reviews">Reviews</a></li>
+      <li class="customer-only hidden"><a href="#book">Customer</a></li>
+      <li class="customer-only hidden"><a href="#customer-bids">Bids</a></li>
+      <li class="customer-only hidden"><a href="#customer-history">History</a></li>
+      <li class="customer-only hidden"><a href="#tracking">Tracking</a></li>
+      <li class="customer-only hidden"><a href="#nearest-workers">Map</a></li>
+      <li class="customer-only hidden"><a href="#advanced-workers">Find Workers</a></li>
+      <li class="customer-only hidden"><a href="#reviews">Reviews</a></li>
 
-      <li class="worker-only hidden"><a href="#join" data-i18n="workerProfile">Profile</a></li>
-      <li class="worker-only hidden"><a href="#worker-dashboard" data-i18n="workerJobs">Jobs</a></li>
-      <li class="worker-only hidden"><a href="#worker-earnings" data-i18n="earnings">Earnings</a></li>
+      <li class="worker-only hidden"><a href="#join">Profile</a></li>
+      <li class="worker-only hidden"><a href="#worker-dashboard">Jobs</a></li>
+      <li class="worker-only hidden"><a href="#worker-availability">Availability</a></li>
+      <li class="worker-only hidden"><a href="#worker-portfolio">Portfolio</a></li>
+      <li class="worker-only hidden"><a href="#worker-earnings">Earnings</a></li>
 
-      <li><a href="#notifications" data-i18n="notifications">Notifications</a></li>
-      <li><a href="#support-center" data-i18n="support">Support</a></li>
-      <li><a href="#growth" data-i18n="growth">Growth</a></li>
-      <li class="admin-link hidden"><a href="#admin" data-i18n="admin">Admin</a></li>
-      <li><a href="#policies" data-i18n="policies">Policies</a></li>
+      <li><a href="#chat-center">Chat</a></li>
+      <li><a href="#notifications">Notifications</a></li>
+      <li><a href="#support-center">Support</a></li>
+      <li><a href="#growth">Growth</a></li>
+      <li><a href="#invoices">Invoices</a></li>
+      <li class="admin-link hidden"><a href="#admin">Admin</a></li>
+      <li><a href="#policies">Policies</a></li>
     </ul>
 
     <div class="global-tools">
@@ -85,7 +91,7 @@
     <h1 data-i18n="heroTitle">Hire Trusted Local Workers Safely</h1>
 
     <p class="hero-text" data-i18n="heroText">
-      Post work, compare bids, find nearby verified workers, track progress and protect your data.
+      Post work, compare bids, find nearby verified workers, chat safely, track progress and protect your data.
     </p>
 
     <div class="hero-search">
@@ -106,7 +112,9 @@
         <input type="number" id="quickBudget" placeholder="500" />
       </div>
 
-      <button class="btn primary-btn search-btn" id="quickFindBtn" data-i18n="startBooking">Start Booking</button>
+      <button class="btn primary-btn search-btn" id="quickFindBtn" data-i18n="startBooking">
+        Start Booking
+      </button>
     </div>
 
     <div class="hero-buttons">
@@ -120,7 +128,7 @@
     <div class="hero-card-top">
       <div>
         <h3>KaamConnect Trust Stack</h3>
-        <p>Verification, tracking, reports, support, history and data control.</p>
+        <p>Verification, hidden contact, tracking, chat, invoices and reports.</p>
       </div>
       <span class="live-dot"></span>
     </div>
@@ -236,7 +244,7 @@
     <div class="service-card"><div class="icon">✅</div><h3>Verified Profiles</h3><p>Workers need admin approval before bidding.</p></div>
     <div class="service-card"><div class="icon">⭐</div><h3>Verified Reviews</h3><p>Review is allowed only after completed booking.</p></div>
     <div class="service-card"><div class="icon">📍</div><h3>Location Control</h3><p>Worker can add or remove map location anytime.</p></div>
-    <div class="service-card"><div class="icon">🚩</div><h3>Reports & Support</h3><p>Users can report safety, payment or account issues.</p></div>
+    <div class="service-card"><div class="icon">💬</div><h3>Safe Chat</h3><p>Chat opens only after bid acceptance.</p></div>
     <div class="service-card"><div class="icon">📊</div><h3>Admin Analytics</h3><p>Admin can monitor bookings, reports and verification.</p></div>
   </div>
 </section>
@@ -329,7 +337,7 @@
     <div class="form-group">
       <label>Verification Document URL</label>
       <input type="url" id="workerDocumentUrl" placeholder="Paste document/image link for admin only" />
-      <small>Do not show this publicly. Admin uses it for verification.</small>
+      <small>Admin uses it for verification. It is not public.</small>
     </div>
 
     <div class="form-group">
@@ -386,6 +394,70 @@
     <button type="submit" class="btn primary-btn full-btn">Save Worker Profile</button>
     <p class="form-message" id="workerMessage"></p>
   </form>
+</section>
+
+<section class="section worker-only hidden" id="worker-availability">
+  <div class="section-title">
+    <span>Availability</span>
+    <h2>Worker Availability</h2>
+    <p>Control whether customers can see you as available, busy or offline.</p>
+  </div>
+
+  <div class="form-box">
+    <div class="form-group">
+      <label>Availability Status</label>
+      <select id="workerAvailabilityStatus">
+        <option value="available">Available Now</option>
+        <option value="busy">Busy</option>
+        <option value="offline">Offline</option>
+        <option value="emergency">Emergency Only</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn primary-btn full-btn" id="saveAvailabilityBtn">Save Availability</button>
+    <button type="button" class="btn secondary-btn full-btn" id="loadAvailabilityBtn">Load My Availability</button>
+
+    <p class="form-message" id="availabilityMessage"></p>
+  </div>
+
+  <div class="result-box" id="availabilityResult"></div>
+</section>
+
+<section class="section light-bg worker-only hidden" id="worker-portfolio">
+  <div class="section-title">
+    <span>Portfolio</span>
+    <h2>Worker Portfolio Gallery</h2>
+    <p>Add work photo links to help customers trust your work quality.</p>
+  </div>
+
+  <form class="form-box" id="portfolioForm">
+    <div class="form-group">
+      <label>Portfolio Photo 1 URL</label>
+      <input type="url" id="portfolioPhoto1" placeholder="Paste image link" />
+    </div>
+
+    <div class="form-group">
+      <label>Portfolio Photo 2 URL</label>
+      <input type="url" id="portfolioPhoto2" placeholder="Paste image link" />
+    </div>
+
+    <div class="form-group">
+      <label>Portfolio Photo 3 URL</label>
+      <input type="url" id="portfolioPhoto3" placeholder="Paste image link" />
+    </div>
+
+    <div class="form-group">
+      <label>Portfolio Description</label>
+      <textarea id="portfolioDescription" placeholder="Example: Before/after cleaning, electrical repair, carpentry work, makeup samples."></textarea>
+    </div>
+
+    <button type="submit" class="btn primary-btn full-btn">Save Portfolio</button>
+    <button type="button" class="btn secondary-btn full-btn" id="loadPortfolioBtn">Load My Portfolio</button>
+
+    <p class="form-message" id="portfolioMessage"></p>
+  </form>
+
+  <div class="result-box" id="portfolioResult"></div>
 </section>
 
 <section class="section worker-only hidden" id="worker-dashboard">
@@ -495,6 +567,64 @@
   <div class="result-box" id="nearbyWorkersList"></div>
 </section>
 
+<section class="section light-bg customer-only hidden" id="advanced-workers">
+  <div class="section-title">
+    <span>Advanced Search</span>
+    <h2>Find Best Workers</h2>
+    <p>Filter verified workers by rating, experience, availability and location.</p>
+  </div>
+
+  <div class="form-box">
+    <div class="form-group">
+      <label>Select Service</label>
+      <select id="advancedServiceType" class="service-select">
+        <option value="">Choose service</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>City</label>
+      <input type="text" id="advancedCity" placeholder="Example: Delhi, Dubai, London" />
+    </div>
+
+    <div class="form-group">
+      <label>Minimum Rating</label>
+      <select id="advancedMinRating">
+        <option value="0">Any Rating</option>
+        <option value="3">3+ Stars</option>
+        <option value="4">4+ Stars</option>
+        <option value="4.5">4.5+ Stars</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Availability</label>
+      <select id="advancedAvailability">
+        <option value="">Any</option>
+        <option value="available">Available Now</option>
+        <option value="busy">Busy</option>
+        <option value="offline">Offline</option>
+        <option value="emergency">Emergency Only</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Sort By</label>
+      <select id="advancedSortBy">
+        <option value="match">Best Match</option>
+        <option value="rating">Rating High to Low</option>
+        <option value="experience">Most Experienced</option>
+        <option value="completed">Most Jobs Completed</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn primary-btn full-btn" id="advancedSearchBtn">Search Workers</button>
+    <p class="form-message" id="advancedSearchMessage"></p>
+  </div>
+
+  <div class="result-box" id="advancedWorkersResult"></div>
+</section>
+
 <section class="section customer-only hidden" id="reviews">
   <div class="section-title">
     <span>Verified Reviews</span>
@@ -528,6 +658,21 @@
     <button type="submit" class="btn primary-btn full-btn">Submit Review</button>
     <p class="form-message" id="reviewMessage"></p>
   </form>
+</section>
+
+<section class="section" id="chat-center">
+  <div class="section-title">
+    <span>Live Chat</span>
+    <h2>Booking Chat</h2>
+    <p>Chat opens only after a customer accepts a worker bid.</p>
+  </div>
+
+  <div class="form-box">
+    <button type="button" class="btn primary-btn full-btn" id="loadChatsBtn">Load My Chats</button>
+    <p class="form-message" id="chatMessage"></p>
+  </div>
+
+  <div class="result-box" id="chatResult"></div>
 </section>
 
 <section class="section light-bg" id="notifications">
@@ -644,6 +789,21 @@
   </div>
 </section>
 
+<section class="section light-bg" id="invoices">
+  <div class="section-title">
+    <span>Receipts</span>
+    <h2>Invoices & Receipts</h2>
+    <p>View and print receipts after booking completion.</p>
+  </div>
+
+  <div class="form-box">
+    <button type="button" class="btn primary-btn full-btn" id="loadInvoicesBtn">Load My Invoices</button>
+    <p class="form-message" id="invoiceMessage"></p>
+  </div>
+
+  <div class="result-box" id="invoiceResult"></div>
+</section>
+
 <section class="section customer-only hidden" id="data-control">
   <div class="section-title">
     <span>Data Control</span>
@@ -735,10 +895,11 @@
 
 <footer class="footer">
   <p>© 2026 KaamConnect. All Rights Reserved.</p>
-  <p>Trusted local worker marketplace with safe hiring, bidding and tracking.</p>
+  <p>Trusted local worker marketplace with safe hiring, bidding, chat and tracking.</p>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="module" src="script.js"></script>
+<script type="module" src="LY3"></script>
+
 </body>
 </html>
