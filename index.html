@@ -13,13 +13,17 @@
 
 <header class="header">
   <nav class="navbar">
-    <a href="#home" class="logo">Kaam<span>Connect</span></a>
+    <a href="#home" class="logo">
+      <span class="logo-mark">KC</span>
+      Kaam <span>Connect</span>
+    </a>
 
     <button class="menu-btn" id="menuBtn">☰</button>
 
     <ul class="nav-links" id="navLinks">
       <li><a href="#home">Home</a></li>
       <li><a href="#login">Login</a></li>
+      <li><a href="#profile-update">Profile</a></li>
       <li><a href="#services">Services</a></li>
 
       <li class="customer-only hidden"><a href="#book">Post Work</a></li>
@@ -28,6 +32,9 @@
       <li class="worker-only hidden"><a href="#worker-profile">Worker Profile</a></li>
       <li class="worker-only hidden"><a href="#worker-dashboard">Open Jobs</a></li>
 
+      <li><a href="#notifications">Notifications</a></li>
+      <li><a href="#support-center">Support</a></li>
+      <li><a href="#growth">Growth</a></li>
       <li class="admin-only hidden"><a href="#admin">Admin</a></li>
       <li><a href="#safety">Safety</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -55,12 +62,52 @@
   </nav>
 </header>
 
+<button class="side-toggle" id="sideToggle">☰</button>
+
+<aside class="side-dashboard" id="sideDashboard">
+  <div class="side-profile-card">
+    <div class="side-avatar" id="sideAvatar">KC</div>
+    <h3 id="sideUserName">Guest User</h3>
+    <p id="sideUserRole">Login to continue</p>
+    <span class="side-badge" id="sideVerifyBadge">Not Logged In</span>
+  </div>
+
+  <div class="side-menu">
+    <a href="#home">🏠 Home</a>
+    <a href="#login">🔐 Login</a>
+    <a href="#profile-update">👤 My Profile</a>
+    <a href="#services">🛠 Services</a>
+
+    <a href="#book" class="customer-only hidden">📝 Post Work</a>
+    <a href="#customer-dashboard" class="customer-only hidden">📜 My Bookings</a>
+
+    <a href="#worker-profile" class="worker-only hidden">🧑‍🔧 Worker Profile</a>
+    <a href="#worker-dashboard" class="worker-only hidden">📦 Open Jobs</a>
+
+    <a href="#notifications">🔔 Notifications</a>
+    <a href="#support-center">🎧 Support</a>
+    <a href="#growth">🌍 Growth</a>
+    <a href="#admin" class="admin-only hidden">👑 Admin</a>
+  </div>
+
+  <div class="side-stats">
+    <div>
+      <strong id="sideTrustScore">0%</strong>
+      <span>Trust Score</span>
+    </div>
+    <div>
+      <strong id="sideAccountStatus">Guest</strong>
+      <span>Status</span>
+    </div>
+  </div>
+</aside>
+
 <section class="hero" id="home">
   <div class="hero-content">
     <p class="tag">Local Work • Trusted Hands • Global Platform</p>
     <h1>Hire Trusted Workers, Freelancers & General Helpers</h1>
     <p>
-      Post your work, compare bids, choose verified workers and protect your phone/address until bid acceptance.
+      Post work, compare bids, choose verified workers and keep your phone/address private until bid acceptance.
     </p>
 
     <div class="hero-search">
@@ -84,9 +131,9 @@
     <h3>Why KaamConnect?</h3>
     <div class="check-item">✅ Verified workers</div>
     <div class="check-item">✅ Hidden phone and address</div>
-    <div class="check-item">✅ Bidding system</div>
+    <div class="check-item">✅ Worker bidding system</div>
     <div class="check-item">✅ Freelancer / general task helper</div>
-    <div class="check-item">✅ Admin verification</div>
+    <div class="check-item">✅ Admin verification system</div>
   </div>
 </section>
 
@@ -94,7 +141,7 @@
   <div class="section-title">
     <span>Account</span>
     <h2>Signup / Login</h2>
-    <p>Signup and login are separate so users do not get confused.</p>
+    <p>Create your customer or worker account with User ID and password.</p>
   </div>
 
   <div class="account-status">
@@ -105,8 +152,8 @@
 
   <div class="auth-box">
     <div class="tabs">
-      <button class="tab-btn active" id="showSignupTab">Signup</button>
-      <button class="tab-btn" id="showLoginTab">Login</button>
+      <button class="tab-btn active" id="showSignupTab" type="button">Signup</button>
+      <button class="tab-btn" id="showLoginTab" type="button">Login</button>
     </div>
 
     <form id="authForm">
@@ -119,6 +166,11 @@
         <div class="form-group">
           <label>Mobile Number</label>
           <input type="tel" id="authPhone" placeholder="Enter mobile number" />
+        </div>
+
+        <div class="form-group">
+          <label>Referral Code Optional</label>
+          <input type="text" id="authReferral" placeholder="Enter referral code if any" />
         </div>
 
         <div class="form-group">
@@ -150,11 +202,79 @@
   </div>
 </section>
 
+<section class="section profile-section" id="profile-update">
+  <div class="section-title">
+    <span>Professional Profile</span>
+    <h2>My Profile & Account Update</h2>
+    <p>Update your account details to build more trust on KaamConnect.</p>
+  </div>
+
+  <div class="profile-grid">
+    <div class="profile-preview-card">
+      <div class="profile-cover"></div>
+      <div class="profile-avatar-large" id="profilePreviewAvatar">KC</div>
+
+      <h3 id="profilePreviewName">Guest User</h3>
+      <p id="profilePreviewRole">Login to update your profile</p>
+
+      <div class="profile-badges">
+        <span class="profile-badge" id="profilePreviewVerify">Not Verified</span>
+        <span class="profile-badge blue" id="profilePreviewCountry">India</span>
+      </div>
+
+      <div class="profile-stat-row">
+        <div>
+          <strong id="profileTrustScore">0%</strong>
+          <span>Trust Score</span>
+        </div>
+        <div>
+          <strong id="profileRoleStat">Guest</strong>
+          <span>Account</span>
+        </div>
+      </div>
+    </div>
+
+    <form class="form-box profile-form" id="profileUpdateForm">
+      <h3>Update Profile</h3>
+
+      <div class="form-group">
+        <label>Profile Photo URL</label>
+        <input type="url" id="profilePhotoUrl" placeholder="Paste image URL optional" />
+      </div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="profileFullName" placeholder="Enter full name" />
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="profilePhone" placeholder="Enter mobile number" />
+      </div>
+
+      <div class="form-group">
+        <label>City / Area</label>
+        <input type="text" id="profileCity" placeholder="Example: Delhi" />
+      </div>
+
+      <div class="form-group">
+        <label>Short Bio</label>
+        <textarea id="profileBio" placeholder="Example: I am a trusted KaamConnect user."></textarea>
+      </div>
+
+      <button type="button" class="btn secondary-btn full-btn" id="loadProfileBtn">Load My Profile</button>
+      <button type="submit" class="btn primary-btn full-btn">Save Profile Update</button>
+
+      <p class="message" id="profileUpdateMessage"></p>
+    </form>
+  </div>
+</section>
+
 <section class="section" id="services">
   <div class="section-title">
     <span>Services</span>
     <h2>Popular Services</h2>
-    <p>Now includes Freelancer / General Helper for any legal small task or errand work.</p>
+    <p>Includes Freelancer / General Helper for safe small tasks, errands and queue work.</p>
   </div>
 
   <div class="services-grid" id="servicesGrid"></div>
@@ -164,7 +284,7 @@
   <div class="section-title">
     <span>Customer</span>
     <h2>Post Work / Booking</h2>
-    <p>Your phone and full address stay hidden from workers until you accept a bid.</p>
+    <p>Your phone and full address stay hidden until you accept a bid.</p>
   </div>
 
   <form class="form-box" id="bookingForm">
@@ -202,7 +322,7 @@
 
     <div class="form-group">
       <label>Work Details</label>
-      <textarea id="workDetails" placeholder="Example: Need someone to stand in hospital line, collect report, travel to another place, or repair work." required></textarea>
+      <textarea id="workDetails" placeholder="Example: Need someone to stand in hospital line, collect report, travel help or repair work." required></textarea>
     </div>
 
     <button type="submit" class="btn primary-btn full-btn">Post Work</button>
@@ -235,7 +355,7 @@
       <select id="workerSkill" class="service-select" required>
         <option value="">Choose skill</option>
       </select>
-      <small>Select “Freelancer / General Helper” if you can do small legal tasks without special skill.</small>
+      <small>Select “Freelancer / General Helper” for safe small tasks without special skill.</small>
     </div>
 
     <div class="form-group">
@@ -251,7 +371,7 @@
 
     <div class="form-group">
       <label>Experience / About</label>
-      <textarea id="workerAbout" placeholder="Example: I can do delivery, queue standing, hospital line, travel helper, basic local tasks."></textarea>
+      <textarea id="workerAbout" placeholder="Example: I can do delivery, queue standing, hospital line, travel helper and basic tasks."></textarea>
     </div>
 
     <div class="form-group">
@@ -305,17 +425,147 @@
   <div class="result-box" id="customerBookingsResult"></div>
 </section>
 
-<section class="section light-bg admin-only hidden" id="admin">
+<section class="section light-bg" id="notifications">
   <div class="section-title">
-    <span>Admin</span>
-    <h2>Admin Portal</h2>
-    <p>Only User ID <strong>thelokeshonly</strong> can access admin controls.</p>
+    <span>Notifications</span>
+    <h2>Notification Center</h2>
+    <p>See booking, bid, verification and support updates.</p>
   </div>
 
   <div class="form-box">
-    <button class="btn primary-btn full-btn" id="loadPendingWorkersBtn">Load Pending Workers</button>
-    <button class="btn secondary-btn full-btn" id="loadUsersBtn">Load Users</button>
-    <button class="btn secondary-btn full-btn" id="loadAllBookingsBtn">Load All Bookings</button>
+    <button class="btn primary-btn full-btn" id="loadNotificationsBtn">Load Notifications</button>
+    <p class="message" id="notificationMessage"></p>
+  </div>
+
+  <div class="result-box" id="notificationResult"></div>
+</section>
+
+<section class="section" id="support-center">
+  <div class="section-title">
+    <span>Support</span>
+    <h2>Support & Reports</h2>
+    <p>Raise support tickets or report unsafe/fake activity.</p>
+  </div>
+
+  <div class="dual-grid">
+    <form class="form-box" id="supportForm">
+      <h3>Support Ticket</h3>
+
+      <div class="form-group">
+        <label>Ticket Type</label>
+        <select id="supportType" required>
+          <option value="">Choose type</option>
+          <option>Payment Issue</option>
+          <option>Worker Did Not Arrive</option>
+          <option>Customer Cancelled</option>
+          <option>Account Problem</option>
+          <option>Verification Issue</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Details</label>
+        <textarea id="supportDetails" required></textarea>
+      </div>
+
+      <button type="submit" class="btn primary-btn full-btn">Submit Ticket</button>
+      <p class="message" id="supportMessage"></p>
+    </form>
+
+    <form class="form-box" id="reportForm">
+      <h3>Report Problem</h3>
+
+      <div class="form-group">
+        <label>Report Type</label>
+        <select id="reportType" required>
+          <option value="">Choose type</option>
+          <option>Worker Issue</option>
+          <option>Customer Issue</option>
+          <option>Fake Profile</option>
+          <option>Payment Issue</option>
+          <option>Safety Concern</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Reported Phone / User ID</label>
+        <input type="text" id="reportedIdentity" />
+      </div>
+
+      <div class="form-group">
+        <label>Details</label>
+        <textarea id="reportDetails" required></textarea>
+      </div>
+
+      <button type="submit" class="btn secondary-btn full-btn">Submit Report</button>
+      <p class="message" id="reportMessage"></p>
+    </form>
+  </div>
+</section>
+
+<section class="section light-bg" id="growth">
+  <div class="section-title">
+    <span>City Launch</span>
+    <h2>Available Cities & City Request</h2>
+    <p>KaamConnect is expanding city by city. Request your city if service is not available there yet.</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="icon">📍</div>
+      <h3>Available Cities</h3>
+      <p><strong>Delhi:</strong> <span class="badge badge-green">Live</span></p>
+      <p><strong>Gurgaon:</strong> <span class="badge badge-green">Live</span></p>
+      <p><strong>Noida:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
+      <p><strong>Mumbai:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
+      <p><strong>Dubai:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
+      <p><strong>London:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
+    </div>
+
+    <form class="form-box" id="cityRequestForm">
+      <h3>Request Your City</h3>
+
+      <div class="form-group">
+        <label>City Name</label>
+        <input type="text" id="requestCityName" placeholder="Example: Jaipur" required />
+      </div>
+
+      <div class="form-group">
+        <label>Country</label>
+        <input type="text" id="requestCountryName" placeholder="India, UAE, UK..." required />
+      </div>
+
+      <button class="btn primary-btn full-btn" type="submit">Request City</button>
+      <p class="message" id="cityRequestMessage"></p>
+    </form>
+
+    <div class="service-card">
+      <div class="icon">🎁</div>
+      <h3>Referral Dashboard</h3>
+      <p>Invite customers or workers and grow KaamConnect in your city.</p>
+
+      <button class="btn primary-btn full-btn" id="loadReferralBtn">Load My Referral Code</button>
+      <p class="message" id="referralMessage"></p>
+
+      <div class="result-box inner-result" id="referralResult"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section admin-only hidden" id="admin">
+  <div class="section-title">
+    <span>Admin</span>
+    <h2>KaamConnect Admin Portal</h2>
+    <p>Only User ID <strong>thelokeshonly</strong> can access admin controls.</p>
+  </div>
+
+  <div class="form-box admin-buttons">
+    <button class="btn primary-btn full-btn" id="loadPendingUsersBtn">Pending Users</button>
+    <button class="btn secondary-btn full-btn" id="loadPendingWorkersBtn">Pending Workers</button>
+    <button class="btn secondary-btn full-btn" id="loadAllBookingsBtn">All Bookings</button>
+    <button class="btn secondary-btn full-btn" id="loadSupportTicketsBtn">Support Tickets</button>
     <p class="message" id="adminMessage"></p>
   </div>
 
