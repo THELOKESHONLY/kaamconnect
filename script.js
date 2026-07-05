@@ -150,6 +150,10 @@ function clearForm(formId) {
   if (form) form.reset();
 }
 
+function makeReferralCode(loginId) {
+  return "KC" + String(loginId || "USER").replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 8);
+}
+
 function fillServices() {
   document.querySelectorAll(".service-select").forEach((select) => {
     const first = select.querySelector("option")?.textContent || "Choose service";
@@ -179,8 +183,81 @@ function updateCurrencySymbols() {
   });
 }
 
+function profileTrustScore(profile) {
+  let score = 25;
+
+  if (profile?.phoneVerified === true) score += 35;
+  if (profile?.phone) score += 15;
+  if (profile?.city) score += 10;
+  if (profile?.bio) score += 10;
+  if (profile?.photoUrl) score += 5;
+
+  return Math.min(score, 100);
+}
+
+function profileRoleText() {
+  if (!currentUser) return "Guest";
+  if (isAdminUser()) return "Admin";
+  if (currentRole === "worker") return "Worker";
+  return "Customer";
+}
+
+function avatarHTML(profile) {
+  if (profile?.photoUrl) {
+    return `<img src="${safeText(profile.photoUrl)}" alt="Profile">`;
+  }
+
+  const name = profile?.name || "KC";
+  return safeText(name.slice(0, 2).toUpperCase());
+}
+
+function refreshProfessionalProfileUI() {
+  const loggedIn = !!currentUser;
+  const profile = currentProfile || {};
+  const name = loggedIn ? (profile.name || currentUser.email || "User") : "Guest User";
+  const role = profileRoleText();
+  const score = loggedIn ? profileTrustScore(profile) : 0;
+  const verified = profile.phoneVerified === true;
+
+  const sideAvatar = document.getElementById("sideAvatar");
+  const sideUserName = document.getElementById("sideUserName");
+  const sideUserRole = document.getElementById("sideUserRole");
+  const sideVerifyBadge = document.getElementById("sideVerifyBadge");
+  const sideTrustScore = document.getElementById("sideTrustScore");
+  const sideAccountStatus = document.getElementById("sideAccountStatus");
+
+  if (sideAvatar) sideAvatar.innerHTML = avatarHTML(profile);
+  if (sideUserName) sideUserName.textContent = name;
+  if (sideUserRole) sideUserRole.textContent = role;
+  if (sideTrustScore) sideTrustScore.textContent = score + "%";
+  if (sideAccountStatus) sideAccountStatus.textContent = loggedIn ? "Active" : "Guest";
+
+  if (sideVerifyBadge) {
+    sideVerifyBadge.textContent = verified ? "Verified" : loggedIn ? "Pending" : "Not Logged In";
+    sideVerifyBadge.classList.toggle("verified", verified);
+  }
+
+  const previewAvatar = document.getElementById("profilePreviewAvatar");
+  const previewName = document.getElementById("profilePreviewName");
+  const previewRole = document.getElementById("profilePreviewRole");
+  const previewVerify = document.getElementById("profilePreviewVerify");
+  const previewCountry = document.getElementById("profilePreviewCountry");
+  const trustScore = document.getElementById("profileTrustScore");
+  const roleStat = document.getElementById("profileRoleStat");
+
+  if (previewAvatar) previewAvatar.innerHTML = avatarHTML(profile);
+  if (previewName) previewName.textContent = name;
+  if (previewRole) previewRole.textContent = loggedIn ? role + " Account" : "Login to update your profile";
+  if (previewVerify) previewVerify.textContent = verified ? "Phone Verified" : loggedIn ? "Verification Pending" : "Not Verified";
+  if (previewCountry) previewCountry.textContent = profile.country || selectedCountry();
+  if (trustScore) trustScore.textContent = score + "%";
+  if (roleStat) roleStat.textContent = role;
+}
+
 fillServices();
 updateCurrencySymbols();
+
+document.body.classList.add("sidebar-space");
 
 document.getElementById("currencySelector")?.addEventListener("change", updateCurrencySymbols);
 
@@ -193,6 +270,28 @@ menuBtn?.addEventListener("click", () => {
 
 document.querySelectorAll(".nav-links a").forEach((link) => {
   link.addEventListener("click", () => navLinks.classList.remove("active"));
+});
+
+const sideToggle = document.getElementById("sideToggle");
+const sideDashboard = document.getElementById("sideDashboard");
+
+if (sideToggle && sideDashboard) {
+  sideToggle.addEventListener("click", () => {
+    if (window.innerWidth < 1180) {
+      sideDashboard.classList.toggle("open");
+    } else {
+      sideDashboard.classList.toggle("closed");
+      document.body.classList.toggle("sidebar-closed");
+    }
+  });
+}
+
+document.querySelectorAll(".side-menu a").forEach((link) => {
+  link.addEventListener("click", () => {
+    if (window.innerWidth < 1180) {
+      sideDashboard?.classList.remove("open");
+    }
+  });
 });
 
 function setAuthMode(mode) {
@@ -226,15 +325,18 @@ function setPortalVisibility() {
   const accountRoleLine = document.getElementById("accountRoleLine");
 
   if (!currentUser) {
-    accountNameLine.textContent = "Not logged in";
-    accountRoleLine.textContent = "Login to start.";
+    if (accountNameLine) accountNameLine.textContent = "Not logged in";
+    if (accountRoleLine) accountRoleLine.textContent = "Login to start.";
+    refreshProfessionalProfileUI();
     return;
   }
 
   const roleText = isAdmin ? "Admin" : currentRole === "worker" ? "Worker / Freelancer" : "Customer";
 
-  accountNameLine.textContent = "Logged in: " + (currentProfile?.name || currentUser.email);
-  accountRoleLine.textContent = "Portal: " + roleText;
+  if (accountNameLine) accountNameLine.textContent = "Logged in: " + (currentProfile?.name || currentUser.email);
+  if (accountRoleLine) accountRoleLine.textContent = "Portal: " + roleText;
+
+  refreshProfessionalProfileUI();
 }
 
 async function loadUserProfile(user) {
@@ -254,6 +356,9 @@ async function loadUserProfile(user) {
       role: "customer",
       phoneVerified: false,
       blocked: false,
+      referralCode: makeReferralCode(user.email),
+      country: selectedCountry(),
+      currency: selectedCurrency(),
       createdAt: serverTimestamp()
     };
 
@@ -326,9 +431,24 @@ function requireAdmin(messageId) {
   return true;
 }
 
+async function createNotification(toUserId, title, message, type = "general", relatedId = "") {
+  if (!toUserId) return;
+
+  await addDoc(collection(db, "notifications"), {
+    toUserId,
+    title,
+    message,
+    type,
+    relatedId,
+    isRead: false,
+    createdAt: serverTimestamp()
+  });
+}
+
 document.getElementById("signupBtn")?.addEventListener("click", async () => {
   const name = getValue("authName");
   const phone = cleanPhone(getValue("authPhone"));
+  const invitedBy = getValue("authReferral").toUpperCase();
   const role = getValue("authRole");
   const loginId = publicLoginId(getValue("authUserId"));
   const email = normalizeLoginEmail(loginId);
@@ -354,6 +474,7 @@ document.getElementById("signupBtn")?.addEventListener("click", async () => {
 
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+    const referralCode = makeReferralCode(loginId);
 
     const profile = {
       uid: user.uid,
@@ -363,13 +484,27 @@ document.getElementById("signupBtn")?.addEventListener("click", async () => {
       loginId,
       email,
       phoneVerified: false,
+      verificationStatus: "pending",
       blocked: false,
+      referralCode,
+      invitedBy,
       country: selectedCountry(),
       currency: selectedCurrency(),
       createdAt: serverTimestamp()
     };
 
     await setDoc(doc(db, "users", user.uid), profile, { merge: true });
+
+    if (invitedBy) {
+      await addDoc(collection(db, "referrals"), {
+        invitedBy,
+        newUserId: user.uid,
+        newUserName: name,
+        newUserRole: role,
+        status: "joined",
+        createdAt: serverTimestamp()
+      });
+    }
 
     currentProfile = profile;
     currentRole = role;
@@ -436,6 +571,70 @@ document.getElementById("quickFindBtn")?.addEventListener("click", () => {
   document.getElementById("book").scrollIntoView({ behavior: "smooth" });
 });
 
+document.getElementById("loadProfileBtn")?.addEventListener("click", () => {
+  if (!requireLogin("profileUpdateMessage")) return;
+
+  document.getElementById("profilePhotoUrl").value = currentProfile.photoUrl || "";
+  document.getElementById("profileFullName").value = currentProfile.name || "";
+  document.getElementById("profilePhone").value = currentProfile.phone || "";
+  document.getElementById("profileCity").value = currentProfile.city || "";
+  document.getElementById("profileBio").value = currentProfile.bio || "";
+
+  refreshProfessionalProfileUI();
+  showMessage("profileUpdateMessage", "Profile loaded.");
+});
+
+document.getElementById("profileUpdateForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!requireLogin("profileUpdateMessage")) return;
+
+  const photoUrl = getValue("profilePhotoUrl");
+  const name = getValue("profileFullName");
+  const phone = cleanPhone(getValue("profilePhone"));
+  const city = getValue("profileCity");
+  const bio = getValue("profileBio");
+
+  if (!name || !phone) {
+    showMessage("profileUpdateMessage", "Name and phone are required.");
+    return;
+  }
+
+  if (!isValidPhone(phone)) {
+    showMessage("profileUpdateMessage", "Enter valid mobile number.");
+    return;
+  }
+
+  try {
+    showMessage("profileUpdateMessage", "Saving profile...");
+
+    const updateData = {
+      photoUrl,
+      name,
+      phone,
+      city,
+      bio,
+      country: selectedCountry(),
+      currency: selectedCurrency(),
+      updatedAt: serverTimestamp()
+    };
+
+    await updateDoc(doc(db, "users", currentUser.uid), updateData);
+
+    currentProfile = {
+      ...currentProfile,
+      ...updateData
+    };
+
+    refreshProfessionalProfileUI();
+    setPortalVisibility();
+
+    showMessage("profileUpdateMessage", "Profile updated successfully.");
+  } catch (error) {
+    showMessage("profileUpdateMessage", "Database Error: " + error.message);
+  }
+});
+
 document.getElementById("workerForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -490,6 +689,24 @@ document.getElementById("workerForm")?.addEventListener("submit", async (event) 
 
     await setDoc(workerRef, workerData, { merge: true });
 
+    await setDoc(doc(db, "workerPublic", currentUser.uid), {
+      userId: currentUser.uid,
+      workerName,
+      workerSkill,
+      workerType,
+      workerAbout,
+      workerCity,
+      workerCityLower: cleanText(workerCity),
+      workerCountry: selectedCountry(),
+      workerAvailability,
+      available: workerData.available,
+      verified: alreadyVerified,
+      workerRating: oldData.workerRating || 0,
+      totalReviews: oldData.totalReviews || 0,
+      jobsCompleted: oldData.jobsCompleted || 0,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
     showMessage(
       "workerMessage",
       alreadyVerified
@@ -543,8 +760,10 @@ document.getElementById("bookingForm")?.addEventListener("submit", async (event)
       currency: selectedCurrency(),
       workDetails,
       bookingStatus: "pending",
+      jobProgress: "posted",
       biddingOpen: true,
       acceptedBidId: "",
+      acceptedBidAmount: 0,
       assignedWorkerUserId: "",
       assignedWorkerName: "",
       assignedWorkerPhone: "",
@@ -568,6 +787,8 @@ document.getElementById("bookingForm")?.addEventListener("submit", async (event)
       biddingOpen: true,
       createdAt: serverTimestamp()
     });
+
+    await createNotification(currentUser.uid, "Booking Posted", "Your booking is open for bids.", "booking", bookingRef.id);
 
     document.getElementById("matchResult").innerHTML = `
       <div class="data-card">
@@ -730,6 +951,8 @@ window.placeBid = async function (bookingId) {
       createdAt: serverTimestamp()
     });
 
+    await createNotification(job.customerId, "New Bid Received", worker.workerName + " submitted a bid.", "bid", bookingId);
+
     showMessage("bidStatus-" + bookingId, "Bid submitted successfully.");
 
   } catch (error) {
@@ -878,6 +1101,7 @@ window.acceptBid = async function (bookingId, bidId) {
 
     await updateDoc(bookingRef, {
       bookingStatus: "assigned",
+      jobProgress: "assigned",
       biddingOpen: false,
       acceptedBidId: bidId,
       acceptedBidAmount: Number(bid.bidAmount || 0),
@@ -902,11 +1126,266 @@ window.acceptBid = async function (bookingId, bidId) {
       });
     }
 
+    await createNotification(bid.workerUserId, "Bid Accepted", "Customer accepted your bid.", "accepted", bookingId);
+
     showMessage("acceptStatus-" + bidId, "Bid accepted. Worker phone unlocked.");
     loadCustomerBookings();
 
   } catch (error) {
     showMessage("acceptStatus-" + bidId, "Database Error: " + error.message);
+  }
+};
+
+document.getElementById("loadNotificationsBtn")?.addEventListener("click", async () => {
+  if (!requireLogin("notificationMessage")) return;
+
+  const box = document.getElementById("notificationResult");
+  box.innerHTML = "";
+
+  try {
+    const notificationSnap = await getDocs(query(collection(db, "notifications"), where("toUserId", "==", currentUser.uid)));
+
+    if (notificationSnap.empty) {
+      showMessage("notificationMessage", "No notifications found.");
+      return;
+    }
+
+    notificationSnap.forEach((notificationDoc) => {
+      const n = notificationDoc.data();
+
+      box.innerHTML += `
+        <div class="data-card">
+          <h3>${safeText(n.title)}</h3>
+          <p>${safeText(n.message)}</p>
+          <p><strong>Type:</strong> ${safeText(n.type || "general")}</p>
+        </div>
+      `;
+    });
+
+    showMessage("notificationMessage", "Notifications loaded.");
+  } catch (error) {
+    showMessage("notificationMessage", "Database Error: " + error.message);
+  }
+});
+
+document.getElementById("supportForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!requireLogin("supportMessage")) return;
+
+  const supportType = getValue("supportType");
+  const supportDetails = getValue("supportDetails");
+
+  if (!supportType || !supportDetails) {
+    showMessage("supportMessage", "Fill support type and details.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "supportTickets"), {
+      userId: currentUser.uid,
+      userName: currentProfile.name || "",
+      userRole: currentProfile.role || "",
+      supportType,
+      supportDetails,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+
+    showMessage("supportMessage", "Support ticket submitted.");
+    clearForm("supportForm");
+  } catch (error) {
+    showMessage("supportMessage", "Database Error: " + error.message);
+  }
+});
+
+document.getElementById("reportForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!requireLogin("reportMessage")) return;
+
+  const reportType = getValue("reportType");
+  const reportedIdentity = getValue("reportedIdentity");
+  const reportDetails = getValue("reportDetails");
+
+  if (!reportType || !reportDetails) {
+    showMessage("reportMessage", "Fill report type and details.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "reports"), {
+      reporterId: currentUser.uid,
+      reporterName: currentProfile.name || "",
+      reporterRole: currentProfile.role || "",
+      reportType,
+      reportedIdentity,
+      reportDetails,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+
+    showMessage("reportMessage", "Report submitted.");
+    clearForm("reportForm");
+  } catch (error) {
+    showMessage("reportMessage", "Database Error: " + error.message);
+  }
+});
+
+document.getElementById("cityRequestForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const city = getValue("requestCityName");
+  const country = getValue("requestCountryName");
+
+  if (!city || !country) {
+    showMessage("cityRequestMessage", "Fill city and country.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "cityRequests"), {
+      userId: currentUser?.uid || "",
+      city,
+      country,
+      status: "requested",
+      createdAt: serverTimestamp()
+    });
+
+    showMessage("cityRequestMessage", "City request submitted.");
+    clearForm("cityRequestForm");
+  } catch (error) {
+    showMessage("cityRequestMessage", "Database Error: " + error.message);
+  }
+});
+
+document.getElementById("loadReferralBtn")?.addEventListener("click", async () => {
+  if (!requireLogin("referralMessage")) return;
+
+  try {
+    const referralCode = currentProfile.referralCode || makeReferralCode(currentProfile.loginId);
+
+    const referralSnap = await getDocs(query(collection(db, "referrals"), where("invitedBy", "==", referralCode)));
+
+    document.getElementById("referralResult").innerHTML = `
+      <div class="data-card">
+        <h3>Your Referral Code</h3>
+        <p><strong>${safeText(referralCode)}</strong></p>
+        <p>Share this code with customers or workers.</p>
+        <p><strong>Total Joined:</strong> ${referralSnap.size}</p>
+      </div>
+    `;
+
+    showMessage("referralMessage", "Referral loaded.");
+  } catch (error) {
+    showMessage("referralMessage", "Database Error: " + error.message);
+  }
+});
+
+document.getElementById("loadPendingUsersBtn")?.addEventListener("click", async () => {
+  if (!requireAdmin("adminMessage")) return;
+
+  const box = document.getElementById("adminResult");
+  box.innerHTML = "";
+
+  try {
+    const usersSnap = await getDocs(collection(db, "users"));
+    let found = false;
+
+    usersSnap.forEach((userDoc) => {
+      const user = userDoc.data();
+
+      if (user.phoneVerified !== true && user.blocked !== true) {
+        found = true;
+
+        box.innerHTML += `
+          <div class="data-card">
+            <h3>Customer/User Verification</h3>
+            <p><strong>Name:</strong> ${safeText(user.name)}</p>
+            <p><strong>User ID:</strong> ${safeText(user.loginId)}</p>
+            <p><strong>Role:</strong> ${safeText(user.role)}</p>
+            <p><strong>Phone:</strong> ${safeText(user.phone || "Not added")}</p>
+            <p><strong>Status:</strong> <span class="badge badge-yellow">${safeText(user.verificationStatus || "Phone Pending")}</span></p>
+
+            <div class="admin-actions">
+              <button class="btn primary-btn" onclick="adminVerifyCustomer('${userDoc.id}')">Mark Phone Verified</button>
+              <button class="btn outline-btn" onclick="adminRejectCustomer('${userDoc.id}')">Reject User</button>
+            </div>
+
+            <button class="btn danger-btn full-btn" onclick="adminBlockUser('${userDoc.id}')">Block User</button>
+            <p class="message" id="adminCustomerStatus-${userDoc.id}"></p>
+          </div>
+        `;
+      }
+    });
+
+    showMessage("adminMessage", found ? "Pending users loaded." : "No pending users found.");
+  } catch (error) {
+    showMessage("adminMessage", "Database Error: " + error.message);
+  }
+});
+
+window.adminVerifyCustomer = async function (userId) {
+  if (!requireAdmin("adminMessage")) return;
+
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      phoneVerified: true,
+      verificationStatus: "verified",
+      verifiedAt: serverTimestamp()
+    });
+
+    await createNotification(userId, "Phone Verified", "Your phone number is verified.", "verification", userId);
+
+    showMessage("adminCustomerStatus-" + userId, "User verified.");
+  } catch (error) {
+    showMessage("adminCustomerStatus-" + userId, "Database Error: " + error.message);
+  }
+};
+
+window.adminRejectCustomer = async function (userId) {
+  if (!requireAdmin("adminMessage")) return;
+
+  if (currentUser && currentUser.uid === userId) {
+    showMessage("adminMessage", "You cannot reject your own admin account.");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      phoneVerified: false,
+      verificationStatus: "rejected",
+      rejectedAt: serverTimestamp()
+    });
+
+    await createNotification(userId, "Verification Rejected", "Your account verification was rejected. Please contact support.", "verification", userId);
+
+    showMessage("adminCustomerStatus-" + userId, "User rejected.");
+  } catch (error) {
+    showMessage("adminCustomerStatus-" + userId, "Database Error: " + error.message);
+  }
+};
+
+window.adminBlockUser = async function (userId) {
+  if (!requireAdmin("adminMessage")) return;
+
+  if (currentUser && currentUser.uid === userId) {
+    showMessage("adminMessage", "You cannot block your own admin account.");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      blocked: true,
+      verificationStatus: "blocked",
+      blockedAt: serverTimestamp()
+    });
+
+    await createNotification(userId, "Account Blocked", "Your account has been blocked by admin.", "account", userId);
+
+    showMessage("adminCustomerStatus-" + userId, "User blocked.");
+  } catch (error) {
+    showMessage("adminCustomerStatus-" + userId, "Database Error: " + error.message);
   }
 };
 
@@ -923,7 +1402,7 @@ document.getElementById("loadPendingWorkersBtn")?.addEventListener("click", asyn
     workersSnap.forEach((workerDoc) => {
       const worker = workerDoc.data();
 
-      if (worker.verified !== true) {
+      if (worker.verified !== true && worker.blocked !== true) {
         found = true;
 
         box.innerHTML += `
@@ -938,10 +1417,11 @@ document.getElementById("loadPendingWorkersBtn")?.addEventListener("click", asyn
             <p><strong>Status:</strong> <span class="badge badge-yellow">${safeText(worker.verificationStatus || "pending")}</span></p>
 
             <div class="admin-actions">
-              <button class="btn primary-btn" onclick="adminVerifyWorker('${workerDoc.id}')">Verify</button>
-              <button class="btn outline-btn" onclick="adminRejectWorker('${workerDoc.id}')">Reject</button>
+              <button class="btn primary-btn" onclick="adminVerifyWorker('${workerDoc.id}')">Verify Worker</button>
+              <button class="btn outline-btn" onclick="adminRejectWorker('${workerDoc.id}')">Reject Worker</button>
             </div>
 
+            <button class="btn danger-btn full-btn" onclick="adminBlockWorker('${workerDoc.id}')">Block Worker</button>
             <p class="message" id="workerAdminStatus-${workerDoc.id}"></p>
           </div>
         `;
@@ -949,7 +1429,6 @@ document.getElementById("loadPendingWorkersBtn")?.addEventListener("click", asyn
     });
 
     showMessage("adminMessage", found ? "Pending workers loaded." : "No pending worker found.");
-
   } catch (error) {
     showMessage("adminMessage", "Database Error: " + error.message);
   }
@@ -964,6 +1443,13 @@ window.adminVerifyWorker = async function (workerId) {
       verificationStatus: "verified",
       verifiedAt: serverTimestamp()
     });
+
+    await setDoc(doc(db, "workerPublic", workerId), {
+      verified: true,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    await createNotification(workerId, "Worker Verified", "Your worker profile is verified. You can now bid.", "verification", workerId);
 
     showMessage("workerAdminStatus-" + workerId, "Worker verified.");
   } catch (error) {
@@ -981,40 +1467,49 @@ window.adminRejectWorker = async function (workerId) {
       rejectedAt: serverTimestamp()
     });
 
+    await setDoc(doc(db, "workerPublic", workerId), {
+      verified: false,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    await createNotification(workerId, "Worker Rejected", "Your worker verification was rejected. Contact support.", "verification", workerId);
+
     showMessage("workerAdminStatus-" + workerId, "Worker rejected.");
   } catch (error) {
     showMessage("workerAdminStatus-" + workerId, "Database Error: " + error.message);
   }
 };
 
-document.getElementById("loadUsersBtn")?.addEventListener("click", async () => {
+window.adminBlockWorker = async function (workerId) {
   if (!requireAdmin("adminMessage")) return;
 
-  const box = document.getElementById("adminResult");
-  box.innerHTML = "";
-
   try {
-    const usersSnap = await getDocs(collection(db, "users"));
-
-    usersSnap.forEach((userDoc) => {
-      const user = userDoc.data();
-
-      box.innerHTML += `
-        <div class="data-card">
-          <h3>User</h3>
-          <p><strong>Name:</strong> ${safeText(user.name)}</p>
-          <p><strong>User ID:</strong> ${safeText(user.loginId)}</p>
-          <p><strong>Role:</strong> ${safeText(user.role)}</p>
-          <p><strong>Phone:</strong> ${safeText(user.phone)}</p>
-        </div>
-      `;
+    await updateDoc(doc(db, "workers", workerId), {
+      blocked: true,
+      verified: false,
+      verificationStatus: "blocked",
+      blockedAt: serverTimestamp()
     });
 
-    showMessage("adminMessage", "Users loaded.");
+    await setDoc(doc(db, "workerPublic", workerId), {
+      blocked: true,
+      verified: false,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    await updateDoc(doc(db, "users", workerId), {
+      blocked: true,
+      verificationStatus: "blocked",
+      blockedAt: serverTimestamp()
+    });
+
+    await createNotification(workerId, "Worker Account Blocked", "Your worker account has been blocked by admin.", "account", workerId);
+
+    showMessage("workerAdminStatus-" + workerId, "Worker blocked.");
   } catch (error) {
-    showMessage("adminMessage", "Database Error: " + error.message);
+    showMessage("workerAdminStatus-" + workerId, "Database Error: " + error.message);
   }
-});
+};
 
 document.getElementById("loadAllBookingsBtn")?.addEventListener("click", async () => {
   if (!requireAdmin("adminMessage")) return;
@@ -1024,6 +1519,11 @@ document.getElementById("loadAllBookingsBtn")?.addEventListener("click", async (
 
   try {
     const bookingSnap = await getDocs(collection(db, "bookings"));
+
+    if (bookingSnap.empty) {
+      showMessage("adminMessage", "No bookings found.");
+      return;
+    }
 
     bookingSnap.forEach((bookingDoc) => {
       const booking = bookingDoc.data();
@@ -1046,3 +1546,69 @@ document.getElementById("loadAllBookingsBtn")?.addEventListener("click", async (
     showMessage("adminMessage", "Database Error: " + error.message);
   }
 });
+
+document.getElementById("loadSupportTicketsBtn")?.addEventListener("click", async () => {
+  if (!requireAdmin("adminMessage")) return;
+
+  const box = document.getElementById("adminResult");
+  box.innerHTML = "";
+
+  try {
+    const supportSnap = await getDocs(collection(db, "supportTickets"));
+
+    if (supportSnap.empty) {
+      showMessage("adminMessage", "No support tickets found.");
+      return;
+    }
+
+    supportSnap.forEach((ticketDoc) => {
+      const ticket = ticketDoc.data();
+
+      box.innerHTML += `
+        <div class="data-card">
+          <h3>Support Ticket</h3>
+          <p><strong>User:</strong> ${safeText(ticket.userName)}</p>
+          <p><strong>Role:</strong> ${safeText(ticket.userRole)}</p>
+          <p><strong>Type:</strong> ${safeText(ticket.supportType)}</p>
+          <p><strong>Details:</strong> ${safeText(ticket.supportDetails)}</p>
+          <p><strong>Status:</strong> ${safeText(ticket.status)}</p>
+          <div class="admin-actions">
+            <button class="btn primary-btn" onclick="adminUpdateTicket('${ticketDoc.id}', 'solved')">Mark Solved</button>
+            <button class="btn outline-btn" onclick="adminUpdateTicket('${ticketDoc.id}', 'rejected')">Reject Ticket</button>
+          </div>
+          <p class="message" id="ticketStatus-${ticketDoc.id}"></p>
+        </div>
+      `;
+    });
+
+    showMessage("adminMessage", "Support tickets loaded.");
+  } catch (error) {
+    showMessage("adminMessage", "Database Error: " + error.message);
+  }
+});
+
+window.adminUpdateTicket = async function (ticketId, status) {
+  if (!requireAdmin("adminMessage")) return;
+
+  try {
+    const ticketRef = doc(db, "supportTickets", ticketId);
+    const ticketSnap = await getDoc(ticketRef);
+    const ticket = ticketSnap.exists() ? ticketSnap.data() : {};
+
+    await updateDoc(ticketRef, {
+      status,
+      updatedAt: serverTimestamp()
+    });
+
+    if (ticket.userId) {
+      await createNotification(ticket.userId, "Support Ticket Updated", "Your support ticket is now " + status + ".", "support", ticketId);
+    }
+
+    showMessage("ticketStatus-" + ticketId, "Ticket updated: " + status);
+  } catch (error) {
+    showMessage("ticketStatus-" + ticketId, "Database Error: " + error.message);
+  }
+};
+
+refreshProfessionalProfileUI();
+setInterval(refreshProfessionalProfileUI, 2000);
