@@ -1715,3 +1715,239 @@ if (reviewForm) {
     }
   });
 }
+
+const KC_TRANSLATIONS = {
+  en: {
+    home: "Home",
+    login: "Login",
+    services: "Services",
+    contact: "Contact",
+    heroBadge: "Local Work. Trusted Hands.",
+    heroTitle: "Find Trusted Local Workers Anywhere",
+    heroText: "Post your work, compare worker bids, choose the best price, track progress, and hire verified service providers safely.",
+    startBooking: "Start Booking",
+    loginStart: "Login to Start",
+    exploreServices: "Explore Services",
+    accountAccess: "Account Access",
+    accountText: "Create an account or login with your User ID and password.",
+    signup: "Sign Up",
+    createAccount: "Create Account",
+    userId: "User ID / Email",
+    password: "Password",
+    popularServices: "Popular Services",
+    customerPortal: "Customer Portal",
+    workerPortal: "Worker Profile",
+    workerJobs: "Worker Jobs",
+    myBids: "My Bids",
+    tracking: "Tracking",
+    map: "Map",
+    reviews: "Reviews",
+    postBooking: "Post a Booking",
+    workerDashboard: "Worker Dashboard",
+    nearestWorkers: "Find Nearest Verified Workers",
+    admin: "Admin",
+    support: "Contact Us"
+  },
+
+  hi: {
+    home: "होम",
+    login: "लॉगिन",
+    services: "सेवाएं",
+    contact: "संपर्क",
+    heroBadge: "स्थानीय काम। भरोसेमंद हाथ।",
+    heroTitle: "कहीं भी भरोसेमंद लोकल वर्कर खोजें",
+    heroText: "अपना काम पोस्ट करें, वर्कर की बोली देखें, सही कीमत चुनें, प्रोग्रेस ट्रैक करें और सुरक्षित तरीके से verified वर्कर hire करें।",
+    startBooking: "बुकिंग शुरू करें",
+    loginStart: "शुरू करने के लिए लॉगिन करें",
+    exploreServices: "सेवाएं देखें",
+    accountAccess: "अकाउंट एक्सेस",
+    accountText: "User ID और password से अकाउंट बनाएं या login करें।",
+    signup: "साइन अप",
+    createAccount: "अकाउंट बनाएं",
+    userId: "यूजर आईडी / ईमेल",
+    password: "पासवर्ड",
+    popularServices: "लोकप्रिय सेवाएं",
+    customerPortal: "कस्टमर पोर्टल",
+    workerPortal: "वर्कर प्रोफाइल",
+    workerJobs: "वर्कर जॉब्स",
+    myBids: "मेरी बोलियां",
+    tracking: "ट्रैकिंग",
+    map: "मैप",
+    reviews: "रिव्यू",
+    postBooking: "बुकिंग पोस्ट करें",
+    workerDashboard: "वर्कर डैशबोर्ड",
+    nearestWorkers: "नजदीकी verified वर्कर खोजें",
+    admin: "एडमिन",
+    support: "संपर्क करें"
+  },
+
+  es: {
+    home: "Inicio",
+    login: "Iniciar sesión",
+    services: "Servicios",
+    contact: "Contacto",
+    heroBadge: "Trabajo local. Manos confiables.",
+    heroTitle: "Encuentra trabajadores locales confiables en cualquier lugar",
+    heroText: "Publica tu trabajo, compara ofertas, elige el mejor precio, rastrea el progreso y contrata proveedores verificados de forma segura.",
+    startBooking: "Empezar reserva",
+    loginStart: "Iniciar para empezar",
+    exploreServices: "Explorar servicios",
+    accountAccess: "Acceso a cuenta",
+    accountText: "Crea una cuenta o inicia sesión con tu ID de usuario y contraseña.",
+    signup: "Registrarse",
+    createAccount: "Crear cuenta",
+    userId: "ID de usuario / Email",
+    password: "Contraseña",
+    popularServices: "Servicios populares",
+    customerPortal: "Portal del cliente",
+    workerPortal: "Perfil del trabajador",
+    workerJobs: "Trabajos",
+    myBids: "Mis ofertas",
+    tracking: "Seguimiento",
+    map: "Mapa",
+    reviews: "Reseñas",
+    postBooking: "Publicar trabajo",
+    workerDashboard: "Panel del trabajador",
+    nearestWorkers: "Encontrar trabajadores verificados cercanos",
+    admin: "Admin",
+    support: "Contacto"
+  },
+
+  ar: {
+    home: "الرئيسية",
+    login: "تسجيل الدخول",
+    services: "الخدمات",
+    contact: "اتصل بنا",
+    heroBadge: "عمل محلي. أيدٍ موثوقة.",
+    heroTitle: "اعثر على عمال محليين موثوقين في أي مكان",
+    heroText: "انشر عملك، قارن العروض، اختر أفضل سعر، تتبع التقدم، واستأجر مزودي خدمات موثوقين بأمان.",
+    startBooking: "ابدأ الحجز",
+    loginStart: "سجل الدخول للبدء",
+    exploreServices: "استكشف الخدمات",
+    accountAccess: "الدخول إلى الحساب",
+    accountText: "أنشئ حسابًا أو سجل الدخول باستخدام اسم المستخدم وكلمة المرور.",
+    signup: "إنشاء حساب",
+    createAccount: "إنشاء حساب",
+    userId: "اسم المستخدم / البريد الإلكتروني",
+    password: "كلمة المرور",
+    popularServices: "الخدمات الشائعة",
+    customerPortal: "بوابة العميل",
+    workerPortal: "ملف العامل",
+    workerJobs: "وظائف العامل",
+    myBids: "عروضي",
+    tracking: "التتبع",
+    map: "الخريطة",
+    reviews: "التقييمات",
+    postBooking: "نشر حجز",
+    workerDashboard: "لوحة العامل",
+    nearestWorkers: "اعثر على أقرب عمال موثوقين",
+    admin: "المشرف",
+    support: "اتصل بنا"
+  },
+
+  fr: {
+    home: "Accueil",
+    login: "Connexion",
+    services: "Services",
+    contact: "Contact",
+    heroBadge: "Travail local. Mains de confiance.",
+    heroTitle: "Trouvez des travailleurs locaux fiables partout",
+    heroText: "Publiez votre travail, comparez les offres, choisissez le meilleur prix, suivez l’avancement et embauchez des prestataires vérifiés en toute sécurité.",
+    startBooking: "Commencer",
+    loginStart: "Se connecter",
+    exploreServices: "Voir les services",
+    accountAccess: "Accès au compte",
+    accountText: "Créez un compte ou connectez-vous avec votre identifiant et mot de passe.",
+    signup: "S’inscrire",
+    createAccount: "Créer un compte",
+    userId: "Identifiant / Email",
+    password: "Mot de passe",
+    popularServices: "Services populaires",
+    customerPortal: "Portail client",
+    workerPortal: "Profil travailleur",
+    workerJobs: "Travaux",
+    myBids: "Mes offres",
+    tracking: "Suivi",
+    map: "Carte",
+    reviews: "Avis",
+    postBooking: "Publier une demande",
+    workerDashboard: "Tableau du travailleur",
+    nearestWorkers: "Trouver les travailleurs vérifiés proches",
+    admin: "Admin",
+    support: "Contact"
+  }
+};
+
+function kcSetText(selector, text) {
+  const element = document.querySelector(selector);
+  if (element && text) {
+    element.textContent = text;
+  }
+}
+
+function kcSetAllLinks() {
+  const t = KC_TRANSLATIONS[selectedLanguage()] || KC_TRANSLATIONS.en;
+
+  document.querySelectorAll('a[href="#home"]').forEach((e) => e.textContent = t.home);
+  document.querySelectorAll('a[href="#login"]').forEach((e) => e.textContent = t.login);
+  document.querySelectorAll('a[href="#services"]').forEach((e) => e.textContent = t.services);
+  document.querySelectorAll('a[href="#contact"]').forEach((e) => e.textContent = t.contact);
+  document.querySelectorAll('a[href="#book"]').forEach((e) => e.textContent = t.customerPortal);
+  document.querySelectorAll('a[href="#customer-bids"]').forEach((e) => e.textContent = t.myBids);
+  document.querySelectorAll('a[href="#tracking"]').forEach((e) => e.textContent = t.tracking);
+  document.querySelectorAll('a[href="#nearest-workers"]').forEach((e) => e.textContent = t.map);
+  document.querySelectorAll('a[href="#reviews"]').forEach((e) => e.textContent = t.reviews);
+  document.querySelectorAll('a[href="#join"]').forEach((e) => e.textContent = t.workerPortal);
+  document.querySelectorAll('a[href="#worker-dashboard"]').forEach((e) => e.textContent = t.workerJobs);
+  document.querySelectorAll('a[href="#admin"]').forEach((e) => e.textContent = t.admin);
+}
+
+function kcTranslatePage() {
+  const lang = selectedLanguage();
+  const t = KC_TRANSLATIONS[lang] || KC_TRANSLATIONS.en;
+
+  document.documentElement.lang = lang;
+  document.body.dir = lang === "ar" ? "rtl" : "ltr";
+
+  kcSetAllLinks();
+
+  kcSetText(".hero-badge", t.heroBadge);
+  kcSetText(".hero-content h1", t.heroTitle);
+  kcSetText(".hero-text", t.heroText);
+  kcSetText("#quickFindBtn", t.startBooking);
+  kcSetText('.hero-buttons a[href="#login"]', t.loginStart);
+  kcSetText('.hero-buttons a[href="#services"]', t.exploreServices);
+
+  kcSetText("#login .section-title h2", t.accountAccess);
+  kcSetText("#login .section-title p", t.accountText);
+  kcSetText("#showSignupTab", t.signup);
+  kcSetText("#showLoginTab", t.login);
+  kcSetText("#signupBtn", t.createAccount);
+  kcSetText("#loginBtn", t.login);
+
+  const userIdLabel = document.querySelector('label[for="authUserId"]');
+  if (userIdLabel) userIdLabel.textContent = t.userId;
+
+  const authUserIdLabel = document.querySelector("#authUserId")?.closest(".form-group")?.querySelector("label");
+  if (authUserIdLabel) authUserIdLabel.textContent = t.userId;
+
+  const authPasswordLabel = document.querySelector("#authPassword")?.closest(".form-group")?.querySelector("label");
+  if (authPasswordLabel) authPasswordLabel.textContent = t.password;
+
+  kcSetText("#services .section-title h2", t.popularServices);
+  kcSetText("#book .section-title h2", t.postBooking);
+  kcSetText("#worker-dashboard .section-title h2", t.workerDashboard);
+  kcSetText("#nearest-workers .section-title h2", t.nearestWorkers);
+  kcSetText("#contact .section-title h2", t.support);
+}
+
+const kcLanguageSelector = document.getElementById("languageSelector");
+
+if (kcLanguageSelector) {
+  kcLanguageSelector.addEventListener("change", () => {
+    localStorage.setItem("kaamconnect_language", selectedLanguage());
+    kcTranslatePage();
+  });
+}
+
+kcTranslatePage();
