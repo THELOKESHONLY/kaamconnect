@@ -4,43 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>KaamConnect - Trusted Local Worker Marketplace</title>
-  <meta name="description" content="Hire trusted local workers, freelancers and general helpers near you." />
+  <title>KaamConnect - Professional Local Worker Marketplace</title>
+  <meta name="description" content="Hire trusted local workers, freelancers and general helpers with secure booking, bidding and admin verification." />
 
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
-<header class="header">
-  <nav class="navbar">
-    <a href="#home" class="logo">
-      <span class="logo-mark">KC</span>
-      Kaam <span>Connect</span>
+<header class="top-header">
+  <nav class="top-nav">
+    <a href="#home" class="brand">
+      <span class="brand-icon">KC</span>
+      <span>KaamConnect</span>
     </a>
 
-    <button class="menu-btn" id="menuBtn">☰</button>
+    <div class="top-center">
+      <span class="top-status-dot"></span>
+      <span>Trusted Local Service Marketplace</span>
+    </div>
 
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#login">Login</a></li>
-      <li><a href="#profile-update">Profile</a></li>
-      <li><a href="#services">Services</a></li>
-
-      <li class="customer-only hidden"><a href="#book">Post Work</a></li>
-      <li class="customer-only hidden"><a href="#customer-dashboard">My Bookings</a></li>
-
-      <li class="worker-only hidden"><a href="#worker-profile">Worker Profile</a></li>
-      <li class="worker-only hidden"><a href="#worker-dashboard">Open Jobs</a></li>
-
-      <li><a href="#notifications">Notifications</a></li>
-      <li><a href="#support-center">Support</a></li>
-      <li><a href="#growth">Growth</a></li>
-      <li class="admin-only hidden"><a href="#admin">Admin</a></li>
-      <li><a href="#safety">Safety</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-
-    <div class="selectors">
+    <div class="top-actions">
       <select id="countrySelector">
         <option value="India">India</option>
         <option value="UAE">UAE</option>
@@ -62,52 +46,56 @@
   </nav>
 </header>
 
-<button class="side-toggle" id="sideToggle">☰</button>
+<button class="dashboard-toggle" id="sideToggle" type="button">☰</button>
 
-<aside class="side-dashboard" id="sideDashboard">
-  <div class="side-profile-card">
-    <div class="side-avatar" id="sideAvatar">KC</div>
+<aside class="sidebar closed" id="sideDashboard">
+  <div class="sidebar-profile">
+    <div class="sidebar-avatar" id="sideAvatar">KC</div>
     <h3 id="sideUserName">Guest User</h3>
     <p id="sideUserRole">Login to continue</p>
-    <span class="side-badge" id="sideVerifyBadge">Not Logged In</span>
+    <span class="status-badge pending" id="sideVerifyBadge">Not Logged In</span>
   </div>
 
-  <div class="side-menu">
-    <a href="#home">🏠 Home</a>
-    <a href="#login">🔐 Login</a>
-    <a href="#profile-update">👤 My Profile</a>
-    <a href="#services">🛠 Services</a>
+  <div class="sidebar-menu">
+    <a href="#home">Dashboard Home</a>
+    <a href="#login">Account Access</a>
+    <a href="#profile-update" class="profile-open-link">My Profile</a>
+    <a href="#services">Services</a>
 
-    <a href="#book" class="customer-only hidden">📝 Post Work</a>
-    <a href="#customer-dashboard" class="customer-only hidden">📜 My Bookings</a>
+    <a href="#book" class="customer-only hidden">Post Work</a>
+    <a href="#customer-dashboard" class="customer-only hidden">My Bookings</a>
 
-    <a href="#worker-profile" class="worker-only hidden">🧑‍🔧 Worker Profile</a>
-    <a href="#worker-dashboard" class="worker-only hidden">📦 Open Jobs</a>
+    <a href="#worker-profile" class="worker-only hidden">Worker Profile</a>
+    <a href="#worker-dashboard" class="worker-only hidden">Open Jobs</a>
 
-    <a href="#notifications">🔔 Notifications</a>
-    <a href="#support-center">🎧 Support</a>
-    <a href="#growth">🌍 Growth</a>
-    <a href="#admin" class="admin-only hidden">👑 Admin</a>
+    <a href="#notifications">Notifications</a>
+    <a href="#support-center">Support Center</a>
+    <a href="#growth">City Growth</a>
+    <a href="#admin" class="admin-only hidden">Admin Portal</a>
+    <a href="#safety">Trust & Safety</a>
+    <a href="#contact">Contact</a>
   </div>
 
-  <div class="side-stats">
+  <div class="sidebar-metrics">
     <div>
       <strong id="sideTrustScore">0%</strong>
       <span>Trust Score</span>
     </div>
     <div>
       <strong id="sideAccountStatus">Guest</strong>
-      <span>Status</span>
+      <span>Account Status</span>
     </div>
   </div>
 </aside>
 
-<section class="hero" id="home">
-  <div class="hero-content">
-    <p class="tag">Local Work • Trusted Hands • Global Platform</p>
-    <h1>Hire Trusted Workers, Freelancers & General Helpers</h1>
+<main>
+
+<section class="hero-section" id="home">
+  <div class="hero-left">
+    <span class="eyebrow">Verified Local Services</span>
+    <h1>Hire trusted workers and freelancers with confidence.</h1>
     <p>
-      Post work, compare bids, choose verified workers and keep your phone/address private until bid acceptance.
+      KaamConnect helps customers post work, receive bids, verify workers, protect contact details and manage service requests professionally.
     </p>
 
     <div class="hero-search">
@@ -118,40 +106,61 @@
       <input type="text" id="quickCity" placeholder="City / Area" />
       <input type="number" id="quickBudget" placeholder="Budget" />
 
-      <button class="btn primary-btn" id="quickFindBtn">Start Booking</button>
+      <button class="btn primary-btn" id="quickFindBtn" type="button">Start Booking</button>
     </div>
 
-    <div class="hero-actions">
+    <div class="hero-buttons">
       <a href="#login" class="btn primary-btn">Login / Signup</a>
-      <a href="#services" class="btn secondary-btn">Explore Services</a>
+      <button class="btn secondary-btn profile-open-link" type="button">My Profile</button>
     </div>
   </div>
 
-  <div class="hero-card">
-    <h3>Why KaamConnect?</h3>
-    <div class="check-item">✅ Verified workers</div>
-    <div class="check-item">✅ Hidden phone and address</div>
-    <div class="check-item">✅ Worker bidding system</div>
-    <div class="check-item">✅ Freelancer / general task helper</div>
-    <div class="check-item">✅ Admin verification system</div>
+  <div class="hero-panel">
+    <div class="panel-header">
+      <div>
+        <h3>Platform Overview</h3>
+        <p>Professional booking and bidding workflow.</p>
+      </div>
+      <span class="live-pill">Live</span>
+    </div>
+
+    <div class="overview-row">
+      <span>Worker Verification</span>
+      <strong>Admin Controlled</strong>
+    </div>
+
+    <div class="overview-row">
+      <span>Customer Contact</span>
+      <strong>Hidden Until Accepted</strong>
+    </div>
+
+    <div class="overview-row">
+      <span>Freelancer Work</span>
+      <strong>General Legal Tasks</strong>
+    </div>
+
+    <div class="overview-row">
+      <span>Admin Portal</span>
+      <strong>Private Access</strong>
+    </div>
   </div>
 </section>
 
-<section class="section light-bg" id="login">
-  <div class="section-title">
-    <span>Account</span>
+<section class="section light-section" id="login">
+  <div class="section-heading">
+    <span>Secure Access</span>
     <h2>Signup / Login</h2>
-    <p>Create your customer or worker account with User ID and password.</p>
+    <p>Create a customer or worker account using User ID and password.</p>
   </div>
 
-  <div class="account-status">
+  <div class="account-card">
     <h3>Current Account</h3>
     <p id="accountNameLine">Not logged in</p>
     <p id="accountRoleLine">Login to start.</p>
   </div>
 
-  <div class="auth-box">
-    <div class="tabs">
+  <div class="form-card">
+    <div class="auth-tabs">
       <button class="tab-btn active" id="showSignupTab" type="button">Signup</button>
       <button class="tab-btn" id="showLoginTab" type="button">Login</button>
     </div>
@@ -202,44 +211,69 @@
   </div>
 </section>
 
-<section class="section profile-section" id="profile-update">
-  <div class="section-title">
-    <span>Professional Profile</span>
-    <h2>My Profile & Account Update</h2>
-    <p>Update your account details to build more trust on KaamConnect.</p>
+<section class="section profile-section hidden" id="profile-update">
+  <button type="button" class="panel-close-btn" id="closeProfilePanelBtn">×</button>
+
+  <div class="section-heading">
+    <span>Account Profile</span>
+    <h2>Professional Profile</h2>
+    <p>This section stays hidden until you open it from the dashboard menu.</p>
   </div>
 
-  <div class="profile-grid">
+  <div class="profile-layout">
     <div class="profile-preview-card">
       <div class="profile-cover"></div>
+
       <div class="profile-avatar-large" id="profilePreviewAvatar">KC</div>
 
       <h3 id="profilePreviewName">Guest User</h3>
       <p id="profilePreviewRole">Login to update your profile</p>
 
       <div class="profile-badges">
-        <span class="profile-badge" id="profilePreviewVerify">Not Verified</span>
-        <span class="profile-badge blue" id="profilePreviewCountry">India</span>
+        <span class="status-badge" id="profilePreviewVerify">Not Verified</span>
+        <span class="status-badge blue" id="profilePreviewCountry">India</span>
       </div>
 
-      <div class="profile-stat-row">
+      <div class="profile-stats">
         <div>
           <strong id="profileTrustScore">0%</strong>
           <span>Trust Score</span>
         </div>
         <div>
           <strong id="profileRoleStat">Guest</strong>
-          <span>Account</span>
+          <span>Account Type</span>
         </div>
       </div>
     </div>
 
-    <form class="form-box profile-form" id="profileUpdateForm">
+    <form class="form-card" id="profileUpdateForm">
       <h3>Update Profile</h3>
 
       <div class="form-group">
-        <label>Profile Photo URL</label>
-        <input type="url" id="profilePhotoUrl" placeholder="Paste image URL optional" />
+        <label>Profile Photo</label>
+
+        <input type="hidden" id="profilePhotoUrl" />
+
+        <div class="photo-upload-box">
+          <div class="photo-upload-preview" id="profileUploadPreview">KC</div>
+
+          <div class="photo-upload-content">
+            <h4>Upload Profile Photo</h4>
+            <p>Choose an image from your device. It will be compressed and shown on your profile.</p>
+
+            <label class="btn primary-btn upload-photo-btn" for="profilePhotoFile">
+              Choose Photo
+            </label>
+
+            <input type="file" id="profilePhotoFile" accept="image/*" hidden />
+
+            <button type="button" class="btn outline-btn remove-photo-btn" id="removeProfilePhotoBtn">
+              Remove Photo
+            </button>
+          </div>
+        </div>
+
+        <small>Use a clear photo for better trust.</small>
       </div>
 
       <div class="form-group">
@@ -271,23 +305,23 @@
 </section>
 
 <section class="section" id="services">
-  <div class="section-title">
-    <span>Services</span>
-    <h2>Popular Services</h2>
-    <p>Includes Freelancer / General Helper for safe small tasks, errands and queue work.</p>
+  <div class="section-heading">
+    <span>Marketplace</span>
+    <h2>Service Categories</h2>
+    <p>Professional service categories including freelancer and general helper work.</p>
   </div>
 
-  <div class="services-grid" id="servicesGrid"></div>
+  <div class="service-grid" id="servicesGrid"></div>
 </section>
 
-<section class="section light-bg customer-only hidden" id="book">
-  <div class="section-title">
-    <span>Customer</span>
-    <h2>Post Work / Booking</h2>
-    <p>Your phone and full address stay hidden until you accept a bid.</p>
+<section class="section light-section customer-only hidden" id="book">
+  <div class="section-heading">
+    <span>Customer Portal</span>
+    <h2>Post Work</h2>
+    <p>Post your work. Phone and address stay hidden until you accept a bid.</p>
   </div>
 
-  <form class="form-box" id="bookingForm">
+  <form class="form-card" id="bookingForm">
     <div class="form-group">
       <label>Your Name</label>
       <input type="text" id="customerName" required />
@@ -333,13 +367,13 @@
 </section>
 
 <section class="section worker-only hidden" id="worker-profile">
-  <div class="section-title">
-    <span>Worker</span>
+  <div class="section-heading">
+    <span>Worker Portal</span>
     <h2>Worker / Freelancer Profile</h2>
     <p>Freelancer / General Helper can accept legal small tasks, errands, queue work and travel helper jobs.</p>
   </div>
 
-  <form class="form-box" id="workerForm">
+  <form class="form-card" id="workerForm">
     <div class="form-group">
       <label>Full Name</label>
       <input type="text" id="workerName" required />
@@ -351,7 +385,7 @@
     </div>
 
     <div class="form-group">
-      <label>Your Main Skill</label>
+      <label>Main Skill</label>
       <select id="workerSkill" class="service-select" required>
         <option value="">Choose skill</option>
       </select>
@@ -394,16 +428,16 @@
   </form>
 </section>
 
-<section class="section light-bg worker-only hidden" id="worker-dashboard">
-  <div class="section-title">
-    <span>Jobs</span>
+<section class="section light-section worker-only hidden" id="worker-dashboard">
+  <div class="section-heading">
+    <span>Worker Jobs</span>
     <h2>Open Jobs For Bidding</h2>
     <p>Freelancer / General Helper workers can see all legal open jobs in their city.</p>
   </div>
 
-  <div class="form-box">
-    <button class="btn primary-btn full-btn" id="loadOpenJobsBtn">Load Open Jobs</button>
-    <button class="btn secondary-btn full-btn" id="loadAssignedJobsBtn">Load My Assigned Jobs</button>
+  <div class="form-card">
+    <button class="btn primary-btn full-btn" id="loadOpenJobsBtn" type="button">Load Open Jobs</button>
+    <button class="btn secondary-btn full-btn" id="loadAssignedJobsBtn" type="button">Load My Assigned Jobs</button>
     <p class="message" id="workerDashboardMessage"></p>
   </div>
 
@@ -411,29 +445,29 @@
 </section>
 
 <section class="section customer-only hidden" id="customer-dashboard">
-  <div class="section-title">
-    <span>Customer</span>
+  <div class="section-heading">
+    <span>Customer Dashboard</span>
     <h2>My Bookings & Bids</h2>
     <p>Accept the best bid and unlock worker phone.</p>
   </div>
 
-  <div class="form-box">
-    <button class="btn primary-btn full-btn" id="loadCustomerBookingsBtn">Load My Bookings</button>
+  <div class="form-card">
+    <button class="btn primary-btn full-btn" id="loadCustomerBookingsBtn" type="button">Load My Bookings</button>
     <p class="message" id="customerDashboardMessage"></p>
   </div>
 
   <div class="result-box" id="customerBookingsResult"></div>
 </section>
 
-<section class="section light-bg" id="notifications">
-  <div class="section-title">
-    <span>Notifications</span>
-    <h2>Notification Center</h2>
+<section class="section light-section" id="notifications">
+  <div class="section-heading">
+    <span>Updates</span>
+    <h2>Notifications</h2>
     <p>See booking, bid, verification and support updates.</p>
   </div>
 
-  <div class="form-box">
-    <button class="btn primary-btn full-btn" id="loadNotificationsBtn">Load Notifications</button>
+  <div class="form-card">
+    <button class="btn primary-btn full-btn" id="loadNotificationsBtn" type="button">Load Notifications</button>
     <p class="message" id="notificationMessage"></p>
   </div>
 
@@ -441,14 +475,14 @@
 </section>
 
 <section class="section" id="support-center">
-  <div class="section-title">
+  <div class="section-heading">
     <span>Support</span>
     <h2>Support & Reports</h2>
     <p>Raise support tickets or report unsafe/fake activity.</p>
   </div>
 
-  <div class="dual-grid">
-    <form class="form-box" id="supportForm">
+  <div class="two-column">
+    <form class="form-card" id="supportForm">
       <h3>Support Ticket</h3>
 
       <div class="form-group">
@@ -473,7 +507,7 @@
       <p class="message" id="supportMessage"></p>
     </form>
 
-    <form class="form-box" id="reportForm">
+    <form class="form-card" id="reportForm">
       <h3>Report Problem</h3>
 
       <div class="form-group">
@@ -505,26 +539,25 @@
   </div>
 </section>
 
-<section class="section light-bg" id="growth">
-  <div class="section-title">
-    <span>City Launch</span>
+<section class="section light-section" id="growth">
+  <div class="section-heading">
+    <span>Expansion</span>
     <h2>Available Cities & City Request</h2>
     <p>KaamConnect is expanding city by city. Request your city if service is not available there yet.</p>
   </div>
 
-  <div class="services-grid">
-    <div class="service-card">
-      <div class="icon">📍</div>
+  <div class="service-grid">
+    <div class="info-card">
       <h3>Available Cities</h3>
-      <p><strong>Delhi:</strong> <span class="badge badge-green">Live</span></p>
-      <p><strong>Gurgaon:</strong> <span class="badge badge-green">Live</span></p>
-      <p><strong>Noida:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
-      <p><strong>Mumbai:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
-      <p><strong>Dubai:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
-      <p><strong>London:</strong> <span class="badge badge-yellow">Coming Soon</span></p>
+      <p><strong>Delhi:</strong> <span class="status-badge success">Live</span></p>
+      <p><strong>Gurgaon:</strong> <span class="status-badge success">Live</span></p>
+      <p><strong>Noida:</strong> <span class="status-badge pending">Coming Soon</span></p>
+      <p><strong>Mumbai:</strong> <span class="status-badge pending">Coming Soon</span></p>
+      <p><strong>Dubai:</strong> <span class="status-badge pending">Coming Soon</span></p>
+      <p><strong>London:</strong> <span class="status-badge pending">Coming Soon</span></p>
     </div>
 
-    <form class="form-box" id="cityRequestForm">
+    <form class="form-card" id="cityRequestForm">
       <h3>Request Your City</h3>
 
       <div class="form-group">
@@ -541,12 +574,11 @@
       <p class="message" id="cityRequestMessage"></p>
     </form>
 
-    <div class="service-card">
-      <div class="icon">🎁</div>
+    <div class="info-card">
       <h3>Referral Dashboard</h3>
       <p>Invite customers or workers and grow KaamConnect in your city.</p>
 
-      <button class="btn primary-btn full-btn" id="loadReferralBtn">Load My Referral Code</button>
+      <button class="btn primary-btn full-btn" id="loadReferralBtn" type="button">Load My Referral Code</button>
       <p class="message" id="referralMessage"></p>
 
       <div class="result-box inner-result" id="referralResult"></div>
@@ -555,17 +587,17 @@
 </section>
 
 <section class="section admin-only hidden" id="admin">
-  <div class="section-title">
-    <span>Admin</span>
-    <h2>KaamConnect Admin Portal</h2>
+  <div class="section-heading">
+    <span>Private Admin</span>
+    <h2>Admin Portal</h2>
     <p>Only User ID <strong>thelokeshonly</strong> can access admin controls.</p>
   </div>
 
-  <div class="form-box admin-buttons">
-    <button class="btn primary-btn full-btn" id="loadPendingUsersBtn">Pending Users</button>
-    <button class="btn secondary-btn full-btn" id="loadPendingWorkersBtn">Pending Workers</button>
-    <button class="btn secondary-btn full-btn" id="loadAllBookingsBtn">All Bookings</button>
-    <button class="btn secondary-btn full-btn" id="loadSupportTicketsBtn">Support Tickets</button>
+  <div class="form-card admin-panel">
+    <button class="btn primary-btn full-btn" id="loadPendingUsersBtn" type="button">Pending Users</button>
+    <button class="btn secondary-btn full-btn" id="loadPendingWorkersBtn" type="button">Pending Workers</button>
+    <button class="btn secondary-btn full-btn" id="loadAllBookingsBtn" type="button">All Bookings</button>
+    <button class="btn secondary-btn full-btn" id="loadSupportTicketsBtn" type="button">Support Tickets</button>
     <p class="message" id="adminMessage"></p>
   </div>
 
@@ -573,28 +605,28 @@
 </section>
 
 <section class="section" id="safety">
-  <div class="section-title">
-    <span>Safety</span>
+  <div class="section-heading">
+    <span>Trust</span>
     <h2>Trust & Safety Rules</h2>
     <p>KaamConnect should only be used for legal and safe work.</p>
   </div>
 
-  <div class="services-grid">
-    <div class="service-card"><div class="icon">🔒</div><h3>Private Contact</h3><p>Phone and address are hidden before bid acceptance.</p></div>
-    <div class="service-card"><div class="icon">✅</div><h3>Admin Verification</h3><p>Workers need admin approval before bidding.</p></div>
-    <div class="service-card"><div class="icon">🧑‍💼</div><h3>Freelancer Helper</h3><p>For safe tasks like queue standing, delivery, errands and travel assistance.</p></div>
-    <div class="service-card"><div class="icon">🚫</div><h3>No Illegal Work</h3><p>Users must not post illegal, unsafe, adult, weapon, drug or fraud related tasks.</p></div>
+  <div class="service-grid">
+    <div class="info-card"><h3>Private Contact</h3><p>Phone and address are hidden before bid acceptance.</p></div>
+    <div class="info-card"><h3>Admin Verification</h3><p>Workers need admin approval before bidding.</p></div>
+    <div class="info-card"><h3>Freelancer Helper</h3><p>For safe tasks like queue standing, delivery, errands and travel assistance.</p></div>
+    <div class="info-card"><h3>No Illegal Work</h3><p>Users must not post illegal, unsafe, adult, weapon, drug or fraud related tasks.</p></div>
   </div>
 </section>
 
 <section class="section contact-section" id="contact">
-  <div class="section-title">
+  <div class="section-heading">
     <span>Contact</span>
     <h2>KaamConnect Support</h2>
     <p>Need help? Contact support.</p>
   </div>
 
-  <div class="contact-grid">
+  <div class="two-column">
     <div class="contact-card">
       <h3>Support</h3>
       <p><strong>Phone:</strong> +91 7303041394</p>
@@ -608,6 +640,8 @@
     </div>
   </div>
 </section>
+
+</main>
 
 <footer class="footer">
   <p>© 2026 KaamConnect. All Rights Reserved.</p>
