@@ -43,28 +43,28 @@ let currentRole = "";
 const ADMIN_LOGIN_IDS = ["thelokeshonly"];
 
 const SERVICES = [
-  ["⚡", "Electrician", "Fan, light, switchboard and wiring repair."],
-  ["🔧", "Plumber", "Tap repair, pipe fitting and bathroom work."],
-  ["🧹", "Cleaner", "Home, office and deep cleaning."],
-  ["📚", "Tutor", "Home tuition and online tuition."],
-  ["🍳", "Cook", "Daily cooking and party cooking."],
-  ["🎨", "Painter", "House painting and wall repair."],
-  ["❄️", "AC Repair", "AC service, repair and installation."],
-  ["🪚", "Carpenter", "Furniture, door and wood work."],
-  ["🚗", "Driver", "Local driver and personal driver service."],
-  ["🌱", "Gardener", "Garden cleaning and plant care."],
-  ["🛡️", "Security Guard", "Home, office and event security."],
-  ["🏠", "House Helper", "Daily household help."],
-  ["🧺", "Maid", "Cleaning, washing and daily support."],
-  ["🛠️", "Mechanic", "Bike, car and machine repair support."],
-  ["📱", "Mobile Repair", "Screen, battery and software issues."],
-  ["💻", "Computer Repair", "Laptop, desktop and software repair."],
-  ["📷", "Photographer", "Event and personal photography."],
-  ["💄", "Makeup Artist", "Party, bridal and event makeup."],
-  ["🩺", "Nurse / Caretaker", "Patient care and elder care."],
-  ["📦", "Delivery Boy", "Local parcel pickup and delivery."],
-  ["🎪", "Event Helper", "Event setup and support staff."],
-  ["🧑‍💼", "Freelancer / General Helper", "Queue standing, hospital line, errands, travel help, pickup, small legal tasks and basic helper work."]
+  ["Electrician", "Fan, light, switchboard and wiring repair."],
+  ["Plumber", "Tap repair, pipe fitting and bathroom work."],
+  ["Cleaner", "Home, office and deep cleaning."],
+  ["Tutor", "Home tuition and online tuition."],
+  ["Cook", "Daily cooking and party cooking."],
+  ["Painter", "House painting and wall repair."],
+  ["AC Repair", "AC service, repair and installation."],
+  ["Carpenter", "Furniture, door and wood work."],
+  ["Driver", "Local driver and personal driver service."],
+  ["Gardener", "Garden cleaning and plant care."],
+  ["Security Guard", "Home, office and event security."],
+  ["House Helper", "Daily household help."],
+  ["Maid", "Cleaning, washing and daily support."],
+  ["Mechanic", "Bike, car and machine repair support."],
+  ["Mobile Repair", "Screen, battery and software issues."],
+  ["Computer Repair", "Laptop, desktop and software repair."],
+  ["Photographer", "Event and personal photography."],
+  ["Makeup Artist", "Party, bridal and event makeup."],
+  ["Nurse / Caretaker", "Patient care and elder care."],
+  ["Delivery Boy", "Local parcel pickup and delivery."],
+  ["Event Helper", "Event setup and support staff."],
+  ["Freelancer / General Helper", "Queue standing, hospital line, errands, travel help, pickup, small legal tasks and basic helper work."]
 ];
 
 const currencySymbols = {
@@ -160,7 +160,7 @@ function fillServices() {
     select.innerHTML = `<option value="">${first}</option>`;
 
     SERVICES.forEach((service) => {
-      select.innerHTML += `<option>${service[1]}</option>`;
+      select.innerHTML += `<option>${service[0]}</option>`;
     });
   });
 
@@ -168,10 +168,9 @@ function fillServices() {
 
   if (grid) {
     grid.innerHTML = SERVICES.map((service) => `
-      <div class="service-card">
-        <div class="icon">${service[0]}</div>
-        <h3>${service[1]}</h3>
-        <p>${service[2]}</p>
+      <div class="info-card">
+        <h3>${safeText(service[0])}</h3>
+        <p>${safeText(service[1])}</p>
       </div>
     `).join("");
   }
@@ -235,6 +234,8 @@ function refreshProfessionalProfileUI() {
   if (sideVerifyBadge) {
     sideVerifyBadge.textContent = verified ? "Verified" : loggedIn ? "Pending" : "Not Logged In";
     sideVerifyBadge.classList.toggle("verified", verified);
+    sideVerifyBadge.classList.toggle("success", verified);
+    sideVerifyBadge.classList.toggle("pending", !verified);
   }
 
   const previewAvatar = document.getElementById("profilePreviewAvatar");
@@ -244,8 +245,10 @@ function refreshProfessionalProfileUI() {
   const previewCountry = document.getElementById("profilePreviewCountry");
   const trustScore = document.getElementById("profileTrustScore");
   const roleStat = document.getElementById("profileRoleStat");
+  const uploadPreview = document.getElementById("profileUploadPreview");
 
   if (previewAvatar) previewAvatar.innerHTML = avatarHTML(profile);
+  if (uploadPreview) uploadPreview.innerHTML = avatarHTML(profile);
   if (previewName) previewName.textContent = name;
   if (previewRole) previewRole.textContent = loggedIn ? role + " Account" : "Login to update your profile";
   if (previewVerify) previewVerify.textContent = verified ? "Phone Verified" : loggedIn ? "Verification Pending" : "Not Verified";
@@ -257,42 +260,62 @@ function refreshProfessionalProfileUI() {
 fillServices();
 updateCurrencySymbols();
 
-document.body.classList.add("sidebar-space");
-
 document.getElementById("currencySelector")?.addEventListener("change", updateCurrencySymbols);
-
-const menuBtn = document.getElementById("menuBtn");
-const navLinks = document.getElementById("navLinks");
-
-menuBtn?.addEventListener("click", () => {
-  navLinks.classList.toggle("active");
-});
-
-document.querySelectorAll(".nav-links a").forEach((link) => {
-  link.addEventListener("click", () => navLinks.classList.remove("active"));
-});
 
 const sideToggle = document.getElementById("sideToggle");
 const sideDashboard = document.getElementById("sideDashboard");
 
+if (sideDashboard) {
+  sideDashboard.classList.add("closed");
+}
+
 if (sideToggle && sideDashboard) {
   sideToggle.addEventListener("click", () => {
-    if (window.innerWidth < 1180) {
-      sideDashboard.classList.toggle("open");
-    } else {
-      sideDashboard.classList.toggle("closed");
-      document.body.classList.toggle("sidebar-closed");
-    }
+    sideDashboard.classList.toggle("closed");
   });
 }
 
-document.querySelectorAll(".side-menu a").forEach((link) => {
+document.querySelectorAll(".sidebar-menu a").forEach((link) => {
   link.addEventListener("click", () => {
     if (window.innerWidth < 1180) {
-      sideDashboard?.classList.remove("open");
+      sideDashboard?.classList.add("closed");
     }
   });
 });
+
+const profilePanel = document.getElementById("profile-update");
+const closeProfilePanelBtn = document.getElementById("closeProfilePanelBtn");
+
+function openProfilePanel() {
+  if (!profilePanel) return;
+
+  profilePanel.classList.remove("hidden");
+
+  setTimeout(() => {
+    profilePanel.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 80);
+
+  refreshProfessionalProfileUI();
+}
+
+function closeProfilePanel() {
+  if (!profilePanel) return;
+  profilePanel.classList.add("hidden");
+}
+
+document.querySelectorAll(".profile-open-link").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    openProfilePanel();
+  });
+});
+
+if (closeProfilePanelBtn) {
+  closeProfilePanelBtn.addEventListener("click", closeProfilePanel);
+}
 
 function setAuthMode(mode) {
   const signup = mode === "signup";
@@ -512,7 +535,6 @@ document.getElementById("signupBtn")?.addEventListener("click", async () => {
     clearForm("authForm");
 
     showMessage("authMessage", "Account created successfully.");
-
   } catch (error) {
     showMessage("authMessage", "Signup Error: " + error.message);
   }
@@ -542,6 +564,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   try {
     await signOut(auth);
     clearForm("authForm");
+    closeProfilePanel();
     showMessage("authMessage", "Logged out successfully.");
   } catch (error) {
     showMessage("authMessage", "Logout Error: " + error.message);
@@ -570,6 +593,109 @@ document.getElementById("quickFindBtn")?.addEventListener("click", () => {
 
   document.getElementById("book").scrollIntoView({ behavior: "smooth" });
 });
+
+function compressImageFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith("image/")) {
+      reject(new Error("Please select a valid image file."));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      const img = new Image();
+
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        const maxSize = 420;
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height && width > maxSize) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else if (height > maxSize) {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        resolve(canvas.toDataURL("image/jpeg", 0.72));
+      };
+
+      img.onerror = function () {
+        reject(new Error("Could not read image."));
+      };
+
+      img.src = event.target.result;
+    };
+
+    reader.onerror = function () {
+      reject(new Error("Could not upload image."));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+const profilePhotoFile = document.getElementById("profilePhotoFile");
+const profilePhotoUrlHidden = document.getElementById("profilePhotoUrl");
+const removeProfilePhotoBtn = document.getElementById("removeProfilePhotoBtn");
+
+if (profilePhotoFile) {
+  profilePhotoFile.addEventListener("change", async () => {
+    const file = profilePhotoFile.files[0];
+
+    if (!file) return;
+
+    try {
+      showMessage("profileUpdateMessage", "Preparing photo...");
+      const compressedPhoto = await compressImageFile(file);
+
+      if (profilePhotoUrlHidden) {
+        profilePhotoUrlHidden.value = compressedPhoto;
+      }
+
+      const profileUploadPreview = document.getElementById("profileUploadPreview");
+      const profilePreviewAvatar = document.getElementById("profilePreviewAvatar");
+      const sideAvatar = document.getElementById("sideAvatar");
+
+      if (profileUploadPreview) profileUploadPreview.innerHTML = `<img src="${safeText(compressedPhoto)}" alt="Profile photo">`;
+      if (profilePreviewAvatar) profilePreviewAvatar.innerHTML = `<img src="${safeText(compressedPhoto)}" alt="Profile photo">`;
+      if (sideAvatar) sideAvatar.innerHTML = `<img src="${safeText(compressedPhoto)}" alt="Profile photo">`;
+
+      showMessage("profileUpdateMessage", "Photo selected. Click Save Profile Update.");
+    } catch (error) {
+      showMessage("profileUpdateMessage", error.message);
+    }
+  });
+}
+
+if (removeProfilePhotoBtn) {
+  removeProfilePhotoBtn.addEventListener("click", () => {
+    if (profilePhotoUrlHidden) profilePhotoUrlHidden.value = "";
+    if (profilePhotoFile) profilePhotoFile.value = "";
+
+    const initials = (currentProfile?.name || "KC").slice(0, 2).toUpperCase();
+
+    const profileUploadPreview = document.getElementById("profileUploadPreview");
+    const profilePreviewAvatar = document.getElementById("profilePreviewAvatar");
+    const sideAvatar = document.getElementById("sideAvatar");
+
+    if (profileUploadPreview) profileUploadPreview.textContent = initials;
+    if (profilePreviewAvatar) profilePreviewAvatar.textContent = initials;
+    if (sideAvatar) sideAvatar.textContent = initials;
+
+    showMessage("profileUpdateMessage", "Photo removed. Click Save Profile Update.");
+  });
+}
 
 document.getElementById("loadProfileBtn")?.addEventListener("click", () => {
   if (!requireLogin("profileUpdateMessage")) return;
@@ -715,7 +841,6 @@ document.getElementById("workerForm")?.addEventListener("submit", async (event) 
     );
 
     clearForm("workerForm");
-
   } catch (error) {
     showMessage("workerMessage", "Database Error: " + error.message);
   }
@@ -796,14 +921,13 @@ document.getElementById("bookingForm")?.addEventListener("submit", async (event)
         <p><strong>Service:</strong> ${safeText(serviceType)}</p>
         <p><strong>City:</strong> ${safeText(customerCity)}</p>
         <p><strong>Budget:</strong> ${formatMoney(customerBudget)}</p>
-        <p><strong>Status:</strong> <span class="badge badge-yellow">Open for bids</span></p>
+        <p><strong>Status:</strong> <span class="status-badge pending">Open for bids</span></p>
         <p class="safe-note">Phone and address are hidden from workers until bid acceptance.</p>
       </div>
     `;
 
     showMessage("bookingMessage", "Work posted successfully.");
     clearForm("bookingForm");
-
   } catch (error) {
     showMessage("bookingMessage", "Database Error: " + error.message);
   }
@@ -891,7 +1015,6 @@ document.getElementById("loadOpenJobsBtn")?.addEventListener("click", async () =
     });
 
     showMessage("workerDashboardMessage", found ? "Open jobs loaded." : "No matching open jobs found.");
-
   } catch (error) {
     showMessage("workerDashboardMessage", "Database Error: " + error.message);
   }
@@ -954,7 +1077,6 @@ window.placeBid = async function (bookingId) {
     await createNotification(job.customerId, "New Bid Received", worker.workerName + " submitted a bid.", "bid", bookingId);
 
     showMessage("bidStatus-" + bookingId, "Bid submitted successfully.");
-
   } catch (error) {
     showMessage("bidStatus-" + bookingId, "Database Error: " + error.message);
   }
@@ -992,7 +1114,6 @@ document.getElementById("loadAssignedJobsBtn")?.addEventListener("click", async 
     });
 
     showMessage("workerDashboardMessage", "Assigned jobs loaded.");
-
   } catch (error) {
     showMessage("workerDashboardMessage", "Database Error: " + error.message);
   }
@@ -1054,7 +1175,7 @@ async function loadCustomerBookings() {
             ${
               canAccept
                 ? `<button class="btn primary-btn full-btn" onclick="acceptBid('${bookingDoc.id}', '${bidDoc.id}')">Accept Bid</button>`
-                : `<p><span class="badge badge-yellow">Bid closed or already accepted</span></p>`
+                : `<p><span class="status-badge pending">Bid closed or already accepted</span></p>`
             }
 
             <p class="message" id="acceptStatus-${bidDoc.id}"></p>
@@ -1064,7 +1185,6 @@ async function loadCustomerBookings() {
     }
 
     showMessage("customerDashboardMessage", "Bookings loaded.");
-
   } catch (error) {
     showMessage("customerDashboardMessage", "Database Error: " + error.message);
   }
@@ -1130,7 +1250,6 @@ window.acceptBid = async function (bookingId, bidId) {
 
     showMessage("acceptStatus-" + bidId, "Bid accepted. Worker phone unlocked.");
     loadCustomerBookings();
-
   } catch (error) {
     showMessage("acceptStatus-" + bidId, "Database Error: " + error.message);
   }
@@ -1264,7 +1383,6 @@ document.getElementById("loadReferralBtn")?.addEventListener("click", async () =
 
   try {
     const referralCode = currentProfile.referralCode || makeReferralCode(currentProfile.loginId);
-
     const referralSnap = await getDocs(query(collection(db, "referrals"), where("invitedBy", "==", referralCode)));
 
     document.getElementById("referralResult").innerHTML = `
@@ -1305,7 +1423,7 @@ document.getElementById("loadPendingUsersBtn")?.addEventListener("click", async 
             <p><strong>User ID:</strong> ${safeText(user.loginId)}</p>
             <p><strong>Role:</strong> ${safeText(user.role)}</p>
             <p><strong>Phone:</strong> ${safeText(user.phone || "Not added")}</p>
-            <p><strong>Status:</strong> <span class="badge badge-yellow">${safeText(user.verificationStatus || "Phone Pending")}</span></p>
+            <p><strong>Status:</strong> <span class="status-badge pending">${safeText(user.verificationStatus || "Phone Pending")}</span></p>
 
             <div class="admin-actions">
               <button class="btn primary-btn" onclick="adminVerifyCustomer('${userDoc.id}')">Mark Phone Verified</button>
@@ -1414,7 +1532,7 @@ document.getElementById("loadPendingWorkersBtn")?.addEventListener("click", asyn
             <p><strong>Type:</strong> ${safeText(worker.workerType)}</p>
             <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
             <p><strong>About:</strong> ${safeText(worker.workerAbout || "Not added")}</p>
-            <p><strong>Status:</strong> <span class="badge badge-yellow">${safeText(worker.verificationStatus || "pending")}</span></p>
+            <p><strong>Status:</strong> <span class="status-badge pending">${safeText(worker.verificationStatus || "pending")}</span></p>
 
             <div class="admin-actions">
               <button class="btn primary-btn" onclick="adminVerifyWorker('${workerDoc.id}')">Verify Worker</button>
