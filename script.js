@@ -265,16 +265,51 @@ document.getElementById("currencySelector")?.addEventListener("change", updateCu
 const sideToggle = document.getElementById("sideToggle");
 const sideDashboard = document.getElementById("sideDashboard");
 
+function openSidebar() {
+  if (!sideDashboard) return;
+  sideDashboard.classList.remove("closed");
+}
+
+function closeSidebar() {
+  if (!sideDashboard) return;
+  sideDashboard.classList.add("closed");
+}
+
+function toggleSidebar() {
+  if (!sideDashboard) return;
+  sideDashboard.classList.toggle("closed");
+}
+
 if (sideDashboard) {
   sideDashboard.classList.add("closed");
 }
 
 if (sideToggle && sideDashboard) {
-  sideToggle.addEventListener("click", () => {
-    sideDashboard.classList.toggle("closed");
+  sideToggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleSidebar();
+  });
+
+  sideDashboard.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  document.addEventListener("click", () => {
+    closeSidebar();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeSidebar();
+    }
   });
 }
 
+document.querySelectorAll(".sidebar-menu a").forEach((link) => {
+  link.addEventListener("click", () => {
+    closeSidebar();
+  });
+});
 document.querySelectorAll(".sidebar-menu a").forEach((link) => {
   link.addEventListener("click", () => {
     if (window.innerWidth < 1180) {
