@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>KaamConnect - Trusted Local Worker Marketplace</title>
-  <meta name="description" content="Book trusted local workers, compare bids, and hire skilled service providers near you." />
+  <meta name="description" content="Book trusted local workers, compare bids, track work progress, and connect with verified service providers near you." />
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -21,10 +21,13 @@
         <li><a href="#home">Home</a></li>
         <li><a href="#login">Login</a></li>
         <li><a href="#services">Services</a></li>
-        <li><a href="#book">Customer Portal</a></li>
-        <li><a href="#join">Worker Portal</a></li>
-        <li><a href="#customer-bids">My Bids</a></li>
-        <li><a href="#worker-dashboard">Worker Jobs</a></li>
+        <li class="customer-only hidden"><a href="#book">Customer Portal</a></li>
+        <li class="customer-only hidden"><a href="#customer-bids">My Bids</a></li>
+        <li class="customer-only hidden"><a href="#tracking">Tracking</a></li>
+        <li class="customer-only hidden"><a href="#reviews">Reviews</a></li>
+        <li class="worker-only hidden"><a href="#join">Worker Profile</a></li>
+        <li class="worker-only hidden"><a href="#worker-dashboard">Worker Jobs</a></li>
+        <li class="admin-link hidden"><a href="#admin">Admin</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
 
@@ -65,7 +68,8 @@
       <h1>Find Trusted Local Workers Anywhere</h1>
 
       <p class="hero-text">
-        Post your work, compare worker bids, choose the best price, and get your work done safely.
+        Post your work, compare worker bids, choose the best price, track progress,
+        and hire verified service providers safely.
       </p>
 
       <div class="hero-search">
@@ -121,8 +125,8 @@
     <div class="hero-card">
       <div class="hero-card-top">
         <div>
-          <h3>Smart Bid System</h3>
-          <p>Customers post work. Workers bid. Best offer wins.</p>
+          <h3>Smart Hiring System</h3>
+          <p>Post work, receive bids, accept worker and track progress.</p>
         </div>
         <span class="live-dot"></span>
       </div>
@@ -151,8 +155,8 @@
           <p>Services</p>
         </div>
         <div>
-          <h2>Global</h2>
-          <p>Ready</p>
+          <h2>Track</h2>
+          <p>Progress</p>
         </div>
       </div>
     </div>
@@ -161,62 +165,71 @@
   <section class="section light-bg" id="login">
     <div class="section-title">
       <span>Secure Access</span>
-      <h2>Login / Create Account</h2>
-      <p>Use a User ID and password to access the customer or worker portal.</p>
+      <h2>Account Access</h2>
+      <p>Create an account or login with your User ID and password.</p>
     </div>
 
     <div class="account-box" id="currentAccountBox">
       <h3>Account Status</h3>
       <p id="accountNameLine">Not logged in</p>
-      <p id="accountRoleLine">Choose account type and login to start.</p>
+      <p id="accountRoleLine">Login to start booking or bidding.</p>
     </div>
 
-    <form class="form-box" id="authForm">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="authName" placeholder="Enter your full name" />
+    <div class="form-box">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="showSignupTab">Sign Up</button>
+        <button type="button" class="auth-tab" id="showLoginTab">Login</button>
       </div>
 
-      <div class="form-group">
-        <label>User ID / Email</label>
-        <input type="text" id="authUserId" placeholder="Example: lokesh123 or your@email.com" required />
-      </div>
+      <form id="authForm">
+        <div id="signupOnlyFields">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="authName" placeholder="Enter your full name" />
+          </div>
 
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="authPassword" placeholder="Enter password" required />
-      </div>
+          <div class="form-group">
+            <label>Account Type</label>
+            <select id="authRole">
+              <option value="">Choose account type</option>
+              <option value="customer">Customer</option>
+              <option value="worker">Worker / Bidder</option>
+            </select>
+          </div>
+        </div>
 
-      <div class="form-group">
-        <label>Account Type</label>
-        <select id="authRole" required>
-          <option value="">Choose account type</option>
-          <option value="customer">Customer</option>
-          <option value="worker">Worker / Bidder</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label>User ID / Email</label>
+          <input type="text" id="authUserId" placeholder="Example: lokesh123 or email@example.com" required />
+        </div>
 
-      <button type="button" class="btn primary-btn full-btn" id="signupBtn">
-        Create Account
-      </button>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="Enter password" required />
+        </div>
 
-      <button type="button" class="btn secondary-btn full-btn" id="loginBtn">
-        Login
-      </button>
+        <button type="button" class="btn primary-btn full-btn" id="signupBtn">
+          Create Account
+        </button>
 
-      <button type="button" class="btn outline-btn full-btn" id="logoutBtn">
-        Logout
-      </button>
+        <button type="button" class="btn secondary-btn full-btn hidden" id="loginBtn">
+          Login
+        </button>
 
-      <p class="form-message" id="authMessage"></p>
-    </form>
+        <button type="button" class="btn outline-btn full-btn" id="logoutBtn">
+          Logout
+        </button>
+
+        <p class="form-message" id="authMessage"></p>
+      </form>
+    </div>
   </section>
 
   <section class="section" id="services">
     <div class="section-title">
       <span>Marketplace</span>
       <h2>Popular Services</h2>
-      <p>Browse professional service categories for home, repair, care, transport and freelance work.</p>
+      <p>Browse service categories for home, repair, care, transport and freelance work.</p>
     </div>
 
     <div class="services-grid">
@@ -248,7 +261,7 @@
     <div class="section-title">
       <span>Worker Profiles</span>
       <h2>Verified Worker Cards</h2>
-      <p>Professional profile cards build trust before customers post work.</p>
+      <p>Worker profiles show skill, experience, rating and verification status.</p>
     </div>
 
     <div class="worker-grid">
@@ -303,14 +316,14 @@
     <div class="section-title">
       <span>Process</span>
       <h2>How It Works</h2>
-      <p>One platform with separate customer and worker portals.</p>
+      <p>One platform with separate customer, worker and admin experiences.</p>
     </div>
 
     <div class="steps-container">
       <div class="step"><span>1</span><h3>Login</h3><p>Customer or worker logs in using User ID and password.</p></div>
-      <div class="step"><span>2</span><h3>Post Work</h3><p>Customer posts service, city and budget.</p></div>
-      <div class="step"><span>3</span><h3>Workers Bid</h3><p>Matching workers submit price offers.</p></div>
-      <div class="step"><span>4</span><h3>Accept Bid</h3><p>Contact details unlock after acceptance.</p></div>
+      <div class="step"><span>2</span><h3>Post Work</h3><p>Customer posts service, city, budget and work details.</p></div>
+      <div class="step"><span>3</span><h3>Verified Workers Bid</h3><p>Only admin verified workers can submit bids.</p></div>
+      <div class="step"><span>4</span><h3>Track Progress</h3><p>Customer tracks assigned worker and job progress.</p></div>
     </div>
   </section>
 
@@ -318,7 +331,7 @@
     <div class="section-title">
       <span>Customer Portal</span>
       <h2>Post a Booking</h2>
-      <p>Only customer accounts can post work and receive bids.</p>
+      <p>Post work and receive bids from verified workers.</p>
     </div>
 
     <form class="form-box" id="bookingForm">
@@ -329,7 +342,7 @@
 
       <div class="form-group">
         <label>Mobile Number</label>
-        <input type="tel" id="customerPhone" placeholder="Enter 10 digit mobile number" required />
+        <input type="tel" id="customerPhone" placeholder="Enter mobile number" required />
       </div>
 
       <div class="form-group">
@@ -392,7 +405,7 @@
     <div class="section-title">
       <span>Worker Portal</span>
       <h2>Register Worker Profile</h2>
-      <p>Only worker accounts can register profiles and bid on jobs.</p>
+      <p>Save worker details. Admin verification is required before bidding.</p>
     </div>
 
     <form class="form-box" id="workerForm">
@@ -403,7 +416,7 @@
 
       <div class="form-group">
         <label>Mobile Number</label>
-        <input type="tel" id="workerPhone" placeholder="Enter 10 digit mobile number" required />
+        <input type="tel" id="workerPhone" placeholder="Enter mobile number" required />
       </div>
 
       <div class="form-group">
@@ -451,6 +464,23 @@
       </div>
 
       <div class="form-group">
+        <label>Identity Proof Type</label>
+        <select id="workerIdProof">
+          <option value="">Choose proof type</option>
+          <option>Aadhaar Card</option>
+          <option>PAN Card</option>
+          <option>Driving License</option>
+          <option>Passport</option>
+          <option>Other Government ID</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>About Your Work</label>
+        <textarea id="workerAbout" placeholder="Example: I have 3 years experience in home cleaning and office cleaning."></textarea>
+      </div>
+
+      <div class="form-group">
         <label>Area / City</label>
         <input type="text" id="workerCity" placeholder="Example: Delhi, Dubai, London" required />
       </div>
@@ -465,7 +495,7 @@
     <div class="section-title">
       <span>Worker Jobs</span>
       <h2>Worker Dashboard</h2>
-      <p>Find open jobs, submit bids, and view assigned work.</p>
+      <p>Find open jobs, submit bids and update work progress.</p>
     </div>
 
     <div class="form-box">
@@ -487,15 +517,10 @@
     <div class="section-title">
       <span>Customer Bids</span>
       <h2>Customer Bid Dashboard</h2>
-      <p>View bids from workers and accept the best offer.</p>
+      <p>View worker bids and accept the best offer.</p>
     </div>
 
     <div class="form-box">
-      <div class="form-group">
-        <label>Optional Mobile Number Lookup</label>
-        <input type="tel" id="customerPhoneLookup" placeholder="Use only for old bookings if needed" />
-      </div>
-
       <button class="btn primary-btn full-btn" id="loadCustomerBidsBtn">
         Load My Bookings & Bids
       </button>
@@ -506,11 +531,29 @@
     <div class="result-box" id="customerBidsResult"></div>
   </section>
 
+  <section class="section light-bg customer-only hidden" id="tracking">
+    <div class="section-title">
+      <span>Tracking</span>
+      <h2>Track Your Booking</h2>
+      <p>Track posting, bid acceptance, worker assignment and job progress.</p>
+    </div>
+
+    <div class="form-box">
+      <button class="btn primary-btn full-btn" id="loadTrackingBtn">
+        Load My Tracking
+      </button>
+
+      <p class="form-message" id="trackingMessage"></p>
+    </div>
+
+    <div class="result-box" id="trackingResult"></div>
+  </section>
+
   <section class="section light-bg customer-only hidden" id="reviews">
     <div class="section-title">
       <span>Ratings</span>
       <h2>Give Worker Review</h2>
-      <p>Rate your worker after the service is completed.</p>
+      <p>Rate your worker after service completion.</p>
     </div>
 
     <form class="form-box" id="reviewForm">
@@ -542,20 +585,42 @@
     </form>
   </section>
 
+  <section class="section admin-only hidden" id="admin">
+    <div class="section-title">
+      <span>Admin Portal</span>
+      <h2>KaamConnect Admin</h2>
+      <p>Verify workers, check bookings and manage platform activity.</p>
+    </div>
+
+    <div class="form-box">
+      <button class="btn primary-btn full-btn" id="loadPendingWorkersBtn">
+        Load Pending Workers
+      </button>
+
+      <button class="btn secondary-btn full-btn" id="loadAdminBookingsBtn">
+        Load All Bookings
+      </button>
+
+      <p class="form-message" id="adminMessage"></p>
+    </div>
+
+    <div class="result-box" id="adminResult"></div>
+  </section>
+
   <section class="section" id="trust">
     <div class="section-title">
       <span>Trust & Safety</span>
       <h2>Why Choose KaamConnect?</h2>
-      <p>Built for customers and skilled workers with a safer hiring process.</p>
+      <p>Built for safer hiring, bidding and worker verification.</p>
     </div>
 
     <div class="services-grid">
-      <div class="service-card"><div class="icon">✅</div><h3>Verified Workers</h3><p>Workers can be verified before real job assignment.</p></div>
+      <div class="service-card"><div class="icon">✅</div><h3>Verified Workers</h3><p>Workers require admin verification before bidding.</p></div>
       <div class="service-card"><div class="icon">⭐</div><h3>Ratings & Reviews</h3><p>Customers can rate workers after service.</p></div>
       <div class="service-card"><div class="icon">💰</div><h3>Bid System</h3><p>Workers offer prices and customers accept bids.</p></div>
       <div class="service-card"><div class="icon">🔒</div><h3>Safe Contact Sharing</h3><p>Phone and address show only after bid acceptance.</p></div>
-      <div class="service-card"><div class="icon">🌐</div><h3>Global Settings</h3><p>Country, language and currency selector included.</p></div>
-      <div class="service-card"><div class="icon">💼</div><h3>Worker Portal</h3><p>Separate experience for workers and bidders.</p></div>
+      <div class="service-card"><div class="icon">📍</div><h3>Work Tracking</h3><p>Track assigned worker and job progress.</p></div>
+      <div class="service-card"><div class="icon">🌐</div><h3>Global Ready</h3><p>Country, language and currency selector included.</p></div>
     </div>
   </section>
 
