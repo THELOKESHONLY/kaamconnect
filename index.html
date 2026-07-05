@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>KaamConnect - Trusted Local Worker Marketplace</title>
+
   <meta name="description" content="Book trusted local workers, compare bids, track work progress, and connect with verified service providers near you." />
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -21,13 +28,18 @@
         <li><a href="#home">Home</a></li>
         <li><a href="#login">Login</a></li>
         <li><a href="#services">Services</a></li>
+
         <li class="customer-only hidden"><a href="#book">Customer Portal</a></li>
         <li class="customer-only hidden"><a href="#customer-bids">My Bids</a></li>
         <li class="customer-only hidden"><a href="#tracking">Tracking</a></li>
+        <li class="customer-only hidden"><a href="#nearest-workers">Map</a></li>
         <li class="customer-only hidden"><a href="#reviews">Reviews</a></li>
+
         <li class="worker-only hidden"><a href="#join">Worker Profile</a></li>
         <li class="worker-only hidden"><a href="#worker-dashboard">Worker Jobs</a></li>
+
         <li class="admin-link hidden"><a href="#admin">Admin</a></li>
+
         <li><a href="#contact">Contact</a></li>
       </ul>
 
@@ -155,8 +167,8 @@
           <p>Services</p>
         </div>
         <div>
-          <h2>Track</h2>
-          <p>Progress</p>
+          <h2>Map</h2>
+          <p>Nearby Workers</p>
         </div>
       </div>
     </div>
@@ -485,6 +497,15 @@
         <input type="text" id="workerCity" placeholder="Example: Delhi, Dubai, London" required />
       </div>
 
+      <input type="hidden" id="workerLatitude" />
+      <input type="hidden" id="workerLongitude" />
+
+      <button type="button" class="btn outline-btn full-btn" id="getWorkerLocationBtn">
+        Use My Current Location
+      </button>
+
+      <p class="form-message" id="workerLocationMessage"></p>
+
       <button type="submit" class="btn primary-btn full-btn">Save Worker Profile</button>
 
       <p class="form-message" id="workerMessage"></p>
@@ -547,6 +568,61 @@
     </div>
 
     <div class="result-box" id="trackingResult"></div>
+  </section>
+
+  <section class="section customer-only hidden" id="nearest-workers">
+    <div class="section-title">
+      <span>Nearby Workers</span>
+      <h2>Find Nearest Verified Workers</h2>
+      <p>Use your current location to see nearby verified workers on the map.</p>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Select Service</label>
+        <select id="mapServiceType">
+          <option value="">Choose service</option>
+          <option>Electrician</option>
+          <option>Plumber</option>
+          <option>Cleaner</option>
+          <option>Tutor</option>
+          <option>Cook</option>
+          <option>Painter</option>
+          <option>AC Repair</option>
+          <option>Carpenter</option>
+          <option>Driver</option>
+          <option>Gardener</option>
+          <option>Security Guard</option>
+          <option>House Helper</option>
+          <option>Maid</option>
+          <option>Mechanic</option>
+          <option>Mobile Repair</option>
+          <option>Computer Repair</option>
+          <option>Photographer</option>
+          <option>Makeup Artist</option>
+          <option>Nurse / Caretaker</option>
+          <option>Delivery Boy</option>
+          <option>Event Helper</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Search Radius KM</label>
+        <input type="number" id="mapRadiusKm" value="20" placeholder="Example: 20" />
+      </div>
+
+      <button type="button" class="btn primary-btn full-btn" id="findNearbyWorkersBtn">
+        Show Nearest Workers
+      </button>
+
+      <p class="form-message" id="mapMessage"></p>
+    </div>
+
+    <div class="map-box">
+      <div id="workersMap"></div>
+    </div>
+
+    <div class="result-box" id="nearbyWorkersList"></div>
   </section>
 
   <section class="section light-bg customer-only hidden" id="reviews">
@@ -619,7 +695,7 @@
       <div class="service-card"><div class="icon">⭐</div><h3>Ratings & Reviews</h3><p>Customers can rate workers after service.</p></div>
       <div class="service-card"><div class="icon">💰</div><h3>Bid System</h3><p>Workers offer prices and customers accept bids.</p></div>
       <div class="service-card"><div class="icon">🔒</div><h3>Safe Contact Sharing</h3><p>Phone and address show only after bid acceptance.</p></div>
-      <div class="service-card"><div class="icon">📍</div><h3>Work Tracking</h3><p>Track assigned worker and job progress.</p></div>
+      <div class="service-card"><div class="icon">📍</div><h3>Map Search</h3><p>Customers can find nearby verified workers.</p></div>
       <div class="service-card"><div class="icon">🌐</div><h3>Global Ready</h3><p>Country, language and currency selector included.</p></div>
     </div>
   </section>
@@ -658,6 +734,7 @@
     <p>Hire trusted local workers and connect with skilled service providers near you.</p>
   </footer>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module" src="script.js"></script>
 </body>
 </html>
