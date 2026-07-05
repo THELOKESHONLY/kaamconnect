@@ -81,78 +81,88 @@ const currencySymbols = {
 
 const TRANSLATIONS = {
   en: {
-    home: "Home", login: "Login", services: "Services", trust: "Trust",
-    customerPortal: "Customer", myBids: "Bids", history: "History",
-    tracking: "Tracking", map: "Map", reviews: "Reviews",
-    workerProfile: "Profile", workerJobs: "Jobs", earnings: "Earnings",
-    notifications: "Notifications", support: "Support", growth: "Growth",
-    admin: "Admin", policies: "Policies",
+    home: "Home",
+    login: "Login",
+    services: "Services",
+    trust: "Trust",
     heroBadge: "Local Work. Trusted Hands.",
     heroTitle: "Hire Trusted Local Workers Safely",
-    heroText: "Post work, compare bids, find nearby verified workers, track progress and protect your data.",
-    service: "Service", city: "City", startBooking: "Start Booking",
-    loginStart: "Login to Start", trustSafety: "Trust & Safety",
-    secureAccess: "Secure Access", accountAccess: "Account Access",
+    heroText: "Post work, compare bids, find nearby verified workers, chat safely, track progress and protect your data.",
+    service: "Service",
+    city: "City",
+    startBooking: "Start Booking",
+    loginStart: "Login to Start",
+    trustSafety: "Trust & Safety",
+    secureAccess: "Secure Access",
+    accountAccess: "Account Access",
     accountText: "Create an account or login with your User ID and password."
   },
   hi: {
-    home: "होम", login: "लॉगिन", services: "सेवाएं", trust: "भरोसा",
-    customerPortal: "कस्टमर", myBids: "बोलियां", history: "इतिहास",
-    tracking: "ट्रैकिंग", map: "मैप", reviews: "रिव्यू",
-    workerProfile: "प्रोफाइल", workerJobs: "जॉब्स", earnings: "कमाई",
-    notifications: "सूचनाएं", support: "सपोर्ट", growth: "ग्रोथ",
-    admin: "एडमिन", policies: "पॉलिसी",
+    home: "होम",
+    login: "लॉगिन",
+    services: "सेवाएं",
+    trust: "भरोसा",
     heroBadge: "स्थानीय काम। भरोसेमंद हाथ।",
     heroTitle: "सुरक्षित तरीके से भरोसेमंद वर्कर hire करें",
-    heroText: "काम पोस्ट करें, बोलियां देखें, nearby verified workers खोजें, progress track करें और data protect रखें।",
-    service: "सेवा", city: "शहर", startBooking: "बुकिंग शुरू करें",
-    loginStart: "लॉगिन करें", trustSafety: "भरोसा और सुरक्षा",
-    secureAccess: "सुरक्षित एक्सेस", accountAccess: "अकाउंट एक्सेस",
+    heroText: "काम पोस्ट करें, बोलियां देखें, nearby verified workers खोजें, chat करें, progress track करें और data protect रखें।",
+    service: "सेवा",
+    city: "शहर",
+    startBooking: "बुकिंग शुरू करें",
+    loginStart: "लॉगिन करें",
+    trustSafety: "भरोसा और सुरक्षा",
+    secureAccess: "सुरक्षित एक्सेस",
+    accountAccess: "अकाउंट एक्सेस",
     accountText: "User ID और password से account बनाएं या login करें।"
   },
   es: {
-    home: "Inicio", login: "Acceso", services: "Servicios", trust: "Confianza",
-    customerPortal: "Cliente", myBids: "Ofertas", history: "Historial",
-    tracking: "Seguimiento", map: "Mapa", reviews: "Reseñas",
-    workerProfile: "Perfil", workerJobs: "Trabajos", earnings: "Ganancias",
-    notifications: "Avisos", support: "Soporte", growth: "Crecimiento",
-    admin: "Admin", policies: "Políticas",
+    home: "Inicio",
+    login: "Acceso",
+    services: "Servicios",
+    trust: "Confianza",
     heroBadge: "Trabajo local. Manos confiables.",
     heroTitle: "Contrata trabajadores locales con seguridad",
-    heroText: "Publica trabajo, compara ofertas, encuentra trabajadores cercanos verificados y protege tus datos.",
-    service: "Servicio", city: "Ciudad", startBooking: "Empezar",
-    loginStart: "Acceder", trustSafety: "Confianza",
-    secureAccess: "Acceso seguro", accountAccess: "Acceso cuenta",
+    heroText: "Publica trabajo, compara ofertas, encuentra trabajadores verificados cercanos y protege tus datos.",
+    service: "Servicio",
+    city: "Ciudad",
+    startBooking: "Empezar",
+    loginStart: "Acceder",
+    trustSafety: "Confianza",
+    secureAccess: "Acceso seguro",
+    accountAccess: "Acceso cuenta",
     accountText: "Crea cuenta o inicia sesión con usuario y contraseña."
   },
   ar: {
-    home: "الرئيسية", login: "دخول", services: "الخدمات", trust: "الثقة",
-    customerPortal: "العميل", myBids: "العروض", history: "السجل",
-    tracking: "تتبع", map: "الخريطة", reviews: "التقييمات",
-    workerProfile: "الملف", workerJobs: "وظائف", earnings: "الأرباح",
-    notifications: "الإشعارات", support: "الدعم", growth: "النمو",
-    admin: "المدير", policies: "السياسات",
+    home: "الرئيسية",
+    login: "دخول",
+    services: "الخدمات",
+    trust: "الثقة",
     heroBadge: "عمل محلي. أيدٍ موثوقة.",
     heroTitle: "استأجر عمالًا موثوقين بأمان",
     heroText: "انشر العمل، قارن العروض، اعثر على عمال قريبين موثوقين واحم بياناتك.",
-    service: "الخدمة", city: "المدينة", startBooking: "ابدأ",
-    loginStart: "دخول", trustSafety: "الثقة والسلامة",
-    secureAccess: "وصول آمن", accountAccess: "الحساب",
+    service: "الخدمة",
+    city: "المدينة",
+    startBooking: "ابدأ",
+    loginStart: "دخول",
+    trustSafety: "الثقة والسلامة",
+    secureAccess: "وصول آمن",
+    accountAccess: "الحساب",
     accountText: "أنشئ حسابًا أو سجل الدخول باسم المستخدم وكلمة المرور."
   },
   fr: {
-    home: "Accueil", login: "Connexion", services: "Services", trust: "Confiance",
-    customerPortal: "Client", myBids: "Offres", history: "Historique",
-    tracking: "Suivi", map: "Carte", reviews: "Avis",
-    workerProfile: "Profil", workerJobs: "Travaux", earnings: "Gains",
-    notifications: "Notifications", support: "Support", growth: "Croissance",
-    admin: "Admin", policies: "Politiques",
+    home: "Accueil",
+    login: "Connexion",
+    services: "Services",
+    trust: "Confiance",
     heroBadge: "Travail local. Mains fiables.",
     heroTitle: "Embauchez des travailleurs locaux en sécurité",
     heroText: "Publiez le travail, comparez les offres, trouvez des travailleurs vérifiés proches et protégez vos données.",
-    service: "Service", city: "Ville", startBooking: "Commencer",
-    loginStart: "Connexion", trustSafety: "Confiance",
-    secureAccess: "Accès sécurisé", accountAccess: "Compte",
+    service: "Service",
+    city: "Ville",
+    startBooking: "Commencer",
+    loginStart: "Connexion",
+    trustSafety: "Confiance",
+    secureAccess: "Accès sécurisé",
+    accountAccess: "Compte",
     accountText: "Créez un compte ou connectez-vous avec identifiant et mot de passe."
   }
 };
@@ -233,6 +243,20 @@ function makeReferralCode(loginId) {
   return "KC" + String(loginId || "USER").replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 8);
 }
 
+function kcAvailabilityLabel(value) {
+  const status = value || "available";
+  if (status === "available") return "Available Now";
+  if (status === "busy") return "Busy";
+  if (status === "offline") return "Offline";
+  if (status === "emergency") return "Emergency Only";
+  return "Available Now";
+}
+
+function kcExperienceNumber(text) {
+  const match = String(text || "").match(/\d+/);
+  return match ? Number(match[0]) : 0;
+}
+
 function populateServices() {
   document.querySelectorAll(".service-select").forEach((select) => {
     const firstText = select.querySelector("option")?.textContent || "Choose service";
@@ -302,7 +326,7 @@ loadGlobalSettings();
 });
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  navigator.serviceWorker.register("LY5").catch(() => {});
 }
 
 window.addEventListener("beforeinstallprompt", (event) => {
@@ -360,6 +384,15 @@ if (showSignupTab) showSignupTab.addEventListener("click", () => setAuthMode("si
 if (showLoginTab) showLoginTab.addEventListener("click", () => setAuthMode("login"));
 setAuthMode("signup");
 
+function calculateCustomerTrustScore(profile) {
+  let score = 30;
+  if (profile?.phoneVerified) score += 30;
+  if (profile?.email) score += 10;
+  if (profile?.completedBookings) score += Math.min(Number(profile.completedBookings) * 5, 20);
+  if (!profile?.blocked) score += 10;
+  return Math.min(score, 100);
+}
+
 function setPortalVisibility() {
   const isCustomer = currentUser && currentRole === "customer";
   const isWorker = currentUser && currentRole === "worker";
@@ -385,15 +418,6 @@ function setPortalVisibility() {
 
   if (accountNameLine) accountNameLine.textContent = "Logged in: " + displayName;
   if (accountRoleLine) accountRoleLine.textContent = `Active portal: ${roleLabel} • Trust Score: ${trustScore}%`;
-}
-
-function calculateCustomerTrustScore(profile) {
-  let score = 30;
-  if (profile?.phoneVerified) score += 30;
-  if (profile?.email) score += 10;
-  if (profile?.completedBookings) score += Math.min(Number(profile.completedBookings) * 5, 20);
-  if (!profile?.blocked) score += 10;
-  return Math.min(score, 100);
 }
 
 async function loadUserProfile(user) {
@@ -745,15 +769,36 @@ if (getWorkerLocationBtn) {
 
     try {
       const location = await getCurrentLocation("workerLocationMessage");
-
       document.getElementById("workerLatitude").value = location.lat;
       document.getElementById("workerLongitude").value = location.lng;
-
       showMessage("workerLocationMessage", "Location added. Now save profile.");
     } catch (error) {
       showMessage("workerLocationMessage", error.message);
     }
   });
+}
+
+function portfolioHtml(worker) {
+  const photos = [worker.portfolioPhoto1, worker.portfolioPhoto2, worker.portfolioPhoto3];
+
+  if (!worker.portfolioPhoto1 && !worker.portfolioPhoto2 && !worker.portfolioPhoto3 && !worker.portfolioDescription) {
+    return `<p class="safe-note">No portfolio added yet.</p>`;
+  }
+
+  return `
+    <div class="portfolio-grid">
+      ${photos.map((photo) => photo ? `
+        <div class="portfolio-item">
+          <img src="${safeText(photo)}" alt="Portfolio photo" />
+        </div>
+      ` : `
+        <div class="portfolio-item">
+          <div class="portfolio-placeholder">No Photo</div>
+        </div>
+      `).join("")}
+    </div>
+    ${worker.portfolioDescription ? `<p><strong>Portfolio Note:</strong> ${safeText(worker.portfolioDescription)}</p>` : ""}
+  `;
 }
 
 const workerForm = document.getElementById("workerForm");
@@ -820,6 +865,7 @@ if (workerForm) {
         workerLongitude: Number.isFinite(lng) ? lng : oldData.workerLongitude || null,
         currency: selectedCurrency(),
         available: true,
+        availabilityStatus: oldData.availabilityStatus || "available",
         verified: isAlreadyVerified,
         verificationStatus: isAlreadyVerified ? "verified" : "pending",
         jobsCompleted: oldData.jobsCompleted || 0,
@@ -845,6 +891,7 @@ if (workerForm) {
         workerLatitude: privateWorker.workerLatitude,
         workerLongitude: privateWorker.workerLongitude,
         available: true,
+        availabilityStatus: oldData.availabilityStatus || "available",
         verified: isAlreadyVerified,
         jobsCompleted: oldData.jobsCompleted || 0,
         workerRating: oldData.workerRating || 0,
@@ -855,17 +902,139 @@ if (workerForm) {
       await setDoc(workerRef, privateWorker, { merge: true });
       await setDoc(doc(db, "workerPublic", currentUser.uid), publicWorker, { merge: true });
 
-      showMessage(
-        "workerMessage",
-        isAlreadyVerified
-          ? "Worker profile updated."
-          : "Worker profile saved. Admin verification required before bidding."
-      );
-
+      showMessage("workerMessage", isAlreadyVerified ? "Worker profile updated." : "Worker profile saved. Admin verification required before bidding.");
       clearForm("workerForm");
 
     } catch (error) {
       showMessage("workerMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+const saveAvailabilityBtn = document.getElementById("saveAvailabilityBtn");
+const loadAvailabilityBtn = document.getElementById("loadAvailabilityBtn");
+const availabilityResult = document.getElementById("availabilityResult");
+
+if (saveAvailabilityBtn) {
+  saveAvailabilityBtn.addEventListener("click", async () => {
+    if (!requireWorker("availabilityMessage")) return;
+
+    const availabilityStatus = getValue("workerAvailabilityStatus") || "available";
+    const available = availabilityStatus === "available" || availabilityStatus === "emergency";
+
+    try {
+      await updateDoc(doc(db, "workers", currentUser.uid), {
+        availabilityStatus,
+        available,
+        updatedAt: serverTimestamp()
+      });
+
+      await updateDoc(doc(db, "workerPublic", currentUser.uid), {
+        availabilityStatus,
+        available,
+        updatedAt: serverTimestamp()
+      });
+
+      await createNotification(currentUser.uid, "Availability Updated", "Your availability is now: " + kcAvailabilityLabel(availabilityStatus), "availability", currentUser.uid);
+
+      showMessage("availabilityMessage", "Availability saved successfully.");
+    } catch (error) {
+      showMessage("availabilityMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+if (loadAvailabilityBtn) {
+  loadAvailabilityBtn.addEventListener("click", async () => {
+    if (!requireWorker("availabilityMessage")) return;
+
+    try {
+      const workerSnap = await getDoc(doc(db, "workers", currentUser.uid));
+
+      if (!workerSnap.exists()) {
+        showMessage("availabilityMessage", "Worker profile not found.");
+        return;
+      }
+
+      const worker = workerSnap.data();
+      const status = worker.availabilityStatus || "available";
+
+      document.getElementById("workerAvailabilityStatus").value = status;
+
+      availabilityResult.innerHTML = `
+        <div class="data-card">
+          <h3>Current Availability</h3>
+          <p><strong>Status:</strong> <span class="availability-pill ${safeText(status)}">${kcAvailabilityLabel(status)}</span></p>
+          <p><strong>Visible to customers:</strong> ${worker.available === false ? "No" : "Yes"}</p>
+        </div>
+      `;
+
+      showMessage("availabilityMessage", "Availability loaded.");
+    } catch (error) {
+      showMessage("availabilityMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+const portfolioForm = document.getElementById("portfolioForm");
+const loadPortfolioBtn = document.getElementById("loadPortfolioBtn");
+const portfolioResult = document.getElementById("portfolioResult");
+
+if (portfolioForm) {
+  portfolioForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!requireWorker("portfolioMessage")) return;
+
+    const portfolioData = {
+      portfolioPhoto1: getValue("portfolioPhoto1"),
+      portfolioPhoto2: getValue("portfolioPhoto2"),
+      portfolioPhoto3: getValue("portfolioPhoto3"),
+      portfolioDescription: getValue("portfolioDescription"),
+      updatedAt: serverTimestamp()
+    };
+
+    try {
+      await updateDoc(doc(db, "workers", currentUser.uid), portfolioData);
+      await updateDoc(doc(db, "workerPublic", currentUser.uid), portfolioData);
+
+      showMessage("portfolioMessage", "Portfolio saved successfully.");
+      clearForm("portfolioForm");
+    } catch (error) {
+      showMessage("portfolioMessage", "Database Error: " + error.message);
+    }
+  });
+}
+
+if (loadPortfolioBtn) {
+  loadPortfolioBtn.addEventListener("click", async () => {
+    if (!requireWorker("portfolioMessage")) return;
+
+    try {
+      const workerSnap = await getDoc(doc(db, "workers", currentUser.uid));
+
+      if (!workerSnap.exists()) {
+        showMessage("portfolioMessage", "Worker profile not found.");
+        return;
+      }
+
+      const worker = workerSnap.data();
+
+      document.getElementById("portfolioPhoto1").value = worker.portfolioPhoto1 || "";
+      document.getElementById("portfolioPhoto2").value = worker.portfolioPhoto2 || "";
+      document.getElementById("portfolioPhoto3").value = worker.portfolioPhoto3 || "";
+      document.getElementById("portfolioDescription").value = worker.portfolioDescription || "";
+
+      portfolioResult.innerHTML = `
+        <div class="data-card">
+          <h3>My Portfolio</h3>
+          ${portfolioHtml(worker)}
+        </div>
+      `;
+
+      showMessage("portfolioMessage", "Portfolio loaded.");
+    } catch (error) {
+      showMessage("portfolioMessage", "Database Error: " + error.message);
     }
   });
 }
@@ -954,9 +1123,7 @@ if (bookingForm) {
         createdAt: serverTimestamp()
       });
 
-      const workerSnapshot = await getDocs(
-        query(collection(db, "workerPublic"), where("workerSkill", "==", serviceType))
-      );
+      const workerSnapshot = await getDocs(query(collection(db, "workerPublic"), where("workerSkill", "==", serviceType)));
 
       let matchedWorkersHtml = "";
 
@@ -978,8 +1145,10 @@ if (bookingForm) {
               <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
               <p><strong>Experience:</strong> ${safeText(worker.workerExperience)}</p>
               <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
+              <p><strong>Availability:</strong> <span class="availability-pill ${safeText(worker.availabilityStatus || "available")}">${kcAvailabilityLabel(worker.availabilityStatus)}</span></p>
               <p><strong>Match:</strong> <span class="score-badge">${score}% Match</span></p>
               <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
+              ${portfolioHtml(worker)}
               <p class="safe-note">Worker phone is hidden until accepted bid.</p>
             </div>
           `;
@@ -990,18 +1159,16 @@ if (bookingForm) {
 
       showMessage("bookingMessage", "Booking posted. Verified workers can now bid.");
 
-      if (matchResult) {
-        matchResult.innerHTML = `
-          <div class="data-card">
-            <h3>Booking Posted Successfully</h3>
-            <p><strong>Service:</strong> ${safeText(serviceType)}</p>
-            <p><strong>City:</strong> ${safeText(customerCity)}</p>
-            <p><strong>Budget:</strong> ${formatMoney(customerBudget, currency)}</p>
-            <p class="status-open">Status: Open for Bids</p>
-          </div>
-          ${matchedWorkersHtml}
-        `;
-      }
+      matchResult.innerHTML = `
+        <div class="data-card">
+          <h3>Booking Posted Successfully</h3>
+          <p><strong>Service:</strong> ${safeText(serviceType)}</p>
+          <p><strong>City:</strong> ${safeText(customerCity)}</p>
+          <p><strong>Budget:</strong> ${formatMoney(customerBudget, currency)}</p>
+          <p class="status-open">Status: Open for Bids</p>
+        </div>
+        ${matchedWorkersHtml}
+      `;
 
       clearForm("bookingForm");
       loadStats();
@@ -1020,7 +1187,7 @@ if (loadOpenJobsBtn) {
   loadOpenJobsBtn.addEventListener("click", async () => {
     if (!requireWorker("dashboardMessage")) return;
 
-    if (workerJobs) workerJobs.innerHTML = "";
+    workerJobs.innerHTML = "";
 
     try {
       showMessage("dashboardMessage", "Finding open jobs...");
@@ -1039,9 +1206,12 @@ if (loadOpenJobsBtn) {
         return;
       }
 
-      const jobsSnapshot = await getDocs(
-        query(collection(db, "publicJobs"), where("serviceType", "==", worker.workerSkill))
-      );
+      if (worker.available === false || worker.availabilityStatus === "offline" || worker.availabilityStatus === "busy") {
+        showMessage("dashboardMessage", "Change your availability to Available Now or Emergency Only before bidding.");
+        return;
+      }
+
+      const jobsSnapshot = await getDocs(query(collection(db, "publicJobs"), where("serviceType", "==", worker.workerSkill)));
 
       let foundJobs = false;
 
@@ -1125,9 +1295,7 @@ window.placeBid = async function (bookingId) {
       return;
     }
 
-    const existingBidSnapshot = await getDocs(
-      query(collection(db, "bids"), where("bookingId", "==", bookingId))
-    );
+    const existingBidSnapshot = await getDocs(query(collection(db, "bids"), where("bookingId", "==", bookingId)));
 
     let alreadyBid = false;
     existingBidSnapshot.forEach((bidDoc) => {
@@ -1183,9 +1351,7 @@ async function loadCustomerBids() {
   try {
     showMessage("customerBidMessage", "Loading bids...");
 
-    const bookingSnapshot = await getDocs(
-      query(collection(db, "bookings"), where("customerId", "==", currentUser.uid))
-    );
+    const bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("customerId", "==", currentUser.uid)));
 
     if (bookingSnapshot.empty) {
       showMessage("customerBidMessage", "No bookings found.");
@@ -1197,9 +1363,7 @@ async function loadCustomerBids() {
     for (const bookingDoc of bookingSnapshot.docs) {
       const booking = bookingDoc.data();
 
-      const bidSnapshot = await getDocs(
-        query(collection(db, "bids"), where("bookingId", "==", bookingDoc.id))
-      );
+      const bidSnapshot = await getDocs(query(collection(db, "bids"), where("bookingId", "==", bookingDoc.id)));
 
       customerBidsResult.innerHTML += `
         <div class="data-card">
@@ -1218,10 +1382,7 @@ async function loadCustomerBids() {
       bidSnapshot.forEach((bidDoc) => {
         const bid = bidDoc.data();
         const isAcceptedBid = booking.acceptedBidId === bidDoc.id || bid.bidStatus === "accepted";
-        const canAccept =
-          booking.bookingStatus === "pending" &&
-          booking.biddingOpen === true &&
-          bid.bidStatus === "pending";
+        const canAccept = booking.bookingStatus === "pending" && booking.biddingOpen === true && bid.bidStatus === "pending";
 
         const phoneHtml = isAcceptedBid && booking.assignedWorkerPhone
           ? `<p><strong>Worker Phone:</strong> ${safeText(booking.assignedWorkerPhone)}</p>`
@@ -1307,9 +1468,7 @@ window.acceptBid = async function (bookingId, bidId) {
       updatedAt: serverTimestamp()
     });
 
-    const allBidsSnapshot = await getDocs(
-      query(collection(db, "bids"), where("bookingId", "==", bookingId))
-    );
+    const allBidsSnapshot = await getDocs(query(collection(db, "bids"), where("bookingId", "==", bookingId)));
 
     for (const bidDocument of allBidsSnapshot.docs) {
       await updateDoc(bidDocument.ref, {
@@ -1340,9 +1499,7 @@ async function loadAssignedJobs() {
   try {
     showMessage("dashboardMessage", "Loading assigned jobs...");
 
-    const jobsSnapshot = await getDocs(
-      query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid))
-    );
+    const jobsSnapshot = await getDocs(query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid)));
 
     if (jobsSnapshot.empty) {
       showMessage("dashboardMessage", "No assigned jobs found.");
@@ -1650,9 +1807,7 @@ async function loadTracking() {
   trackingResult.innerHTML = "";
 
   try {
-    const bookingSnapshot = await getDocs(
-      query(collection(db, "bookings"), where("customerId", "==", currentUser.uid))
-    );
+    const bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("customerId", "==", currentUser.uid)));
 
     if (bookingSnapshot.empty) {
       showMessage("trackingMessage", "No bookings found.");
@@ -1727,9 +1882,7 @@ if (findNearbyWorkersBtn) {
 
       mapMarkers.push(customerMarker);
 
-      const workerSnapshot = await getDocs(
-        query(collection(db, "workerPublic"), where("workerSkill", "==", serviceType))
-      );
+      const workerSnapshot = await getDocs(query(collection(db, "workerPublic"), where("workerSkill", "==", serviceType)));
 
       const nearbyWorkers = [];
 
@@ -1779,8 +1932,10 @@ if (findNearbyWorkersBtn) {
             <h3>${safeText(worker.workerName)} <span class="verify-badge">Verified</span></h3>
             <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
             <p><strong>Distance:</strong> ${worker.distance.toFixed(1)} km away</p>
+            <p><strong>Availability:</strong> <span class="availability-pill ${safeText(worker.availabilityStatus || "available")}">${kcAvailabilityLabel(worker.availabilityStatus)}</span></p>
             <p><strong>Jobs Completed:</strong> ${worker.jobsCompleted || 0}</p>
             <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
+            ${portfolioHtml(worker)}
             <p class="safe-note">Phone unlocks after accepted bid.</p>
           </div>
         `;
@@ -1790,6 +1945,124 @@ if (findNearbyWorkersBtn) {
 
     } catch (error) {
       showMessage("mapMessage", error.message);
+    }
+  });
+}
+
+const advancedSearchBtn = document.getElementById("advancedSearchBtn");
+const advancedWorkersResult = document.getElementById("advancedWorkersResult");
+
+function workerSearchMatchScore(worker, filters) {
+  let score = 0;
+
+  if (worker.workerSkill === filters.serviceType) score += 30;
+  if (cleanText(worker.workerCity) === cleanText(filters.city)) score += 25;
+  if (worker.verified === true) score += 20;
+  if ((worker.workerRating || 0) >= 4) score += 10;
+  if ((worker.jobsCompleted || 0) > 0) score += 10;
+  if ((worker.availabilityStatus || "available") === "available") score += 5;
+
+  return Math.min(score, 100);
+}
+
+if (advancedSearchBtn) {
+  advancedSearchBtn.addEventListener("click", async () => {
+    if (!requireCustomer("advancedSearchMessage")) return;
+
+    const serviceType = getValue("advancedServiceType");
+    const city = getValue("advancedCity");
+    const minRating = Number(getValue("advancedMinRating")) || 0;
+    const availability = getValue("advancedAvailability");
+    const sortBy = getValue("advancedSortBy") || "match";
+
+    if (!serviceType) {
+      showMessage("advancedSearchMessage", "Please select service.");
+      return;
+    }
+
+    if (!city) {
+      showMessage("advancedSearchMessage", "Please enter city.");
+      return;
+    }
+
+    try {
+      advancedWorkersResult.innerHTML = "";
+
+      const workerSnapshot = await getDocs(query(collection(db, "workerPublic"), where("workerSkill", "==", serviceType)));
+
+      const filters = { serviceType, city };
+      let workers = [];
+
+      workerSnapshot.forEach((workerDoc) => {
+        const worker = workerDoc.data();
+        const workerStatus = worker.availabilityStatus || "available";
+
+        const sameCity = cleanText(worker.workerCity) === cleanText(city);
+        const verified = worker.verified === true;
+        const ratingOk = Number(worker.workerRating || 0) >= minRating;
+        const availabilityOk = !availability || workerStatus === availability;
+
+        if (sameCity && verified && ratingOk && availabilityOk) {
+          workers.push({
+            id: workerDoc.id,
+            ...worker,
+            searchMatchScore: workerSearchMatchScore(worker, filters)
+          });
+        }
+      });
+
+      if (sortBy === "rating") {
+        workers.sort((a, b) => Number(b.workerRating || 0) - Number(a.workerRating || 0));
+      } else if (sortBy === "experience") {
+        workers.sort((a, b) => kcExperienceNumber(b.workerExperience) - kcExperienceNumber(a.workerExperience));
+      } else if (sortBy === "completed") {
+        workers.sort((a, b) => Number(b.jobsCompleted || 0) - Number(a.jobsCompleted || 0));
+      } else {
+        workers.sort((a, b) => Number(b.searchMatchScore || 0) - Number(a.searchMatchScore || 0));
+      }
+
+      if (workers.length === 0) {
+        showMessage("advancedSearchMessage", "No worker found with selected filters.");
+        return;
+      }
+
+      advancedWorkersResult.innerHTML = `
+        <div class="filter-summary">
+          ${workers.length} verified worker(s) found for ${safeText(serviceType)} in ${safeText(city)}
+        </div>
+      `;
+
+      workers.forEach((worker) => {
+        const status = worker.availabilityStatus || "available";
+
+        advancedWorkersResult.innerHTML += `
+          <div class="data-card">
+            ${worker.workerPhotoUrl ? `<div class="worker-photo"><img src="${safeText(worker.workerPhotoUrl)}" alt="worker"></div>` : `<div class="worker-photo">KC</div>`}
+
+            <h3>
+              ${safeText(worker.workerName)}
+              <span class="verify-badge">Verified</span>
+              <span class="score-badge">${worker.searchMatchScore}% Match</span>
+            </h3>
+
+            <p><strong>Skill:</strong> ${safeText(worker.workerSkill)}</p>
+            <p><strong>City:</strong> ${safeText(worker.workerCity)}</p>
+            <p><strong>Experience:</strong> ${safeText(worker.workerExperience || "Not added")}</p>
+            <p><strong>Availability:</strong> <span class="availability-pill ${safeText(status)}">${kcAvailabilityLabel(status)}</span></p>
+            <p><strong>Rating:</strong> ${worker.workerRating || 0} ⭐ (${worker.totalReviews || 0} reviews)</p>
+            <p><strong>Jobs Completed:</strong> ${worker.jobsCompleted || 0}</p>
+
+            ${portfolioHtml(worker)}
+
+            <p class="safe-note">To contact this worker, post booking and accept their bid.</p>
+          </div>
+        `;
+      });
+
+      showMessage("advancedSearchMessage", "Workers loaded successfully.");
+
+    } catch (error) {
+      showMessage("advancedSearchMessage", "Database Error: " + error.message);
     }
   });
 }
@@ -1804,9 +2077,7 @@ if (loadCustomerHistoryBtn) {
     customerHistoryResult.innerHTML = "";
 
     try {
-      const bookingSnapshot = await getDocs(
-        query(collection(db, "bookings"), where("customerId", "==", currentUser.uid))
-      );
+      const bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("customerId", "==", currentUser.uid)));
 
       if (bookingSnapshot.empty) {
         showMessage("customerHistoryMessage", "No history found.");
@@ -1867,12 +2138,8 @@ if (loadEarningsBtn) {
 
     try {
       const workerSnap = await getDoc(doc(db, "workers", currentUser.uid));
-      const bidSnapshot = await getDocs(
-        query(collection(db, "bids"), where("workerUserId", "==", currentUser.uid))
-      );
-      const jobSnapshot = await getDocs(
-        query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid))
-      );
+      const bidSnapshot = await getDocs(query(collection(db, "bids"), where("workerUserId", "==", currentUser.uid)));
+      const jobSnapshot = await getDocs(query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid)));
 
       const worker = workerSnap.exists() ? workerSnap.data() : {};
       let accepted = 0;
@@ -1918,9 +2185,7 @@ if (loadNotificationsBtn) {
     notificationResult.innerHTML = "";
 
     try {
-      const notificationSnapshot = await getDocs(
-        query(collection(db, "notifications"), where("toUserId", "==", currentUser.uid), limit(30))
-      );
+      const notificationSnapshot = await getDocs(query(collection(db, "notifications"), where("toUserId", "==", currentUser.uid), limit(30)));
 
       if (notificationSnapshot.empty) {
         showMessage("notificationMessage", "No notifications found.");
@@ -1963,6 +2228,344 @@ window.markNotificationRead = async function (notificationId) {
   } catch (error) {
     showMessage("notiStatus-" + notificationId, "Database Error: " + error.message);
   }
+};
+
+const loadChatsBtn = document.getElementById("loadChatsBtn");
+const chatResult = document.getElementById("chatResult");
+
+if (loadChatsBtn) {
+  loadChatsBtn.addEventListener("click", loadMyChats);
+}
+
+async function canAccessBookingChat(booking) {
+  if (!currentUser || !booking) return false;
+
+  return (
+    booking.customerId === currentUser.uid ||
+    booking.assignedWorkerUserId === currentUser.uid ||
+    isAdminUser()
+  );
+}
+
+async function loadMyChats() {
+  if (!requireLogin("chatMessage")) return;
+
+  chatResult.innerHTML = "";
+
+  try {
+    showMessage("chatMessage", "Loading chats...");
+
+    let bookingSnapshot;
+
+    if (currentRole === "customer") {
+      bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("customerId", "==", currentUser.uid)));
+    } else if (currentRole === "worker") {
+      bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid)));
+    } else if (isAdminUser()) {
+      bookingSnapshot = await getDocs(collection(db, "bookings"));
+    } else {
+      showMessage("chatMessage", "Please login as customer or worker.");
+      return;
+    }
+
+    let found = false;
+
+    for (const bookingDoc of bookingSnapshot.docs) {
+      const booking = bookingDoc.data();
+
+      const chatAllowed =
+        booking.bookingStatus === "assigned" ||
+        booking.bookingStatus === "completed" ||
+        booking.jobProgress === "assigned" ||
+        booking.jobProgress === "on_the_way" ||
+        booking.jobProgress === "started" ||
+        booking.jobProgress === "completion_submitted";
+
+      if (!chatAllowed) continue;
+
+      found = true;
+
+      chatResult.innerHTML += `
+        <div class="chat-box" id="chatBox-${bookingDoc.id}">
+          <div class="chat-header">
+            <h3>${safeText(booking.serviceType)} Chat</h3>
+            <p>
+              Customer: ${safeText(booking.customerName || "Customer")}
+              ${booking.assignedWorkerName ? " • Worker: " + safeText(booking.assignedWorkerName) : ""}
+            </p>
+          </div>
+
+          <div class="chat-messages" id="chatMessages-${bookingDoc.id}">
+            Loading messages...
+          </div>
+
+          <div class="chat-input-area">
+            <div class="form-group">
+              <label>Message</label>
+              <textarea id="chatInput-${bookingDoc.id}" placeholder="Type your message"></textarea>
+            </div>
+
+            <button class="btn primary-btn full-btn" onclick="sendChatMessage('${bookingDoc.id}')">Send Message</button>
+            <button class="btn secondary-btn full-btn" onclick="loadChatMessages('${bookingDoc.id}')">Refresh Chat</button>
+
+            <p class="form-message" id="chatStatus-${bookingDoc.id}"></p>
+          </div>
+        </div>
+      `;
+
+      await window.loadChatMessages(bookingDoc.id);
+    }
+
+    showMessage("chatMessage", found ? "Chats loaded." : "No accepted booking chat found yet.");
+
+  } catch (error) {
+    showMessage("chatMessage", "Database Error: " + error.message);
+  }
+}
+
+window.loadChatMessages = async function (bookingId) {
+  if (!requireLogin("chatMessage")) return;
+
+  const box = document.getElementById("chatMessages-" + bookingId);
+  if (!box) return;
+
+  try {
+    const bookingSnap = await getDoc(doc(db, "bookings", bookingId));
+
+    if (!bookingSnap.exists()) {
+      box.innerHTML = "Booking not found.";
+      return;
+    }
+
+    const booking = bookingSnap.data();
+
+    if (!(await canAccessBookingChat(booking))) {
+      box.innerHTML = "Chat access denied.";
+      return;
+    }
+
+    const messageSnapshot = await getDocs(query(collection(db, "messages"), where("bookingId", "==", bookingId)));
+
+    let messages = [];
+
+    messageSnapshot.forEach((messageDoc) => {
+      messages.push({
+        id: messageDoc.id,
+        ...messageDoc.data()
+      });
+    });
+
+    messages.sort((a, b) => {
+      const aTime = a.createdAt?.seconds || 0;
+      const bTime = b.createdAt?.seconds || 0;
+      return aTime - bTime;
+    });
+
+    if (messages.length === 0) {
+      box.innerHTML = `<p class="safe-note">No messages yet. Start the conversation.</p>`;
+      return;
+    }
+
+    box.innerHTML = messages.map((message) => {
+      const mine = message.senderId === currentUser.uid;
+
+      return `
+        <div class="chat-message ${mine ? "mine" : "other"}">
+          <strong>${safeText(message.senderName || "User")}</strong>
+          <p>${safeText(message.messageText)}</p>
+          <small>${message.senderRole || ""}</small>
+        </div>
+      `;
+    }).join("");
+
+    box.scrollTop = box.scrollHeight;
+
+  } catch (error) {
+    box.innerHTML = "Chat Error: " + error.message;
+  }
+};
+
+window.sendChatMessage = async function (bookingId) {
+  if (!requireLogin("chatMessage")) return;
+
+  const input = document.getElementById("chatInput-" + bookingId);
+  const statusId = "chatStatus-" + bookingId;
+  const messageText = input ? input.value.trim() : "";
+
+  if (!messageText) {
+    showMessage(statusId, "Please type a message.");
+    return;
+  }
+
+  try {
+    showMessage(statusId, "Sending...");
+
+    const bookingSnap = await getDoc(doc(db, "bookings", bookingId));
+
+    if (!bookingSnap.exists()) {
+      showMessage(statusId, "Booking not found.");
+      return;
+    }
+
+    const booking = bookingSnap.data();
+
+    if (!(await canAccessBookingChat(booking))) {
+      showMessage(statusId, "Chat access denied.");
+      return;
+    }
+
+    await addDoc(collection(db, "messages"), {
+      bookingId,
+      senderId: currentUser.uid,
+      senderName: currentProfile?.name || "User",
+      senderRole: currentRole || "user",
+      messageText,
+      createdAt: serverTimestamp()
+    });
+
+    const receiverId = booking.customerId === currentUser.uid ? booking.assignedWorkerUserId : booking.customerId;
+
+    await createNotification(receiverId, "New Chat Message", (currentProfile?.name || "User") + " sent you a message.", "chat", bookingId);
+
+    if (input) input.value = "";
+
+    showMessage(statusId, "Message sent.");
+    await window.loadChatMessages(bookingId);
+
+  } catch (error) {
+    showMessage(statusId, "Chat Error: " + error.message);
+  }
+};
+
+const loadInvoicesBtn = document.getElementById("loadInvoicesBtn");
+const invoiceResult = document.getElementById("invoiceResult");
+
+if (loadInvoicesBtn) {
+  loadInvoicesBtn.addEventListener("click", loadInvoices);
+}
+
+async function loadInvoices() {
+  if (!requireLogin("invoiceMessage")) return;
+
+  invoiceResult.innerHTML = "";
+
+  try {
+    showMessage("invoiceMessage", "Loading invoices...");
+
+    let bookingSnapshot;
+
+    if (currentRole === "customer") {
+      bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("customerId", "==", currentUser.uid)));
+    } else if (currentRole === "worker") {
+      bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid)));
+    } else if (isAdminUser()) {
+      bookingSnapshot = await getDocs(collection(db, "bookings"));
+    } else {
+      showMessage("invoiceMessage", "Please login first.");
+      return;
+    }
+
+    let found = false;
+
+    bookingSnapshot.forEach((bookingDoc) => {
+      const booking = bookingDoc.data();
+
+      if (booking.bookingStatus !== "completed") return;
+
+      found = true;
+
+      const amount = Number(booking.acceptedBidAmount || booking.customerBudget || 0);
+      const platformFee = Math.round(amount * 0.1);
+      const workerEarning = amount - platformFee;
+
+      invoiceResult.innerHTML += `
+        <div class="invoice-card" id="invoice-${bookingDoc.id}">
+          <div class="invoice-top">
+            <div>
+              <div class="invoice-title">KaamConnect Receipt</div>
+              <p>Booking ID: ${bookingDoc.id}</p>
+            </div>
+            <div>
+              <p><strong>Status:</strong> Completed</p>
+              <p><strong>Payment:</strong> ${safeText(booking.paymentStatus || "not_paid")}</p>
+            </div>
+          </div>
+
+          <p><strong>Customer:</strong> ${safeText(booking.customerName || "")}</p>
+          <p><strong>Worker:</strong> ${safeText(booking.assignedWorkerName || "")}</p>
+          <p><strong>Service:</strong> ${safeText(booking.serviceType || "")}</p>
+          <p><strong>City:</strong> ${safeText(booking.customerCity || "")}</p>
+
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${safeText(booking.serviceType || "Service")} Work</td>
+                <td>${formatMoney(amount, booking.currency || selectedCurrency())}</td>
+              </tr>
+              <tr>
+                <td>Platform Fee Estimate</td>
+                <td>${formatMoney(platformFee, booking.currency || selectedCurrency())}</td>
+              </tr>
+              <tr>
+                <td>Worker Earning Estimate</td>
+                <td>${formatMoney(workerEarning, booking.currency || selectedCurrency())}</td>
+              </tr>
+              <tr>
+                <th>Total</th>
+                <th>${formatMoney(amount, booking.currency || selectedCurrency())}</th>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="safe-note">This is a platform-generated receipt. Real payment gateway invoice can be connected later.</p>
+
+          <button class="btn primary-btn full-btn" onclick="printInvoice('${bookingDoc.id}')">Print Receipt</button>
+        </div>
+      `;
+    });
+
+    showMessage("invoiceMessage", found ? "Invoices loaded." : "No completed booking invoice found.");
+
+  } catch (error) {
+    showMessage("invoiceMessage", "Database Error: " + error.message);
+  }
+}
+
+window.printInvoice = function (bookingId) {
+  const invoice = document.getElementById("invoice-" + bookingId);
+  if (!invoice) return;
+
+  const printWindow = window.open("", "_blank");
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>KaamConnect Receipt</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 30px; color: #0f172a; }
+        .invoice-card { max-width: 800px; margin: auto; border: 1px solid #e2e8f0; padding: 30px; border-radius: 18px; }
+        .invoice-title { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+        th { background: #f8fafc; }
+        button { display: none; }
+      </style>
+    </head>
+    <body>
+      ${invoice.outerHTML}
+      <script>window.print();<\/script>
+    </body>
+    </html>
+  `);
+
+  printWindow.document.close();
 };
 
 const supportForm = document.getElementById("supportForm");
@@ -2080,9 +2683,7 @@ if (loadReferralBtn) {
 
     try {
       const referralCode = currentProfile.referralCode || makeReferralCode(currentProfile.loginId);
-      const referralSnapshot = await getDocs(
-        query(collection(db, "referrals"), where("invitedBy", "==", referralCode))
-      );
+      const referralSnapshot = await getDocs(query(collection(db, "referrals"), where("invitedBy", "==", referralCode)));
 
       referralResult.innerHTML = `
         <div class="data-card">
@@ -2119,9 +2720,7 @@ if (reviewForm) {
     }
 
     try {
-      const bookingSnapshot = await getDocs(
-        query(collection(db, "bookings"), where("customerId", "==", currentUser.uid))
-      );
+      const bookingSnapshot = await getDocs(query(collection(db, "bookings"), where("customerId", "==", currentUser.uid)));
 
       let matchedBooking = null;
 
@@ -2141,9 +2740,7 @@ if (reviewForm) {
         return;
       }
 
-      const oldReviewSnapshot = await getDocs(
-        query(collection(db, "reviews"), where("bookingId", "==", matchedBooking.id))
-      );
+      const oldReviewSnapshot = await getDocs(query(collection(db, "reviews"), where("bookingId", "==", matchedBooking.id)));
 
       if (!oldReviewSnapshot.empty) {
         showMessage("reviewMessage", "You already reviewed this booking.");
