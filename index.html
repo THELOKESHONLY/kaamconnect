@@ -14,10 +14,13 @@
 
 <header class="top-header">
   <nav class="top-nav">
-    <a href="#home" class="brand">
-      <span class="brand-icon">KC</span>
-      <span>KaamConnect</span>
-    </a>
+    <div class="brand-wrap">
+      <button class="dashboard-toggle" id="sideToggle" type="button" aria-label="Open menu">☰</button>
+
+      <a href="#home" class="brand">
+        <span>KaamConnect</span>
+      </a>
+    </div>
 
     <div class="top-center">
       <span class="top-status-dot"></span>
@@ -46,20 +49,10 @@
   </nav>
 </header>
 
-<button class="dashboard-toggle" id="sideToggle" type="button">☰</button>
-
-<aside class="sidebar closed" id="sideDashboard">
-  <div class="sidebar-profile">
-    <div class="sidebar-avatar" id="sideAvatar">KC</div>
-    <h3 id="sideUserName">Guest User</h3>
-    <p id="sideUserRole">Login to continue</p>
-    <span class="status-badge pending" id="sideVerifyBadge">Not Logged In</span>
-  </div>
-
+<aside class="sidebar closed simple-sidebar" id="sideDashboard">
   <div class="sidebar-menu">
-    <a href="#home">Dashboard Home</a>
-    <a href="#login">Account Access</a>
     <a href="#profile-update" class="profile-open-link">My Profile</a>
+    <a href="#login">Account Access</a>
     <a href="#services">Services</a>
 
     <a href="#book" class="customer-only hidden">Post Work</a>
@@ -74,17 +67,6 @@
     <a href="#admin" class="admin-only hidden">Admin Portal</a>
     <a href="#safety">Trust & Safety</a>
     <a href="#contact">Contact</a>
-  </div>
-
-  <div class="sidebar-metrics">
-    <div>
-      <strong id="sideTrustScore">0%</strong>
-      <span>Trust Score</span>
-    </div>
-    <div>
-      <strong id="sideAccountStatus">Guest</strong>
-      <span>Account Status</span>
-    </div>
   </div>
 </aside>
 
@@ -111,7 +93,6 @@
 
     <div class="hero-buttons">
       <a href="#login" class="btn primary-btn">Login / Signup</a>
-      <button class="btn secondary-btn profile-open-link" type="button">My Profile</button>
     </div>
   </div>
 
@@ -308,7 +289,7 @@
   <div class="section-heading">
     <span>Marketplace</span>
     <h2>Service Categories</h2>
-    <p>Professional service categories including freelancer and general helper work.</p>
+    <p>Click any service. New users go to login, and logged-in customers go directly to booking.</p>
   </div>
 
   <div class="service-grid" id="servicesGrid"></div>
@@ -607,15 +588,46 @@
 <section class="section" id="safety">
   <div class="section-heading">
     <span>Trust</span>
-    <h2>Trust & Safety Rules</h2>
-    <p>KaamConnect should only be used for legal and safe work.</p>
+    <h2>Trust & Safety</h2>
+    <p>KaamConnect protects customers, workers and personal information with professional safety controls.</p>
   </div>
 
   <div class="service-grid">
-    <div class="info-card"><h3>Private Contact</h3><p>Phone and address are hidden before bid acceptance.</p></div>
-    <div class="info-card"><h3>Admin Verification</h3><p>Workers need admin approval before bidding.</p></div>
-    <div class="info-card"><h3>Freelancer Helper</h3><p>For safe tasks like queue standing, delivery, errands and travel assistance.</p></div>
-    <div class="info-card"><h3>No Illegal Work</h3><p>Users must not post illegal, unsafe, adult, weapon, drug or fraud related tasks.</p></div>
+    <div class="safety-card">
+      <div class="safety-image private-image"></div>
+      <h3>Private Contact</h3>
+      <p>Phone number and full address stay hidden until a customer accepts a worker bid.</p>
+    </div>
+
+    <div class="safety-card">
+      <div class="safety-image verified-image"></div>
+      <h3>Worker Verification</h3>
+      <p>Workers need admin verification before they can bid on customer jobs.</p>
+    </div>
+
+    <div class="safety-card">
+      <div class="safety-image helper-image"></div>
+      <h3>Freelancer Helper</h3>
+      <p>Freelancer workers can do legal small tasks like queue standing, errands and travel help.</p>
+    </div>
+
+    <div class="safety-card">
+      <div class="safety-image report-image"></div>
+      <h3>Report & Support</h3>
+      <p>Customers and workers can report fake profiles, unsafe behavior or service problems.</p>
+    </div>
+
+    <div class="safety-card">
+      <div class="safety-image legal-image"></div>
+      <h3>Legal Work Only</h3>
+      <p>Illegal, unsafe, adult, weapon, drug or fraud related tasks are not allowed.</p>
+    </div>
+
+    <div class="safety-card">
+      <div class="safety-image admin-image"></div>
+      <h3>Admin Control</h3>
+      <p>Admin can verify, reject, block users and manage support tickets from the admin portal.</p>
+    </div>
   </div>
 </section>
 
