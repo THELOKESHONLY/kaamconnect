@@ -76,6 +76,255 @@ const currencySymbols = {
   AUD: "A$"
 };
 
+const translations = {
+  en: {
+    top_status: "Trusted Local Service Marketplace",
+    my_profile: "My Profile",
+    account_access: "Account Access",
+    services: "Services",
+    post_work: "Post Work",
+    my_bookings: "My Bookings",
+    worker_profile: "Worker Profile",
+    open_jobs: "Open Jobs",
+    notifications: "Notifications",
+    support_center: "Support Center",
+    city_growth: "City Growth",
+    admin_portal: "Admin Portal",
+    trust_safety: "Trust & Safety",
+    contact: "Contact",
+    notification_center: "Notification Center",
+    notification_text: "Booking, bid, verification and support updates.",
+    load_notifications: "Load Notifications",
+    verified_services: "Verified Local Services",
+    hero_title: "Hire trusted workers and freelancers with confidence.",
+    hero_desc: "KaamConnect helps customers post work, receive bids, verify workers, protect contact details and manage service requests professionally.",
+    choose_service: "Choose service",
+    city_area: "City / Area",
+    budget: "Budget",
+    start_booking: "Start Booking",
+    login_signup: "Login / Signup",
+    explore_services: "Explore Services",
+    platform_overview: "Platform Overview",
+    platform_desc: "Professional booking and bidding workflow.",
+    worker_verification: "Worker Verification",
+    admin_controlled: "Admin Controlled",
+    customer_contact: "Customer Contact",
+    hidden_accepted: "Hidden Until Accepted",
+    freelancer_work: "Freelancer Work",
+    general_legal_tasks: "General Legal Tasks",
+    private_access: "Private Access",
+    secure_access: "Secure Access",
+    signup_login: "Signup / Login",
+    signup_login_desc: "Create a customer or worker account using User ID and password.",
+    current_account: "Current Account",
+    signup: "Signup",
+    login: "Login",
+    full_name: "Full Name",
+    enter_full_name: "Enter full name",
+    mobile_number: "Mobile Number",
+    enter_mobile: "Enter mobile number",
+    referral_optional: "Referral Code Optional",
+    enter_referral: "Enter referral code if any",
+    account_type: "Account Type",
+    choose_account_type: "Choose account type",
+    customer: "Customer",
+    worker_freelancer: "Worker / Freelancer",
+    user_id_email: "User ID / Email",
+    password: "Password",
+    password_placeholder: "Minimum 6 characters",
+    create_account: "Create Account",
+    logout: "Logout",
+    account_profile: "Account Profile",
+    user_profile: "User Profile",
+    profile_desc: "Update your account details and profile photo to build more trust.",
+    trust_score: "Trust Score",
+    update_profile: "Update Profile",
+    profile_photo: "Profile Photo",
+    upload_profile_photo: "Upload Profile Photo",
+    upload_profile_desc: "Choose an image from your device. It will be compressed and shown on your profile.",
+    choose_photo: "Choose Photo",
+    remove_photo: "Remove Photo",
+    photo_tip: "Use a clear photo for better trust.",
+    city_area_label: "City / Area",
+    short_bio: "Short Bio",
+    load_my_profile: "Load My Profile",
+    save_profile: "Save Profile Update",
+    marketplace: "Marketplace",
+    service_categories: "Service Categories",
+    service_categories_desc: "Click any service. New users go to login, and logged-in customers go directly to booking.",
+    customer_portal: "Customer Portal",
+    post_work_desc: "Post your work. Phone and address stay hidden until you accept a bid.",
+    your_name: "Your Name",
+    service_type: "Service Type",
+    full_address: "Full Address",
+    work_details: "Work Details",
+    worker_portal: "Worker Portal",
+    worker_profile_title: "Worker / Freelancer Profile",
+    worker_profile_desc: "Freelancer / General Helper can accept legal small tasks, errands, queue work and travel helper jobs.",
+    main_skill: "Main Skill",
+    choose_skill: "Choose skill",
+    skill_tip: "Select Freelancer / General Helper for safe small tasks without special skill.",
+    work_type: "Work Type",
+    choose_work_type: "Choose work type",
+    experience_about: "Experience / About",
+    availability: "Availability",
+    save_worker_profile: "Save Worker Profile",
+    worker_jobs: "Worker Jobs",
+    open_jobs_bidding: "Open Jobs For Bidding",
+    open_jobs_desc: "Freelancer / General Helper workers can see all legal open jobs in their city.",
+    load_open_jobs: "Load Open Jobs",
+    load_assigned_jobs: "Load My Assigned Jobs",
+    customer_dashboard: "Customer Dashboard",
+    my_bookings_bids: "My Bookings & Bids",
+    accept_bid_desc: "Accept the best bid and unlock worker phone.",
+    load_my_bookings: "Load My Bookings",
+    support: "Support",
+    support_reports: "Support & Reports",
+    support_reports_desc: "Raise support tickets or report unsafe/fake activity.",
+    support_ticket: "Support Ticket",
+    ticket_type: "Ticket Type",
+    details: "Details",
+    submit_ticket: "Submit Ticket",
+    report_problem: "Report Problem",
+    report_type: "Report Type",
+    reported_identity: "Reported Phone / User ID",
+    submit_report: "Submit Report",
+    expansion: "Expansion",
+    available_cities: "Available Cities & City Request",
+    available_cities_desc: "KaamConnect is expanding city by city. Request your city if service is not available there yet.",
+    available_cities_short: "Available Cities",
+    request_city: "Request Your City",
+    city_name: "City Name",
+    country: "Country",
+    request_city_btn: "Request City",
+    referral_dashboard: "Referral Dashboard",
+    referral_desc: "Invite customers or workers and grow KaamConnect in your city.",
+    load_referral: "Load My Referral Code",
+    private_admin: "Private Admin",
+    pending_users: "Pending Users",
+    pending_workers: "Pending Workers",
+    all_bookings: "All Bookings",
+    support_tickets: "Support Tickets",
+    trust: "Trust",
+    trust_safety_desc: "KaamConnect protects customers, workers and personal information with professional safety controls.",
+    private_contact: "Private Contact",
+    private_contact_desc: "Phone number and full address stay hidden until a customer accepts a worker bid.",
+    worker_verification_desc: "Workers need admin verification before they can bid on customer jobs.",
+    freelancer_helper: "Freelancer Helper",
+    freelancer_helper_desc: "Freelancer workers can do legal small tasks like queue standing, errands and travel help.",
+    report_support: "Report & Support",
+    report_support_desc: "Customers and workers can report fake profiles, unsafe behavior or service problems.",
+    legal_work_only: "Legal Work Only",
+    legal_work_only_desc: "Illegal, unsafe, adult, weapon, drug or fraud related tasks are not allowed.",
+    admin_control: "Admin Control",
+    admin_control_desc: "Admin can verify, reject, block users and manage support tickets from the admin portal.",
+    support_title: "KaamConnect Support",
+    support_title_desc: "Need help? Contact support.",
+    business_hours: "Business Hours"
+  },
+  hi: {
+    top_status: "विश्वसनीय लोकल सर्विस मार्केटप्लेस",
+    my_profile: "मेरी प्रोफाइल",
+    account_access: "अकाउंट लॉगिन",
+    services: "सेवाएं",
+    post_work: "काम पोस्ट करें",
+    my_bookings: "मेरी बुकिंग",
+    worker_profile: "वर्कर प्रोफाइल",
+    open_jobs: "ओपन जॉब्स",
+    notifications: "सूचनाएं",
+    support_center: "सपोर्ट सेंटर",
+    city_growth: "सिटी ग्रोथ",
+    admin_portal: "एडमिन पोर्टल",
+    trust_safety: "ट्रस्ट और सेफ्टी",
+    contact: "संपर्क",
+    notification_center: "नोटिफिकेशन सेंटर",
+    notification_text: "बुकिंग, बिड, वेरिफिकेशन और सपोर्ट अपडेट।",
+    load_notifications: "नोटिफिकेशन लोड करें",
+    verified_services: "वेरिफाइड लोकल सर्विस",
+    hero_title: "विश्वास के साथ भरोसेमंद वर्कर और फ्रीलांसर हायर करें।",
+    hero_desc: "KaamConnect ग्राहकों को काम पोस्ट करने, बिड लेने, वर्कर वेरिफाई करने और संपर्क जानकारी सुरक्षित रखने में मदद करता है।",
+    choose_service: "सेवा चुनें",
+    city_area: "शहर / एरिया",
+    budget: "बजट",
+    start_booking: "बुकिंग शुरू करें",
+    login_signup: "लॉगिन / साइनअप",
+    explore_services: "सेवाएं देखें",
+    signup_login: "साइनअप / लॉगिन",
+    current_account: "वर्तमान अकाउंट",
+    signup: "साइनअप",
+    login: "लॉगिन",
+    full_name: "पूरा नाम",
+    mobile_number: "मोबाइल नंबर",
+    account_type: "अकाउंट टाइप",
+    customer: "कस्टमर",
+    worker_freelancer: "वर्कर / फ्रीलांसर",
+    password: "पासवर्ड",
+    create_account: "अकाउंट बनाएं",
+    logout: "लॉगआउट",
+    user_profile: "यूजर प्रोफाइल",
+    update_profile: "प्रोफाइल अपडेट करें",
+    profile_photo: "प्रोफाइल फोटो",
+    choose_photo: "फोटो चुनें",
+    remove_photo: "फोटो हटाएं",
+    service_categories: "सर्विस कैटेगरी",
+    customer_portal: "कस्टमर पोर्टल",
+    worker_portal: "वर्कर पोर्टल",
+    support: "सपोर्ट",
+    trust: "विश्वास"
+  },
+  es: {
+    top_status: "Mercado local de servicios confiable",
+    my_profile: "Mi perfil",
+    account_access: "Acceso de cuenta",
+    services: "Servicios",
+    post_work: "Publicar trabajo",
+    my_bookings: "Mis reservas",
+    notifications: "Notificaciones",
+    support_center: "Centro de soporte",
+    admin_portal: "Portal admin",
+    trust_safety: "Confianza y seguridad",
+    contact: "Contacto",
+    user_profile: "Perfil de usuario",
+    service_categories: "Categorías de servicios",
+    login_signup: "Iniciar sesión / Registrarse",
+    start_booking: "Iniciar reserva"
+  },
+  ar: {
+    top_status: "سوق خدمات محلي موثوق",
+    my_profile: "ملفي الشخصي",
+    account_access: "دخول الحساب",
+    services: "الخدمات",
+    post_work: "نشر عمل",
+    my_bookings: "حجوزاتي",
+    notifications: "الإشعارات",
+    support_center: "مركز الدعم",
+    admin_portal: "لوحة الإدارة",
+    trust_safety: "الثقة والسلامة",
+    contact: "اتصال",
+    user_profile: "ملف المستخدم",
+    service_categories: "فئات الخدمات",
+    login_signup: "تسجيل الدخول / إنشاء حساب",
+    start_booking: "ابدأ الحجز"
+  },
+  fr: {
+    top_status: "Marché local de services de confiance",
+    my_profile: "Mon profil",
+    account_access: "Accès au compte",
+    services: "Services",
+    post_work: "Publier un travail",
+    my_bookings: "Mes réservations",
+    notifications: "Notifications",
+    support_center: "Centre d'aide",
+    admin_portal: "Portail admin",
+    trust_safety: "Confiance et sécurité",
+    contact: "Contact",
+    user_profile: "Profil utilisateur",
+    service_categories: "Catégories de services",
+    login_signup: "Connexion / Inscription",
+    start_booking: "Commencer"
+  }
+};
+
 function getValue(id) {
   const element = document.getElementById(id);
   return element ? element.value.trim() : "";
@@ -152,6 +401,23 @@ function clearForm(formId) {
 
 function makeReferralCode(loginId) {
   return "KC" + String(loginId || "USER").replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 8);
+}
+
+function applyLanguage(language) {
+  const dict = translations[language] || translations.en;
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    const key = element.getAttribute("data-i18n");
+    element.textContent = dict[key] || translations.en[key] || element.textContent;
+  });
+
+  document.querySelectorAll("[data-placeholder-i18n]").forEach((element) => {
+    const key = element.getAttribute("data-placeholder-i18n");
+    element.placeholder = dict[key] || translations.en[key] || element.placeholder;
+  });
+
+  document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  localStorage.setItem("kaamconnect_language", language);
 }
 
 function serviceShortCode(serviceName) {
@@ -287,6 +553,18 @@ function refreshProfessionalProfileUI() {
 fillServices();
 updateCurrencySymbols();
 
+const savedLanguage = localStorage.getItem("kaamconnect_language") || "en";
+const languageSelector = document.getElementById("languageSelector");
+
+if (languageSelector) {
+  languageSelector.value = savedLanguage;
+  languageSelector.addEventListener("change", () => {
+    applyLanguage(languageSelector.value);
+  });
+}
+
+applyLanguage(savedLanguage);
+
 document.getElementById("currencySelector")?.addEventListener("change", updateCurrencySymbols);
 
 const sideToggle = document.getElementById("sideToggle");
@@ -328,6 +606,35 @@ document.querySelectorAll(".sidebar-menu a").forEach((link) => {
     closeSidebar();
   });
 });
+
+const notificationDrawer = document.getElementById("notificationDrawer");
+const notificationIconBtn = document.getElementById("notificationIconBtn");
+const closeNotificationDrawer = document.getElementById("closeNotificationDrawer");
+const drawerOverlay = document.getElementById("drawerOverlay");
+const openNotificationSideBtn = document.getElementById("openNotificationSideBtn");
+
+function openNotificationPanel() {
+  notificationDrawer?.classList.add("open");
+  drawerOverlay?.classList.add("open");
+}
+
+function closeNotificationPanel() {
+  notificationDrawer?.classList.remove("open");
+  drawerOverlay?.classList.remove("open");
+}
+
+notificationIconBtn?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  openNotificationPanel();
+});
+
+openNotificationSideBtn?.addEventListener("click", () => {
+  closeSidebar();
+  openNotificationPanel();
+});
+
+closeNotificationDrawer?.addEventListener("click", closeNotificationPanel);
+drawerOverlay?.addEventListener("click", closeNotificationPanel);
 
 const profilePanel = document.getElementById("profile-update");
 const closeProfilePanelBtn = document.getElementById("closeProfilePanelBtn");
@@ -445,6 +752,7 @@ onAuthStateChanged(auth, async (user) => {
     try {
       await loadUserProfile(user);
       showMessage("authMessage", "Logged in successfully.");
+      updateNotificationCount();
     } catch (error) {
       showMessage("authMessage", "Profile Error: " + error.message);
     }
@@ -452,6 +760,7 @@ onAuthStateChanged(auth, async (user) => {
     currentProfile = null;
     currentRole = "";
     setPortalVisibility();
+    updateNotificationBadge(0);
   }
 });
 
@@ -512,6 +821,25 @@ async function createNotification(toUserId, title, message, type = "general", re
     isRead: false,
     createdAt: serverTimestamp()
   });
+}
+
+function updateNotificationBadge(count) {
+  const badge = document.getElementById("notificationBadge");
+  if (badge) badge.textContent = String(count || 0);
+}
+
+async function updateNotificationCount() {
+  if (!currentUser) {
+    updateNotificationBadge(0);
+    return;
+  }
+
+  try {
+    const notificationSnap = await getDocs(query(collection(db, "notifications"), where("toUserId", "==", currentUser.uid)));
+    updateNotificationBadge(notificationSnap.size);
+  } catch {
+    updateNotificationBadge(0);
+  }
 }
 
 document.getElementById("signupBtn")?.addEventListener("click", async () => {
@@ -611,6 +939,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     await signOut(auth);
     clearForm("authForm");
     closeProfilePanel();
+    closeNotificationPanel();
     showMessage("authMessage", "Logged out successfully.");
   } catch (error) {
     showMessage("authMessage", "Logout Error: " + error.message);
@@ -956,6 +1285,7 @@ document.getElementById("bookingForm")?.addEventListener("submit", async (event)
     });
 
     await createNotification(currentUser.uid, "Booking Posted", "Your booking is open for bids.", "booking", bookingRef.id);
+    await updateNotificationCount();
 
     document.getElementById("matchResult").innerHTML = `
       <div class="data-card">
@@ -1308,6 +1638,7 @@ document.getElementById("loadNotificationsBtn")?.addEventListener("click", async
 
     if (notificationSnap.empty) {
       showMessage("notificationMessage", "No notifications found.");
+      updateNotificationBadge(0);
       return;
     }
 
@@ -1315,14 +1646,15 @@ document.getElementById("loadNotificationsBtn")?.addEventListener("click", async
       const n = notificationDoc.data();
 
       box.innerHTML += `
-        <div class="data-card">
-          <h3>${safeText(n.title)}</h3>
+        <div class="notification-item">
+          <h4>${safeText(n.title)}</h4>
           <p>${safeText(n.message)}</p>
           <p><strong>Type:</strong> ${safeText(n.type || "general")}</p>
         </div>
       `;
     });
 
+    updateNotificationBadge(notificationSnap.size);
     showMessage("notificationMessage", "Notifications loaded.");
   } catch (error) {
     showMessage("notificationMessage", "Database Error: " + error.message);
