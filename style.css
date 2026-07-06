@@ -948,3 +948,251 @@ main {
     top: 14px;
   }
 }
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand {
+  font-size: 30px;
+  letter-spacing: -1px;
+}
+
+.brand-icon {
+  display: none !important;
+}
+
+.dashboard-toggle {
+  position: static;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: none;
+  background: var(--dark);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: none;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.sidebar {
+  top: 86px;
+  left: 22px;
+}
+
+.simple-sidebar {
+  width: 270px;
+  padding: 18px;
+}
+
+.simple-sidebar .sidebar-menu {
+  margin-top: 0;
+}
+
+.simple-sidebar .sidebar-menu a:first-child {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+}
+
+.simple-sidebar .sidebar-menu a:first-child:hover {
+  color: #ffffff;
+  transform: translateX(0);
+}
+
+.sidebar-profile,
+.sidebar-metrics {
+  display: none !important;
+}
+
+.service-card {
+  width: 100%;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  transition: 0.25s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+  border-color: #bfdbfe;
+}
+
+.service-image {
+  height: 150px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.service-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.70), rgba(37, 99, 235, 0.55)),
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.35), transparent 22%);
+}
+
+.service-image span {
+  position: relative;
+  z-index: 1;
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--dark);
+  font-size: 24px;
+  font-weight: 900;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18);
+}
+
+.service-image-1 {
+  background: linear-gradient(135deg, #dbeafe, #2563eb);
+}
+
+.service-image-2 {
+  background: linear-gradient(135deg, #e0f2fe, #0284c7);
+}
+
+.service-image-3 {
+  background: linear-gradient(135deg, #dcfce7, #059669);
+}
+
+.service-image-4 {
+  background: linear-gradient(135deg, #f1f5f9, #334155);
+}
+
+.service-image-5 {
+  background: linear-gradient(135deg, #ede9fe, #7c3aed);
+}
+
+.service-image-6 {
+  background: linear-gradient(135deg, #cffafe, #0891b2);
+}
+
+.service-content {
+  padding: 24px;
+}
+
+.service-content h3 {
+  color: var(--dark);
+  font-size: 21px;
+  margin-bottom: 8px;
+}
+
+.service-content p {
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.service-content strong {
+  color: var(--primary);
+  font-size: 14px;
+}
+
+.safety-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  transition: 0.25s ease;
+}
+
+.safety-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+
+.safety-image {
+  height: 145px;
+  position: relative;
+  background: linear-gradient(135deg, #eff6ff, #bfdbfe);
+}
+
+.safety-image::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+  font-weight: 900;
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.70), rgba(37, 99, 235, 0.45));
+}
+
+.private-image::after {
+  content: "LOCK";
+}
+
+.verified-image::after {
+  content: "CHECK";
+}
+
+.helper-image::after {
+  content: "HELP";
+}
+
+.report-image::after {
+  content: "REPORT";
+}
+
+.legal-image::after {
+  content: "LEGAL";
+}
+
+.admin-image::after {
+  content: "ADMIN";
+}
+
+.safety-card h3 {
+  color: var(--dark);
+  padding: 22px 24px 6px;
+}
+
+.safety-card p {
+  color: var(--muted);
+  padding: 0 24px 24px;
+}
+
+@media (max-width: 760px) {
+  .top-nav {
+    justify-content: space-between;
+  }
+
+  .brand-wrap {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .brand {
+    font-size: 26px;
+  }
+
+  .sidebar {
+    top: 92px;
+    left: 10px;
+  }
+
+  .dashboard-toggle {
+    width: 44px;
+    height: 44px;
+  }
+}
