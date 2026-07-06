@@ -154,25 +154,72 @@ function makeReferralCode(loginId) {
   return "KC" + String(loginId || "USER").replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 8);
 }
 
+function serviceShortCode(serviceName) {
+  return String(serviceName)
+    .replace(/[^a-zA-Z ]/g, "")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase() || "KC";
+}
+
+function handleServiceClick(serviceName) {
+  const serviceType = document.getElementById("serviceType");
+  const quickService = document.getElementById("quickService");
+
+  if (quickService) quickService.value = serviceName;
+  if (serviceType) serviceType.value = serviceName;
+
+  if (!currentUser) {
+    document.getElementById("login")?.scrollIntoView({ behavior: "smooth" });
+    showMessage("authMessage", "Login or signup first to book " + serviceName + ".");
+    return;
+  }
+
+  if (currentRole !== "customer") {
+    document.getElementById("login")?.scrollIntoView({ behavior: "smooth" });
+    showMessage("authMessage", "Please use a customer account to book a worker.");
+    return;
+  }
+
+  document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
+  showMessage("bookingMessage", serviceName + " selected. Fill your work details.");
+}
+
 function fillServices() {
   document.querySelectorAll(".service-select").forEach((select) => {
     const first = select.querySelector("option")?.textContent || "Choose service";
     select.innerHTML = `<option value="">${first}</option>`;
 
     SERVICES.forEach((service) => {
-      select.innerHTML += `<option>${service[0]}</option>`;
+      select.innerHTML += `<option>${safeText(service[0])}</option>`;
     });
   });
 
   const grid = document.getElementById("servicesGrid");
 
   if (grid) {
-    grid.innerHTML = SERVICES.map((service) => `
-      <div class="info-card">
-        <h3>${safeText(service[0])}</h3>
-        <p>${safeText(service[1])}</p>
-      </div>
+    grid.innerHTML = SERVICES.map((service, index) => `
+      <button class="service-card service-card-click" data-service="${safeText(service[0])}" type="button">
+        <div class="service-image service-image-${(index % 6) + 1}">
+          <span>${safeText(serviceShortCode(service[0]))}</span>
+        </div>
+
+        <div class="service-content">
+          <h3>${safeText(service[0])}</h3>
+          <p>${safeText(service[1])}</p>
+          <strong>Book this service →</strong>
+        </div>
+      </button>
     `).join("");
+
+    grid.querySelectorAll(".service-card-click").forEach((card) => {
+      card.addEventListener("click", () => {
+        handleServiceClick(card.dataset.service);
+      });
+    });
   }
 }
 
@@ -218,26 +265,6 @@ function refreshProfessionalProfileUI() {
   const score = loggedIn ? profileTrustScore(profile) : 0;
   const verified = profile.phoneVerified === true;
 
-  const sideAvatar = document.getElementById("sideAvatar");
-  const sideUserName = document.getElementById("sideUserName");
-  const sideUserRole = document.getElementById("sideUserRole");
-  const sideVerifyBadge = document.getElementById("sideVerifyBadge");
-  const sideTrustScore = document.getElementById("sideTrustScore");
-  const sideAccountStatus = document.getElementById("sideAccountStatus");
-
-  if (sideAvatar) sideAvatar.innerHTML = avatarHTML(profile);
-  if (sideUserName) sideUserName.textContent = name;
-  if (sideUserRole) sideUserRole.textContent = role;
-  if (sideTrustScore) sideTrustScore.textContent = score + "%";
-  if (sideAccountStatus) sideAccountStatus.textContent = loggedIn ? "Active" : "Guest";
-
-  if (sideVerifyBadge) {
-    sideVerifyBadge.textContent = verified ? "Verified" : loggedIn ? "Pending" : "Not Logged In";
-    sideVerifyBadge.classList.toggle("verified", verified);
-    sideVerifyBadge.classList.toggle("success", verified);
-    sideVerifyBadge.classList.toggle("pending", !verified);
-  }
-
   const previewAvatar = document.getElementById("profilePreviewAvatar");
   const previewName = document.getElementById("profilePreviewName");
   const previewRole = document.getElementById("profilePreviewRole");
@@ -265,19 +292,12 @@ document.getElementById("currencySelector")?.addEventListener("change", updateCu
 const sideToggle = document.getElementById("sideToggle");
 const sideDashboard = document.getElementById("sideDashboard");
 
-function openSidebar() {
-  if (!sideDashboard) return;
-  sideDashboard.classList.remove("closed");
-}
-
 function closeSidebar() {
-  if (!sideDashboard) return;
-  sideDashboard.classList.add("closed");
+  if (sideDashboard) sideDashboard.classList.add("closed");
 }
 
 function toggleSidebar() {
-  if (!sideDashboard) return;
-  sideDashboard.classList.toggle("closed");
+  if (sideDashboard) sideDashboard.classList.toggle("closed");
 }
 
 if (sideDashboard) {
@@ -299,22 +319,13 @@ if (sideToggle && sideDashboard) {
   });
 
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeSidebar();
-    }
+    if (event.key === "Escape") closeSidebar();
   });
 }
 
 document.querySelectorAll(".sidebar-menu a").forEach((link) => {
   link.addEventListener("click", () => {
     closeSidebar();
-  });
-});
-document.querySelectorAll(".sidebar-menu a").forEach((link) => {
-  link.addEventListener("click", () => {
-    if (window.innerWidth < 1180) {
-      sideDashboard?.classList.add("closed");
-    }
   });
 });
 
@@ -700,11 +711,9 @@ if (profilePhotoFile) {
 
       const profileUploadPreview = document.getElementById("profileUploadPreview");
       const profilePreviewAvatar = document.getElementById("profilePreviewAvatar");
-      const sideAvatar = document.getElementById("sideAvatar");
 
       if (profileUploadPreview) profileUploadPreview.innerHTML = `<img src="${safeText(compressedPhoto)}" alt="Profile photo">`;
       if (profilePreviewAvatar) profilePreviewAvatar.innerHTML = `<img src="${safeText(compressedPhoto)}" alt="Profile photo">`;
-      if (sideAvatar) sideAvatar.innerHTML = `<img src="${safeText(compressedPhoto)}" alt="Profile photo">`;
 
       showMessage("profileUpdateMessage", "Photo selected. Click Save Profile Update.");
     } catch (error) {
@@ -722,11 +731,9 @@ if (removeProfilePhotoBtn) {
 
     const profileUploadPreview = document.getElementById("profileUploadPreview");
     const profilePreviewAvatar = document.getElementById("profilePreviewAvatar");
-    const sideAvatar = document.getElementById("sideAvatar");
 
     if (profileUploadPreview) profileUploadPreview.textContent = initials;
     if (profilePreviewAvatar) profilePreviewAvatar.textContent = initials;
-    if (sideAvatar) sideAvatar.textContent = initials;
 
     showMessage("profileUpdateMessage", "Photo removed. Click Save Profile Update.");
   });
