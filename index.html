@@ -6,28 +6,21 @@
 
   <title>KaamConnect - Trusted Local Service Marketplace</title>
 
-  <link rel="stylesheet" href="/style.css?v=settings-final-1" />
-
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="/style.css?v=reset-social-final-1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 
 <body>
   <header class="top-header">
     <nav class="top-nav">
       <div class="brand-wrap">
-        <button class="dashboard-toggle" id="sideToggle" type="button" aria-label="Open menu">☰</button>
-
-        <a href="#home" class="brand">
-          <span>KaamConnect</span>
-        </a>
+        <button class="dashboard-toggle" id="sideToggle" type="button">☰</button>
+        <a href="#home" class="brand">KaamConnect</a>
       </div>
 
       <div class="top-center">
         <span class="top-status-dot"></span>
-        <span data-i18n="top_status">Trusted Local Service Marketplace</span>
+        <span>Trusted Local Service Marketplace</span>
       </div>
 
       <div class="top-actions">
@@ -62,8 +55,6 @@
           <span id="notificationBadge">0</span>
         </button>
 
-        <button class="settings-icon-btn" id="topSettingsBtn" type="button" title="Settings">⚙️</button>
-
         <button class="btn outline-btn top-auth-btn" id="topLoginBtn" type="button">Login</button>
         <button class="btn primary-btn top-auth-btn" id="topSignupBtn" type="button">Sign Up</button>
         <button class="btn secondary-btn top-auth-btn hidden" id="topLogoutBtn" type="button">Logout</button>
@@ -83,27 +74,28 @@
     </div>
 
     <div class="sidebar-menu">
-      <a href="#profile-update" class="profile-open-link" data-i18n="my_profile">My Profile</a>
-      <a href="#settings">Settings</a>
-      <a href="#login" data-i18n="account_access">Account Access</a>
-      <a href="#how-it-works" data-i18n="how_it_works">How It Works</a>
+      <a href="#profile-update" class="profile-open-link">My Profile</a>
+      <a href="#login">Account Access</a>
+      <a href="#how-it-works">How It Works</a>
       <a href="#price-calculator">Price Calculator</a>
       <a href="#locality-map">Locality Map</a>
-      <a href="#services" data-i18n="services">Services</a>
+      <a href="#services">Services</a>
 
-      <a href="#book" class="customer-only hidden" data-i18n="post_work">Post Work</a>
-      <a href="#customer-dashboard" class="customer-only hidden" data-i18n="my_bookings">My Bookings</a>
+      <a href="#book" class="customer-only hidden">Post Work</a>
+      <a href="#customer-dashboard" class="customer-only hidden">My Bookings</a>
 
-      <a href="#worker-profile" class="worker-only hidden" data-i18n="worker_profile">Worker Profile</a>
-      <a href="#worker-dashboard" class="worker-only hidden" data-i18n="open_jobs">Open Jobs</a>
+      <a href="#worker-profile" class="worker-only hidden">Worker Profile</a>
+      <a href="#worker-dashboard" class="worker-only hidden">Open Jobs</a>
 
-      <button class="sidebar-link-btn" id="openNotificationSideBtn" type="button" data-i18n="notifications">Notifications</button>
+      <button class="sidebar-link-btn" id="openNotificationSideBtn" type="button">Notifications</button>
 
-      <a href="#support-center" data-i18n="support_center">Support Center</a>
-      <a href="#growth" data-i18n="city_growth">City Growth</a>
-      <a href="#admin" class="admin-only hidden" data-i18n="admin_portal">Admin Portal</a>
-      <a href="#safety" data-i18n="trust_safety">Trust & Safety</a>
-      <a href="#contact" data-i18n="contact">Contact</a>
+      <a href="#support-center">Support Center</a>
+      <a href="#growth">City Growth</a>
+      <a href="#admin" class="admin-only hidden">Admin Portal</a>
+      <a href="#safety">Trust & Safety</a>
+      <a href="#ai-checker">AI Website Checker</a>
+      <a href="#settings">Settings</a>
+      <a href="#contact">Contact</a>
     </div>
   </aside>
 
@@ -131,13 +123,13 @@
         <p>Create your account or login to continue booking and bidding.</p>
       </div>
 
-      <div class="account-card modal-account-card">
+      <div class="account-card">
         <h3>Current Account</h3>
         <p id="accountNameLine">Not logged in</p>
         <p id="accountRoleLine">Login to start.</p>
       </div>
 
-      <div class="form-card modal-form-card">
+      <div class="form-card">
         <div class="auth-tabs">
           <button class="tab-btn active" id="showSignupTab" type="button">Signup</button>
           <button class="tab-btn" id="showLoginTab" type="button">Login</button>
@@ -171,8 +163,8 @@
           </div>
 
           <div class="form-group">
-            <label>User ID / Email</label>
-            <input type="text" id="authUserId" placeholder="Use real email for forgot password" />
+            <label>Email / User ID</label>
+            <input type="text" id="authUserId" placeholder="Use real email for password reset" />
           </div>
 
           <div class="form-group">
@@ -180,13 +172,24 @@
             <input type="password" id="authPassword" placeholder="Minimum 6 characters" />
           </div>
 
-          <button type="button" class="forgot-password-btn" id="forgotPasswordBtn">
+          <div class="form-group" id="confirmPasswordGroup">
+            <label>Confirm Password</label>
+            <input type="password" id="authConfirmPassword" placeholder="Enter password again" />
+          </div>
+
+          <button type="button" class="forgot-password-btn" id="openForgotPasswordBtn">
             Forgot Password?
           </button>
 
-          <p class="auth-help-text">
-            Password reset works only with real email accounts like example@gmail.com.
-          </p>
+          <div class="social-login-box">
+            <p>Or continue with</p>
+            <div class="social-login-grid">
+              <button type="button" class="social-btn" id="googleLoginBtn">G Google</button>
+              <button type="button" class="social-btn" id="githubLoginBtn">GitHub</button>
+              <button type="button" class="social-btn" id="facebookLoginBtn">Facebook</button>
+            </div>
+            <small>For social login, choose mobile number and account type first if new user.</small>
+          </div>
 
           <button type="button" class="btn primary-btn full-btn" id="signupBtn">Create Account</button>
           <button type="button" class="btn secondary-btn full-btn hidden" id="loginBtn">Login</button>
@@ -198,16 +201,63 @@
     </div>
   </div>
 
+  <div class="auth-modal" id="forgotModal">
+    <div class="auth-modal-box">
+      <button class="auth-close-btn" id="forgotCloseBtn" type="button">×</button>
+
+      <div class="auth-modal-header">
+        <span>Password Recovery</span>
+        <h2>Reset Password with OTP</h2>
+        <p>Enter registered email and phone number. OTP will be sent to your email after phone verification.</p>
+      </div>
+
+      <div class="form-card">
+        <div class="form-group">
+          <label>Registered Email</label>
+          <input type="email" id="resetEmail" placeholder="example@gmail.com" />
+        </div>
+
+        <div class="form-group">
+          <label>Registered Mobile Number</label>
+          <input type="tel" id="resetPhone" placeholder="Enter your registered phone number" />
+        </div>
+
+        <button class="btn primary-btn full-btn" id="sendOtpBtn" type="button">Send OTP</button>
+
+        <div class="form-group">
+          <label>Enter OTP</label>
+          <input type="text" id="resetOtp" placeholder="Enter OTP received on email" />
+        </div>
+
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="resetNewPassword" placeholder="Minimum 6 characters" />
+        </div>
+
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="resetConfirmPassword" placeholder="Enter new password again" />
+        </div>
+
+        <button class="btn secondary-btn full-btn" id="resetPasswordBtn" type="button">
+          Reset Password
+        </button>
+
+        <p class="message" id="forgotMessage"></p>
+      </div>
+    </div>
+  </div>
+
   <main>
     <section class="hero-section" id="home">
       <div class="hero-content">
         <div class="hero-text">
-          <span class="hero-badge">Verified workers • Local jobs • Safe booking</span>
+          <span class="hero-badge">Local jobs • Smart bidding • Safe booking</span>
           <h1>Hire trusted local workers near you.</h1>
           <p>
             KaamConnect connects customers with electricians, plumbers, cleaners, tutors,
             cooks, freelancers and many more local workers with safe contact protection,
-            bidding, verification control, smart price guidance and locality map.
+            bidding, smart price guidance and locality map.
           </p>
 
           <div class="hero-actions">
@@ -243,7 +293,7 @@
             <div class="hero-worker-card">
               <div class="worker-avatar">✓</div>
               <div>
-                <h3>Verified Electrician</h3>
+                <h3>Available Electrician</h3>
                 <p>2.1 km away • ₹300 starting</p>
               </div>
             </div>
@@ -261,7 +311,7 @@
       <div class="section-heading">
         <span>How It Works</span>
         <h2>Simple, safe and professional workflow</h2>
-        <p>KaamConnect connects customers and workers with booking, bidding, verification control and secure contact protection.</p>
+        <p>Post work, find nearby workers, receive counter bids and connect after payment verification.</p>
       </div>
 
       <div class="how-grid">
@@ -280,7 +330,7 @@
         <div class="how-card">
           <div class="how-visual bid-visual"><span>03</span></div>
           <h3>Negotiate amount</h3>
-          <p>Customer offers an amount and workers can send counter bids like inDrive style negotiation.</p>
+          <p>Customer offers amount and workers can send counter bids like inDrive style negotiation.</p>
         </div>
 
         <div class="how-card">
@@ -335,7 +385,7 @@
       <div class="section-heading">
         <span>Live Locality</span>
         <h2>Find nearby available workers</h2>
-        <p>Allow location to see workers available near your area, like Ola, Uber and inDrive style matching.</p>
+        <p>Allow location to see workers available near your area.</p>
       </div>
 
       <div class="map-layout">
@@ -381,9 +431,9 @@
 
     <section class="section" id="services">
       <div class="section-heading">
-        <span data-i18n="services">Services</span>
+        <span>Services</span>
         <h2>Popular marketplace services</h2>
-        <p>Click a service. New users go to login, and logged-in customers go directly to booking.</p>
+        <p>Click any service. New users go to login, and logged-in customers go directly to booking.</p>
       </div>
 
       <div class="service-grid" id="servicesGrid"></div>
@@ -398,7 +448,7 @@
 
       <div class="auth-cta-card">
         <h3>Continue with KaamConnect</h3>
-        <p>Customers can post work. Workers can create profiles and bid based on admin verification setting.</p>
+        <p>Customers can post work. Workers can create profiles and bid based on admin verification settings.</p>
 
         <div class="auth-cta-buttons">
           <button class="btn primary-btn" id="openSignupFromPage" type="button">Create Account</button>
@@ -447,162 +497,6 @@
       </div>
     </section>
 
-    <section class="section light-section" id="settings">
-      <div class="section-heading">
-        <span>Settings</span>
-        <h2>App & Account Settings</h2>
-        <p>Control your account preferences, notifications, privacy, location and worker availability.</p>
-      </div>
-
-      <div class="settings-layout">
-        <div class="settings-card">
-          <h3>Account Preferences</h3>
-          <p>Save your default app preferences.</p>
-
-          <div class="form-group">
-            <label>Default Country</label>
-            <select id="settingsCountry">
-              <option value="India">India</option>
-              <option value="UAE">UAE</option>
-              <option value="United States">USA</option>
-              <option value="United Kingdom">UK</option>
-              <option value="Canada">Canada</option>
-              <option value="Australia">Australia</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Default Currency</label>
-            <select id="settingsCurrency">
-              <option value="INR">₹ INR</option>
-              <option value="AED">د.إ AED</option>
-              <option value="USD">$ USD</option>
-              <option value="GBP">£ GBP</option>
-              <option value="CAD">C$ CAD</option>
-              <option value="AUD">A$ AUD</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Default Language</label>
-            <select id="settingsLanguage">
-              <option value="en">English</option>
-              <option value="hi">हिन्दी</option>
-              <option value="es">Español</option>
-              <option value="ar">العربية</option>
-              <option value="fr">Français</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Default City</label>
-            <input type="text" id="settingsCity" placeholder="Example: Delhi, Mumbai, Pune">
-          </div>
-
-          <div class="form-group">
-            <label>Default Map Search Radius</label>
-            <select id="settingsRadius">
-              <option value="3">3 km</option>
-              <option value="5">5 km</option>
-              <option value="10">10 km</option>
-              <option value="20">20 km</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <h3>Notifications</h3>
-          <p>Choose which alerts you want to receive.</p>
-
-          <label class="setting-switch-row">
-            <span>Booking updates</span>
-            <input type="checkbox" id="notifyBookings" checked>
-          </label>
-
-          <label class="setting-switch-row">
-            <span>New bid alerts</span>
-            <input type="checkbox" id="notifyBids" checked>
-          </label>
-
-          <label class="setting-switch-row">
-            <span>Payment alerts</span>
-            <input type="checkbox" id="notifyPayments" checked>
-          </label>
-
-          <label class="setting-switch-row">
-            <span>Support ticket alerts</span>
-            <input type="checkbox" id="notifySupport" checked>
-          </label>
-        </div>
-
-        <div class="settings-card">
-          <h3>Privacy & Location</h3>
-          <p>Control how your location is used for nearby worker matching.</p>
-
-          <label class="setting-switch-row">
-            <span>Allow location for nearby matching</span>
-            <input type="checkbox" id="allowLocationMatching" checked>
-          </label>
-
-          <label class="setting-switch-row">
-            <span>Show worker location on map</span>
-            <input type="checkbox" id="showWorkerLocation" checked>
-          </label>
-
-          <label class="setting-switch-row">
-            <span>Hide phone until booking accepted</span>
-            <input type="checkbox" id="hidePhoneUntilAccepted" checked>
-          </label>
-
-          <p class="safe-note">
-            Recommended: keep phone and address hidden until customer accepts bid and payment is verified.
-          </p>
-        </div>
-
-        <div class="settings-card worker-only hidden">
-          <h3>Worker Settings</h3>
-          <p>Control your worker availability.</p>
-
-          <label class="setting-switch-row">
-            <span>Available for new work</span>
-            <input type="checkbox" id="workerAvailableSetting" checked>
-          </label>
-
-          <button class="btn outline-btn full-btn" id="settingsShareLocationBtn" type="button">
-            Share / Update My Work Location
-          </button>
-
-          <p class="safe-note">
-            Customers can see nearby available workers, but your phone stays hidden until booking is accepted.
-          </p>
-        </div>
-
-        <div class="settings-card admin-only hidden">
-          <h3>Admin Quick Settings</h3>
-          <p>Quick access for important admin controls.</p>
-
-          <a class="settings-link-btn" href="#admin">Open Admin Portal</a>
-          <a class="settings-link-btn" href="#price-calculator">Open Price Calculator</a>
-          <a class="settings-link-btn" href="#locality-map">Open Locality Map</a>
-        </div>
-
-        <div class="settings-card">
-          <h3>Security</h3>
-          <p>Manage login and account access.</p>
-
-          <button class="btn primary-btn full-btn" id="settingsLoginBtn" type="button">Login</button>
-          <button class="btn outline-btn full-btn" id="settingsForgotBtn" type="button">Forgot Password</button>
-          <button class="btn secondary-btn full-btn" id="settingsLogoutBtn" type="button">Logout</button>
-        </div>
-      </div>
-
-      <div class="settings-save-card">
-        <button class="btn primary-btn" id="saveSettingsBtn" type="button">Save Settings</button>
-        <button class="btn outline-btn" id="loadSettingsBtn" type="button">Reload Settings</button>
-        <p class="message" id="settingsMessage"></p>
-      </div>
-    </section>
-
     <section class="section customer-only hidden" id="book">
       <div class="section-heading">
         <span>Post Work</span>
@@ -614,17 +508,17 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Customer Name</label>
-            <input type="text" id="customerName" placeholder="Enter your name" required />
+            <input type="text" id="customerName" required />
           </div>
 
           <div class="form-group">
             <label>Mobile Number</label>
-            <input type="tel" id="customerPhone" placeholder="Enter mobile number" required />
+            <input type="tel" id="customerPhone" required />
           </div>
 
           <div class="form-group">
             <label>City</label>
-            <input type="text" id="customerCity" placeholder="Enter city" required />
+            <input type="text" id="customerCity" required />
           </div>
 
           <div class="form-group">
@@ -651,18 +545,17 @@
 
           <div class="form-group">
             <label>Customer Offer Amount <span class="currency-symbol">₹</span></label>
-            <small>Worker can send a higher or lower counter bid, but not below platform minimum.</small>
-            <input type="number" id="customerBudget" placeholder="Enter offer amount" required />
+            <input type="number" id="customerBudget" required />
           </div>
 
           <div class="form-group full-column">
             <label>Full Address</label>
-            <textarea id="customerAddress" placeholder="Your full address. Hidden until accepted/payment." required></textarea>
+            <textarea id="customerAddress" required></textarea>
           </div>
 
           <div class="form-group full-column">
             <label>Work Details</label>
-            <textarea id="workDetails" placeholder="Explain your work clearly" required></textarea>
+            <textarea id="workDetails" required></textarea>
           </div>
         </div>
 
@@ -681,7 +574,7 @@
       <div class="section-heading">
         <span>Customer Dashboard</span>
         <h2>My bookings and bids</h2>
-        <p>View worker bids, accept best offer and pay online after choosing a worker.</p>
+        <p>View worker bids, accept best offer and pay online after choosing worker.</p>
       </div>
 
       <div class="dashboard-list" id="customerBookingsList">
@@ -700,12 +593,12 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Worker Name</label>
-            <input type="text" id="workerName" placeholder="Enter worker name" required />
+            <input type="text" id="workerName" required />
           </div>
 
           <div class="form-group">
             <label>Worker Phone</label>
-            <input type="tel" id="workerPhone" placeholder="Enter worker phone" required />
+            <input type="tel" id="workerPhone" required />
           </div>
 
           <div class="form-group">
@@ -727,7 +620,7 @@
 
           <div class="form-group">
             <label>City</label>
-            <input type="text" id="workerCity" placeholder="Enter city" required />
+            <input type="text" id="workerCity" required />
           </div>
 
           <div class="form-group">
@@ -741,7 +634,7 @@
 
           <div class="form-group full-column">
             <label>About Work</label>
-            <textarea id="workerAbout" placeholder="Experience, services, timings"></textarea>
+            <textarea id="workerAbout"></textarea>
           </div>
         </div>
 
@@ -768,6 +661,114 @@
       </div>
     </section>
 
+    <section class="section light-section" id="settings">
+      <div class="section-heading">
+        <span>Settings</span>
+        <h2>App & Account Settings</h2>
+        <p>Manage account preferences, privacy, location and worker availability.</p>
+      </div>
+
+      <div class="settings-layout">
+        <div class="settings-card">
+          <h3>Account Preferences</h3>
+
+          <div class="form-group">
+            <label>Default Country</label>
+            <select id="settingsCountry">
+              <option value="India">India</option>
+              <option value="UAE">UAE</option>
+              <option value="United States">USA</option>
+              <option value="United Kingdom">UK</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Default Currency</label>
+            <select id="settingsCurrency">
+              <option value="INR">₹ INR</option>
+              <option value="AED">د.إ AED</option>
+              <option value="USD">$ USD</option>
+              <option value="GBP">£ GBP</option>
+              <option value="CAD">C$ CAD</option>
+              <option value="AUD">A$ AUD</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Default City</label>
+            <input type="text" id="settingsCity" />
+          </div>
+
+          <div class="form-group">
+            <label>Default Radius</label>
+            <select id="settingsRadius">
+              <option value="3">3 km</option>
+              <option value="5">5 km</option>
+              <option value="10">10 km</option>
+              <option value="20">20 km</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Privacy & Notifications</h3>
+
+          <label class="setting-switch-row">
+            <span>Booking updates</span>
+            <input type="checkbox" id="notifyBookings" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Bid alerts</span>
+            <input type="checkbox" id="notifyBids" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Payment alerts</span>
+            <input type="checkbox" id="notifyPayments" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Allow location matching</span>
+            <input type="checkbox" id="allowLocationMatching" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Hide phone until accepted</span>
+            <input type="checkbox" id="hidePhoneUntilAccepted" checked>
+          </label>
+        </div>
+
+        <div class="settings-card worker-only hidden">
+          <h3>Worker Settings</h3>
+
+          <label class="setting-switch-row">
+            <span>Available for new work</span>
+            <input type="checkbox" id="workerAvailableSetting" checked>
+          </label>
+
+          <button class="btn outline-btn full-btn" id="settingsShareLocationBtn" type="button">
+            Share / Update My Work Location
+          </button>
+        </div>
+
+        <div class="settings-card">
+          <h3>Security</h3>
+          <button class="btn primary-btn full-btn" id="settingsLoginBtn" type="button">Login</button>
+          <button class="btn outline-btn full-btn" id="settingsForgotBtn" type="button">Forgot Password</button>
+          <button class="btn secondary-btn full-btn" id="settingsLogoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+
+      <div class="settings-save-card">
+        <button class="btn primary-btn" id="saveSettingsBtn" type="button">Save Settings</button>
+        <button class="btn outline-btn" id="loadSettingsBtn" type="button">Reload Settings</button>
+        <p class="message" id="settingsMessage"></p>
+      </div>
+    </section>
+
     <section class="section" id="support-center">
       <div class="section-heading">
         <span>Support</span>
@@ -789,7 +790,7 @@
 
         <div class="form-group">
           <label>Message</label>
-          <textarea id="supportMessageText" placeholder="Explain your issue"></textarea>
+          <textarea id="supportMessageText"></textarea>
         </div>
 
         <button class="btn primary-btn full-btn" type="submit">Submit Ticket</button>
@@ -801,18 +802,17 @@
       <div class="section-heading">
         <span>City Growth</span>
         <h2>Request KaamConnect in your city</h2>
-        <p>Tell us where you want KaamConnect to grow next.</p>
       </div>
 
       <form class="form-card" id="cityRequestForm">
         <div class="form-group">
           <label>City Name</label>
-          <input type="text" id="growthCity" placeholder="Enter city" />
+          <input type="text" id="growthCity" />
         </div>
 
         <div class="form-group">
           <label>Service Demand</label>
-          <input type="text" id="growthDemand" placeholder="Example: plumber, electrician, maid" />
+          <input type="text" id="growthDemand" />
         </div>
 
         <button class="btn primary-btn full-btn" type="submit">Request City</button>
@@ -824,7 +824,7 @@
       <div class="section-heading">
         <span>Admin Portal</span>
         <h2>Admin control center</h2>
-        <p>Verify users, verify workers, manage tickets, manage prices, verification mode and payments.</p>
+        <p>Verify users, verify workers, manage tickets, prices and verification mode.</p>
       </div>
 
       <div class="dashboard-actions">
@@ -845,20 +845,13 @@
 
       <div class="admin-box">
         <h3>Verification Control</h3>
-        <p>
-          Admin can turn worker verification ON or OFF. If OFF, workers can bid without admin verification.
-        </p>
+        <p>Admin can turn worker verification ON or OFF.</p>
 
         <div class="verification-control-card">
           <p><strong>Current Mode:</strong> <span id="verificationModeText">Loading...</span></p>
 
-          <button class="btn primary-btn" id="verificationOnBtn" type="button">
-            Turn Verification ON
-          </button>
-
-          <button class="btn secondary-btn" id="verificationOffBtn" type="button">
-            Turn Verification OFF
-          </button>
+          <button class="btn primary-btn" id="verificationOnBtn" type="button">Turn Verification ON</button>
+          <button class="btn secondary-btn" id="verificationOffBtn" type="button">Turn Verification OFF</button>
         </div>
 
         <p class="message" id="verificationControlMessage"></p>
@@ -866,7 +859,7 @@
 
       <div class="admin-box" id="adminPriceManager">
         <h3>Minimum Price Manager</h3>
-        <p>Admin can change minimum price for every skill. New prices are used for new bookings and worker bids.</p>
+        <p>Admin can change minimum price for every skill.</p>
 
         <div class="price-admin-grid" id="priceAdminSkillRows"></div>
 
@@ -874,7 +867,7 @@
 
         <div class="price-admin-grid">
           <div class="form-group">
-            <label>Freelancer / Per Task Multiplier</label>
+            <label>Freelancer Multiplier</label>
             <input type="number" id="adminMultiplierFreelancer" step="0.1" min="0.1" value="1">
           </div>
 
@@ -920,25 +913,40 @@
       <p class="message" id="adminMessage"></p>
     </section>
 
+    <section class="section light-section" id="ai-checker">
+      <div class="section-heading">
+        <span>AI Checker</span>
+        <h2>Website Improvement Checker</h2>
+        <p>This checks missing important setup and gives improvement suggestions.</p>
+      </div>
+
+      <div class="ai-check-card">
+        <button class="btn primary-btn" id="runAiCheckBtn" type="button">Run AI Website Check</button>
+        <div id="aiCheckResult" class="ai-check-result">
+          Click the button to check your website setup.
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="safety">
       <div class="section-heading">
         <span>Trust</span>
         <h2>Trust & Safety</h2>
-        <p>KaamConnect protects customers, workers and personal information with professional safety controls.</p>
+        <p>KaamConnect protects customers, workers and personal information.</p>
       </div>
 
       <div class="service-grid">
         <div class="safety-card">
           <div class="trust-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=900&q=80" alt="Private Contact" class="trust-photo">
+            <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=900&q=80" class="trust-photo" alt="Private Contact">
           </div>
           <h3>Private Contact</h3>
-          <p>Phone number and full address stay hidden until a customer accepts a worker bid and payment is verified.</p>
+          <p>Phone and address stay hidden until booking is accepted and payment is verified.</p>
         </div>
 
         <div class="safety-card">
           <div class="trust-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80" alt="Worker Verification" class="trust-photo">
+            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80" class="trust-photo" alt="Verification">
           </div>
           <h3>Verification Control</h3>
           <p>Admin can keep verification ON or OFF depending on marketplace needs.</p>
@@ -946,34 +954,10 @@
 
         <div class="safety-card">
           <div class="trust-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=900&q=80" alt="Freelancer Helper" class="trust-photo">
+            <img src="https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=900&q=80" class="trust-photo" alt="Freelancer">
           </div>
           <h3>Freelancer Helper</h3>
           <p>Freelancer workers can do legal small tasks like queue standing, errands and travel help.</p>
-        </div>
-
-        <div class="safety-card">
-          <div class="trust-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=900&q=80" alt="Report Support" class="trust-photo">
-          </div>
-          <h3>Report & Support</h3>
-          <p>Customers and workers can report fake profiles, unsafe behavior or service problems.</p>
-        </div>
-
-        <div class="safety-card">
-          <div class="trust-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=900&q=80" alt="Legal Work Only" class="trust-photo">
-          </div>
-          <h3>Legal Work Only</h3>
-          <p>Illegal, unsafe, adult, weapon, drug or fraud related tasks are not allowed.</p>
-        </div>
-
-        <div class="safety-card">
-          <div class="trust-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="Admin Control" class="trust-photo">
-          </div>
-          <h3>Admin Control</h3>
-          <p>Admin can verify, reject, block users, update prices and manage support tickets.</p>
         </div>
       </div>
     </section>
@@ -996,10 +980,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <h2>KaamConnect</h2>
-          <p>
-            Trusted local service marketplace connecting customers and workers with safety,
-            fair pricing and smart bidding.
-          </p>
+          <p>Trusted local service marketplace connecting customers and workers with safety, fair pricing and smart bidding.</p>
         </div>
 
         <div class="footer-column">
@@ -1027,11 +1008,11 @@
         </div>
 
         <div class="footer-column">
-          <h3>Legal & Safety</h3>
-          <a href="#safety">Trust & Safety</a>
-          <a href="#support-center">Report Problem</a>
-          <a href="#safety">Community Guidelines</a>
-          <a href="#admin">Admin Control</a>
+          <h3>Customer Support</h3>
+          <p>Phone: +91 99999 99999</p>
+          <p>Email: support@kaamconnect.in</p>
+          <p>Time: 9 AM - 8 PM</p>
+          <p>Location: India</p>
         </div>
 
         <div class="footer-column">
@@ -1050,6 +1031,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script type="module" src="/script.js?v=settings-final-1"></script>
+  <script type="module" src="/script.js?v=reset-social-final-1"></script>
 </body>
 </html>
