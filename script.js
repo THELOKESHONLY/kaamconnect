@@ -4,6 +4,7 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -119,22 +120,17 @@ let MIN_PRICE_BY_SKILL = {
 };
 
 let WORK_TYPE_PRICE_RULES = {
-  "Freelancer": {
-    label: "Per task / flexible work",
-    multiplier: 1
-  },
-  "Part-time": {
-    label: "Part-time work",
-    multiplier: 1.5
-  },
-  "Full-time": {
-    label: "Full-day work",
-    multiplier: 3.5
-  },
-  "Contract": {
-    label: "Contract work",
-    multiplier: 5
-  }
+  "Freelancer": { label: "Per task / flexible work", multiplier: 1 },
+  "Part-time": { label: "Part-time work", multiplier: 1.5 },
+  "Full-time": { label: "Full-day work", multiplier: 3.5 },
+  "Contract": { label: "Contract work", multiplier: 5 }
+};
+
+const APP_CONTROLS_DOC_ID = "appControls";
+const PRICE_SETTINGS_DOC_ID = "minimumPrices";
+
+let appControls = {
+  requireWorkerVerification: true
 };
 
 const translations = {
@@ -286,10 +282,6 @@ function normalizeLoginEmail(loginId) {
   return `${value}@kaamconnect.local`;
 }
 
-function publicLoginId(loginId) {
-  return cleanText(loginId).replace("@kaamconnect.local", "");
-}
-
 function makeReferralCode(name) {
   const base = cleanText(name).replace(/[^a-z0-9]/g, "").slice(0, 5).toUpperCase() || "KC";
   return `${base}${Math.floor(1000 + Math.random() * 9000)}`;
@@ -357,6 +349,11 @@ function minimumPriceForSkill(skillName, workType = "Freelancer", quantity = 1) 
 
 function suggestedMaxPrice(skillName, workType = "Freelancer", quantity = 1) {
   return roundPrice(minimumPriceForSkill(skillName, workType, quantity) * 1.5);
+}
+
+function workerCanBid(worker) {
+  if (!appControls.requireWorkerVerification) return true;
+  return worker.verified === true;
 }
 
 function fillServices() {
@@ -533,6 +530,17 @@ function openProfilePanel() {
 
   document.getElementById("profile-update")?.classList.remove("hidden");
   document.getElementById("profile-update")?.scrollIntoView({ behavior: "smooth" });
+}
+
+function openSettingsSection() {
+  if (!currentUser) {
+    openAuthModal("login");
+    showMessage("authMessage", "Login first to open settings.");
+    return;
+  }
+
+  document.getElementById("settings")?.scrollIntoView({ behavior: "smooth" });
+  loadUserSettingsPanel();
 }
 
 function requireLogin(messageId = "authMessage") {
@@ -801,6 +809,17 @@ async function signupUser() {
       photoUrl: "",
       city: "",
       bio: "",
+      settings: {
+        language: getValue("languageSelector") || "en",
+        defaultRadius: "5",
+        notifyBookings: true,
+        notifyBids: true,
+        notifyPayments: true,
+        notifySupport: true,
+        allowLocationMatching: true,
+        showWorkerLocation: true,
+        hidePhoneUntilAccepted: true
+      },
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -843,6 +862,28 @@ async function loginUser() {
   }
 }
 
+async function forgotPassword() {
+  const loginId = getValue("authUserId");
+
+  if (!loginId) {
+    showMessage("authMessage", "Enter your email first, then click Forgot Password.");
+    return;
+  }
+
+  if (!loginId.includes("@")) {
+    showMessage("authMessage", "Password reset needs a real email. Username accounts cannot receive reset email.");
+    return;
+  }
+
+  try {
+    const email = normalizeLoginEmail(loginId);
+    await sendPasswordResetEmail(auth, email);
+    showMessage("authMessage", "Password reset link sent to your email. Check inbox/spam folder.");
+  } catch (error) {
+    showMessage("authMessage", "Reset Error: " + error.message);
+  }
+}
+
 async function logoutUser() {
   try {
     await signOut(auth);
@@ -860,9 +901,9 @@ async function logoutUser() {
 
 function handleServiceClick(serviceName) {
   const serviceType = document.getElementById("serviceType");
-  const quickService = document.getElementById("mapServiceType");
+  const mapServiceType = document.getElementById("mapServiceType");
 
-  if (quickService) quickService.value = serviceName;
+  if (mapServiceType) mapServiceType.value = serviceName;
   if (serviceType) serviceType.value = serviceName;
 
   showBookingPriceGuide();
@@ -914,6 +955,118 @@ async function saveProfile(event) {
   }
 }
 
+function settingsCheckboxValue(id) {
+  return document.getElementById(id)?.checked === true;
+}
+
+function setSettingsCheckbox(id, value) {
+  const input = document.getElementById(id);
+  if (input) input.checked = value !== false;
+}
+
+async function loadUserSettingsPanel() {
+  if (!currentUser || !currentProfile) return;
+
+  const settings = currentProfile.settings || {};
+
+  const settingsCountry = document.getElementById("settingsCountry");
+  const settingsCurrency = document.getElementById("settingsCurrency");
+  const settingsLanguage = document.getElementById("settingsLanguage");
+  const settingsCity = document.getElementById("settingsCity");
+  const settingsRadius = document.getElementById("settingsRadius");
+
+  if (settingsCountry) settingsCountry.value = currentProfile.country || selectedCountry();
+  if (settingsCurrency) settingsCurrency.value = currentProfile.currency || selectedCurrency();
+  if (settingsLanguage) settingsLanguage.value = settings.language || getValue("languageSelector") || "en";
+  if (settingsCity) settingsCity.value = currentProfile.city || "";
+  if (settingsRadius) settingsRadius.value = settings.defaultRadius || "5";
+
+  setSettingsCheckbox("notifyBookings", settings.notifyBookings);
+  setSettingsCheckbox("notifyBids", settings.notifyBids);
+  setSettingsCheckbox("notifyPayments", settings.notifyPayments);
+  setSettingsCheckbox("notifySupport", settings.notifySupport);
+  setSettingsCheckbox("allowLocationMatching", settings.allowLocationMatching);
+  setSettingsCheckbox("showWorkerLocation", settings.showWorkerLocation);
+  setSettingsCheckbox("hidePhoneUntilAccepted", settings.hidePhoneUntilAccepted);
+
+  const workerAvailableSetting = document.getElementById("workerAvailableSetting");
+
+  if (workerAvailableSetting && currentRole === "worker") {
+    try {
+      const workerSnap = await getDoc(doc(db, "workers", currentUser.uid));
+      if (workerSnap.exists()) {
+        workerAvailableSetting.checked = workerSnap.data().available !== false;
+      }
+    } catch (error) {
+      console.log("Worker setting load error:", error.message);
+    }
+  }
+
+  showMessage("settingsMessage", "Settings loaded.");
+}
+
+async function saveUserSettingsPanel() {
+  if (!requireLogin("settingsMessage")) return;
+
+  try {
+    const country = getValue("settingsCountry") || selectedCountry();
+    const currency = getValue("settingsCurrency") || selectedCurrency();
+    const language = getValue("settingsLanguage") || "en";
+    const city = getValue("settingsCity");
+    const defaultRadius = getValue("settingsRadius") || "5";
+
+    const settings = {
+      language,
+      defaultRadius,
+      notifyBookings: settingsCheckboxValue("notifyBookings"),
+      notifyBids: settingsCheckboxValue("notifyBids"),
+      notifyPayments: settingsCheckboxValue("notifyPayments"),
+      notifySupport: settingsCheckboxValue("notifySupport"),
+      allowLocationMatching: settingsCheckboxValue("allowLocationMatching"),
+      showWorkerLocation: settingsCheckboxValue("showWorkerLocation"),
+      hidePhoneUntilAccepted: settingsCheckboxValue("hidePhoneUntilAccepted")
+    };
+
+    await setDoc(
+      doc(db, "users", currentUser.uid),
+      {
+        country,
+        currency,
+        city,
+        settings,
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    if (currentRole === "worker") {
+      const available = settingsCheckboxValue("workerAvailableSetting");
+
+      await setDoc(doc(db, "workers", currentUser.uid), { available, updatedAt: serverTimestamp() }, { merge: true });
+      await setDoc(doc(db, "workerPublic", currentUser.uid), { available, updatedAt: serverTimestamp() }, { merge: true });
+    }
+
+    const countrySelector = document.getElementById("countrySelector");
+    const currencySelector = document.getElementById("currencySelector");
+    const languageSelector = document.getElementById("languageSelector");
+    const mapRadius = document.getElementById("mapRadius");
+
+    if (countrySelector) countrySelector.value = country;
+    if (currencySelector) currencySelector.value = currency;
+    if (languageSelector) languageSelector.value = language;
+    if (mapRadius) mapRadius.value = defaultRadius;
+
+    updateCurrencySymbols();
+    applyLanguage();
+
+    await loadUserProfile(currentUser);
+
+    showMessage("settingsMessage", "Settings saved successfully.");
+  } catch (error) {
+    showMessage("settingsMessage", "Settings Error: " + error.message);
+  }
+}
+
 async function saveWorkerProfile(event) {
   event.preventDefault();
 
@@ -941,7 +1094,9 @@ async function saveWorkerProfile(event) {
     showMessage("workerProfileMessage", "Saving worker profile...");
 
     const existingWorker = await getDoc(doc(db, "workers", currentUser.uid));
-    const alreadyVerified = existingWorker.exists() ? !!existingWorker.data().verified : false;
+    const existingWorkerData = existingWorker.exists() ? existingWorker.data() : {};
+    const alreadyVerified = !!existingWorkerData.verified;
+
     const existingPublic = await getDoc(doc(db, "workerPublic", currentUser.uid));
     const oldPublic = existingPublic.exists() ? existingPublic.data() : {};
 
@@ -959,11 +1114,11 @@ async function saveWorkerProfile(event) {
       available: true,
       verified: alreadyVerified,
       verificationStatus: alreadyVerified ? "verified" : "pending",
-      workerRating: existingWorker.data?.workerRating || 0,
-      totalReviews: existingWorker.data?.totalReviews || 0,
-      totalJobs: existingWorker.data?.totalJobs || 0,
+      workerRating: existingWorkerData.workerRating || 0,
+      totalReviews: existingWorkerData.totalReviews || 0,
+      totalJobs: existingWorkerData.totalJobs || 0,
       updatedAt: serverTimestamp(),
-      createdAt: existingWorker.exists() ? existingWorker.data().createdAt || serverTimestamp() : serverTimestamp()
+      createdAt: existingWorker.exists() ? existingWorkerData.createdAt || serverTimestamp() : serverTimestamp()
     };
 
     const publicWorker = {
@@ -991,7 +1146,7 @@ async function saveWorkerProfile(event) {
     await setDoc(doc(db, "workers", currentUser.uid), privateWorker, { merge: true });
     await setDoc(doc(db, "workerPublic", currentUser.uid), publicWorker, { merge: true });
 
-    showMessage("workerProfileMessage", "Worker profile saved. Wait for admin verification.");
+    showMessage("workerProfileMessage", "Worker profile saved successfully.");
   } catch (error) {
     showMessage("workerProfileMessage", "Worker Profile Error: " + error.message);
   }
@@ -1025,10 +1180,7 @@ async function postBookingWithMinimumPrice(event) {
   const minimumCustomerOffer = minimumPriceForSkill(serviceType, workType, quantity);
 
   if (customerBudget < minimumCustomerOffer) {
-    showMessage(
-      "bookingMessage",
-      "Minimum offer for " + serviceType + " is " + formatMoney(minimumCustomerOffer) + ". Please increase your offer amount."
-    );
+    showMessage("bookingMessage", "Minimum offer for " + serviceType + " is " + formatMoney(minimumCustomerOffer) + ". Please increase your offer amount.");
     return;
   }
 
@@ -1090,14 +1242,7 @@ async function postBookingWithMinimumPrice(event) {
       updatedAt: serverTimestamp()
     });
 
-    await createNotification(
-      currentUser.uid,
-      "Booking Posted",
-      "Your booking is open for worker bids.",
-      "booking",
-      bookingRef.id
-    );
-
+    await createNotification(currentUser.uid, "Booking Posted", "Your booking is open for worker bids.", "booking", bookingRef.id);
     await updateNotificationCount();
 
     document.getElementById("matchResult").innerHTML = `
@@ -1269,21 +1414,8 @@ window.acceptBid = async function (bookingId, bidId) {
       updatedAt: serverTimestamp()
     });
 
-    await createNotification(
-      bid.workerUserId,
-      "Bid Accepted",
-      "Customer accepted your bid. Waiting for payment verification.",
-      "bid_accepted",
-      bookingId
-    );
-
-    await createNotification(
-      currentUser.uid,
-      "Bid Accepted",
-      "Now pay online to assign the job and unlock contact details.",
-      "payment_pending",
-      bookingId
-    );
+    await createNotification(bid.workerUserId, "Bid Accepted", "Customer accepted your bid. Waiting for payment verification.", "bid_accepted", bookingId);
+    await createNotification(currentUser.uid, "Bid Accepted", "Now pay online to assign the job and unlock contact details.", "payment_pending", bookingId);
 
     alert("Bid accepted. Now click Pay Now to complete payment.");
     loadCustomerBookings();
@@ -1351,9 +1483,7 @@ window.payForBooking = async function (bookingId) {
         email: currentProfile?.email || "",
         contact: currentProfile?.phone || ""
       },
-      theme: {
-        color: "#2563eb"
-      }
+      theme: { color: "#2563eb" }
     };
 
     const razorpay = new window.Razorpay(options);
@@ -1379,7 +1509,7 @@ async function loadWorkerDashboard() {
 
     const worker = workerSnap.data();
 
-    if (!worker.verified) {
+    if (!workerCanBid(worker)) {
       list.innerHTML = `<p class="empty-text">Your worker profile is pending admin verification.</p>`;
       return;
     }
@@ -1400,9 +1530,7 @@ async function loadWorkerDashboard() {
       const sameCity = cleanText(job.customerCity) === cleanText(worker.workerCity);
       const sameSkill = job.serviceType === worker.workerSkill || isFreelancerSkill(worker.workerSkill);
 
-      if (sameCity && sameSkill) {
-        openJobs.push(job);
-      }
+      if (sameCity && sameSkill) openJobs.push(job);
     });
 
     const assignedSnap = await getDocs(query(collection(db, "bookings"), where("assignedWorkerUserId", "==", currentUser.uid)));
@@ -1500,7 +1628,7 @@ window.placeBid = async function (bookingId) {
     const worker = workerSnap.data();
     const job = jobSnap.data();
 
-    if (!worker.verified) {
+    if (!workerCanBid(worker)) {
       showMessage("bidStatus-" + bookingId, "Admin verification required before bidding.");
       return;
     }
@@ -1509,10 +1637,7 @@ window.placeBid = async function (bookingId) {
     const minimumWorkerBid = minimumPriceForSkill(job.serviceType, workerType, job.quantity || 1);
 
     if (bidAmount < minimumWorkerBid) {
-      showMessage(
-        "bidStatus-" + bookingId,
-        "Minimum bid for your work type (" + workerType + ") is " + formatMoney(minimumWorkerBid, job.currency || selectedCurrency()) + "."
-      );
+      showMessage("bidStatus-" + bookingId, "Minimum bid for your work type (" + workerType + ") is " + formatMoney(minimumWorkerBid, job.currency || selectedCurrency()) + ".");
       return;
     }
 
@@ -1549,13 +1674,7 @@ window.placeBid = async function (bookingId) {
       createdAt: serverTimestamp()
     });
 
-    await createNotification(
-      job.customerId,
-      "New Bid Received",
-      worker.workerName + " submitted a bid of " + formatMoney(bidAmount, job.currency || selectedCurrency()) + ".",
-      "bid",
-      bookingId
-    );
+    await createNotification(job.customerId, "New Bid Received", worker.workerName + " submitted a bid of " + formatMoney(bidAmount, job.currency || selectedCurrency()) + ".", "bid", bookingId);
 
     showMessage("bidStatus-" + bookingId, "Bid submitted successfully.");
   } catch (error) {
@@ -1622,8 +1741,6 @@ async function submitCityRequest(event) {
   }
 }
 
-const PRICE_SETTINGS_DOC_ID = "minimumPrices";
-
 function buildAdminPriceManager() {
   const box = document.getElementById("priceAdminSkillRows");
   if (!box) return;
@@ -1632,12 +1749,7 @@ function buildAdminPriceManager() {
     return `
       <div class="price-admin-row">
         <label>${safeText(skill)}</label>
-        <input 
-          type="number" 
-          min="1" 
-          id="adminPrice-${safeText(skill)}" 
-          value="${Number(MIN_PRICE_BY_SKILL[skill] || 0)}"
-        >
+        <input type="number" min="1" id="adminPrice-${safeText(skill)}" value="${Number(MIN_PRICE_BY_SKILL[skill] || 0)}">
       </div>
     `;
   }).join("");
@@ -1693,7 +1805,6 @@ async function saveMinimumPriceSettings() {
     Object.keys(MIN_PRICE_BY_SKILL).forEach((skill) => {
       const input = document.getElementById("adminPrice-" + skill);
       const value = Number(input?.value || MIN_PRICE_BY_SKILL[skill] || 0);
-
       if (value > 0) minPrices[skill] = value;
     });
 
@@ -1704,16 +1815,12 @@ async function saveMinimumPriceSettings() {
       "Contract": Number(document.getElementById("adminMultiplierContract")?.value || 5)
     };
 
-    await setDoc(
-      doc(db, "platformSettings", PRICE_SETTINGS_DOC_ID),
-      {
-        minPrices,
-        workTypeMultipliers,
-        updatedBy: currentUser.uid,
-        updatedAt: serverTimestamp()
-      },
-      { merge: true }
-    );
+    await setDoc(doc(db, "platformSettings", PRICE_SETTINGS_DOC_ID), {
+      minPrices,
+      workTypeMultipliers,
+      updatedBy: currentUser.uid,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
 
     Object.keys(minPrices).forEach((skill) => {
       MIN_PRICE_BY_SKILL[skill] = Number(minPrices[skill]);
@@ -1730,6 +1837,58 @@ async function saveMinimumPriceSettings() {
     showPriceCalculatorResult();
   } catch (error) {
     showMessage("adminPriceMessage", "Price Update Error: " + error.message);
+  }
+}
+
+async function loadAppControls() {
+  try {
+    const snap = await getDoc(doc(db, "platformSettings", APP_CONTROLS_DOC_ID));
+
+    if (snap.exists()) {
+      appControls = {
+        ...appControls,
+        ...snap.data()
+      };
+    }
+
+    updateVerificationControlUI();
+  } catch (error) {
+    console.log("App controls load error:", error.message);
+  }
+}
+
+function updateVerificationControlUI() {
+  const text = document.getElementById("verificationModeText");
+  if (!text) return;
+
+  if (appControls.requireWorkerVerification) {
+    text.textContent = "Verification ON - workers need admin approval before bidding";
+  } else {
+    text.textContent = "Verification OFF - workers can bid without admin approval";
+  }
+}
+
+async function setWorkerVerificationMode(required) {
+  if (!requireAdmin("verificationControlMessage")) return;
+
+  try {
+    await setDoc(doc(db, "platformSettings", APP_CONTROLS_DOC_ID), {
+      requireWorkerVerification: required,
+      updatedBy: currentUser.uid,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    appControls.requireWorkerVerification = required;
+    updateVerificationControlUI();
+
+    showMessage(
+      "verificationControlMessage",
+      required
+        ? "Worker verification is now ON."
+        : "Worker verification is now OFF. Workers can bid without admin verification."
+    );
+  } catch (error) {
+    showMessage("verificationControlMessage", "Verification Setting Error: " + error.message);
   }
 }
 
@@ -1756,17 +1915,30 @@ async function loadAdminUsers() {
 
   snap.forEach((docSnap) => users.push({ id: docSnap.id, ...docSnap.data() }));
 
-  box.innerHTML = users.map((user) => `
-    <div class="admin-item">
-      <p><strong>${safeText(user.name)}</strong> • ${safeText(user.role)}</p>
-      <p>ID: ${safeText(user.loginId)} • ${safeText(user.phone)}</p>
-      <p>Status: ${safeText(user.verificationStatus || "pending")} • Blocked: ${user.blocked ? "Yes" : "No"}</p>
-      <div class="admin-actions">
-        <button class="btn primary-btn" type="button" onclick="adminVerifyUser('${user.id}')">Verify</button>
-        <button class="btn outline-btn" type="button" onclick="adminBlockUser('${user.id}', ${user.blocked ? "false" : "true"})">${user.blocked ? "Unblock" : "Block"}</button>
+  box.innerHTML = users.map((user) => {
+    const isVerified = user.verificationStatus === "verified";
+    const isBlocked = user.blocked === true;
+
+    return `
+      <div class="admin-item">
+        <p><strong>${safeText(user.name || user.loginId || "User")}</strong> • ${safeText(user.role || "user")}</p>
+        <p>ID: ${safeText(user.loginId || user.email || "")} • ${safeText(user.phone || "")}</p>
+        <p>Status: ${safeText(user.verificationStatus || "pending")} • Phone Verified: ${user.phoneVerified ? "Yes" : "No"} • Blocked: ${isBlocked ? "Yes" : "No"}</p>
+
+        <div class="admin-actions">
+          ${
+            isVerified
+              ? `<button class="btn secondary-btn" type="button" disabled>Verified</button>`
+              : `<button class="btn primary-btn" type="button" onclick="adminVerifyUser('${user.id}')">Verify</button>`
+          }
+
+          <button class="btn outline-btn" type="button" onclick="adminBlockUser('${user.id}', ${isBlocked ? "false" : "true"})">
+            ${isBlocked ? "Unblock" : "Block"}
+          </button>
+        </div>
       </div>
-    </div>
-  `).join("") || `<p class="empty-text">No users.</p>`;
+    `;
+  }).join("") || `<p class="empty-text">No users.</p>`;
 }
 
 async function loadAdminWorkers() {
@@ -1778,18 +1950,32 @@ async function loadAdminWorkers() {
 
   snap.forEach((docSnap) => workers.push({ id: docSnap.id, ...docSnap.data() }));
 
-  box.innerHTML = workers.map((worker) => `
-    <div class="admin-item">
-      <p><strong>${safeText(worker.workerName)}</strong> • ${safeText(worker.workerSkill)}</p>
-      <p>${safeText(worker.workerType)} • ${safeText(worker.workerCity)}</p>
-      <p>Verified: ${worker.verified ? "Yes" : "No"} • Available: ${worker.available ? "Yes" : "No"}</p>
-      <div class="admin-actions">
-        <button class="btn primary-btn" type="button" onclick="adminVerifyWorker('${worker.id}')">Verify</button>
-        <button class="btn outline-btn" type="button" onclick="adminRejectWorker('${worker.id}')">Reject</button>
-        <button class="btn secondary-btn" type="button" onclick="adminToggleWorkerAvailability('${worker.id}', ${worker.available ? "false" : "true"})">${worker.available ? "Set Unavailable" : "Set Available"}</button>
+  box.innerHTML = workers.map((worker) => {
+    const isVerified = worker.verified === true;
+    const isAvailable = worker.available === true;
+
+    return `
+      <div class="admin-item">
+        <p><strong>${safeText(worker.workerName || "Worker")}</strong> • ${safeText(worker.workerSkill || "")}</p>
+        <p>${safeText(worker.workerType || "Freelancer")} • ${safeText(worker.workerCity || "")}</p>
+        <p>Verified: ${isVerified ? "Yes" : "No"} • Available: ${isAvailable ? "Yes" : "No"}</p>
+
+        <div class="admin-actions">
+          ${
+            isVerified
+              ? `<button class="btn secondary-btn" type="button" disabled>Verified</button>`
+              : `<button class="btn primary-btn" type="button" onclick="adminVerifyWorker('${worker.id}')">Verify</button>`
+          }
+
+          <button class="btn outline-btn" type="button" onclick="adminRejectWorker('${worker.id}')">Reject</button>
+
+          <button class="btn secondary-btn" type="button" onclick="adminToggleWorkerAvailability('${worker.id}', ${isAvailable ? "false" : "true"})">
+            ${isAvailable ? "Set Unavailable" : "Set Available"}
+          </button>
+        </div>
       </div>
-    </div>
-  `).join("") || `<p class="empty-text">No workers.</p>`;
+    `;
+  }).join("") || `<p class="empty-text">No workers.</p>`;
 }
 
 async function loadAdminBookings() {
@@ -1855,12 +2041,21 @@ async function loadAdminTickets() {
 window.adminVerifyUser = async function (userId) {
   if (!requireAdmin("adminMessage")) return;
 
-  await updateDoc(doc(db, "users", userId), {
-    verificationStatus: "verified",
-    updatedAt: serverTimestamp()
-  });
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      verificationStatus: "verified",
+      phoneVerified: true,
+      blocked: false,
+      updatedAt: serverTimestamp()
+    });
 
-  loadAdminData();
+    await createNotification(userId, "Account Verified", "Admin verified your KaamConnect account.", "account_verified", userId);
+
+    showMessage("adminMessage", "User verified successfully.");
+    await loadAdminData();
+  } catch (error) {
+    showMessage("adminMessage", "User Verify Error: " + error.message);
+  }
 };
 
 window.adminBlockUser = async function (userId, blocked) {
@@ -1883,15 +2078,11 @@ window.adminVerifyWorker = async function (workerId) {
     updatedAt: serverTimestamp()
   });
 
-  await setDoc(
-    doc(db, "workerPublic", workerId),
-    {
-      verified: true,
-      verificationStatus: "verified",
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+  await setDoc(doc(db, "workerPublic", workerId), {
+    verified: true,
+    verificationStatus: "verified",
+    updatedAt: serverTimestamp()
+  }, { merge: true });
 
   await createNotification(workerId, "Worker Verified", "Admin verified your worker profile. You can now bid on jobs.", "worker_verified", workerId);
   loadAdminData();
@@ -1906,15 +2097,11 @@ window.adminRejectWorker = async function (workerId) {
     updatedAt: serverTimestamp()
   });
 
-  await setDoc(
-    doc(db, "workerPublic", workerId),
-    {
-      verified: false,
-      verificationStatus: "rejected",
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+  await setDoc(doc(db, "workerPublic", workerId), {
+    verified: false,
+    verificationStatus: "rejected",
+    updatedAt: serverTimestamp()
+  }, { merge: true });
 
   await createNotification(workerId, "Worker Rejected", "Admin rejected your worker profile. Update details and contact support.", "worker_rejected", workerId);
   loadAdminData();
@@ -1928,14 +2115,10 @@ window.adminToggleWorkerAvailability = async function (workerId, available) {
     updatedAt: serverTimestamp()
   });
 
-  await setDoc(
-    doc(db, "workerPublic", workerId),
-    {
-      available,
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+  await setDoc(doc(db, "workerPublic", workerId), {
+    available,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
 
   loadAdminData();
 };
@@ -2017,12 +2200,9 @@ function clearWorkerMarkers() {
 
 function setCustomerMarker(location) {
   initLocalityMap();
-
   if (!localityMap) return;
 
-  if (customerMapMarker) {
-    customerMapMarker.remove();
-  }
+  if (customerMapMarker) customerMapMarker.remove();
 
   customerMapMarker = window.L.marker([location.lat, location.lng])
     .addTo(localityMap)
@@ -2055,29 +2235,21 @@ async function saveWorkerCurrentLocation() {
 
     const location = await getBrowserLocation();
 
-    await setDoc(
-      doc(db, "workers", currentUser.uid),
-      {
-        latitude: location.lat,
-        longitude: location.lng,
-        locationAccuracy: location.accuracy,
-        locationEnabled: true,
-        locationUpdatedAt: serverTimestamp()
-      },
-      { merge: true }
-    );
+    await setDoc(doc(db, "workers", currentUser.uid), {
+      latitude: location.lat,
+      longitude: location.lng,
+      locationAccuracy: location.accuracy,
+      locationEnabled: true,
+      locationUpdatedAt: serverTimestamp()
+    }, { merge: true });
 
-    await setDoc(
-      doc(db, "workerPublic", currentUser.uid),
-      {
-        latitude: location.lat,
-        longitude: location.lng,
-        locationAccuracy: location.accuracy,
-        locationEnabled: true,
-        locationUpdatedAt: serverTimestamp()
-      },
-      { merge: true }
-    );
+    await setDoc(doc(db, "workerPublic", currentUser.uid), {
+      latitude: location.lat,
+      longitude: location.lng,
+      locationAccuracy: location.accuracy,
+      locationEnabled: true,
+      locationUpdatedAt: serverTimestamp()
+    }, { merge: true });
 
     setCustomerMarker(location);
 
@@ -2110,20 +2282,18 @@ async function findNearbyWorkers() {
     const location = await getBrowserLocation();
     setCustomerMarker(location);
 
-    const workersSnap = await getDocs(
-      query(
-        collection(db, "workerPublic"),
-        where("workerCountry", "==", selectedCountry()),
-        where("verified", "==", true),
-        where("available", "==", true)
-      )
-    );
+    const workersSnap = await getDocs(query(
+      collection(db, "workerPublic"),
+      where("workerCountry", "==", selectedCountry()),
+      where("available", "==", true)
+    ));
 
     const nearbyWorkers = [];
 
     workersSnap.forEach((docSnap) => {
       const worker = docSnap.data();
 
+      if (appControls.requireWorkerVerification && worker.verified !== true) return;
       if (!worker.latitude || !worker.longitude) return;
 
       const workerSkill = worker.workerSkill || "";
@@ -2132,20 +2302,10 @@ async function findNearbyWorkers() {
 
       if (!skillMatched) return;
 
-      const distance = distanceKm(
-        location.lat,
-        location.lng,
-        worker.latitude,
-        worker.longitude
-      );
+      const distance = distanceKm(location.lat, location.lng, worker.latitude, worker.longitude);
 
       if (distance <= radius) {
-        nearbyWorkers.push({
-          id: docSnap.id,
-          ...worker,
-          distance
-        });
-
+        nearbyWorkers.push({ id: docSnap.id, ...worker, distance });
         addWorkerMarker(worker, distance);
       }
     });
@@ -2154,7 +2314,7 @@ async function findNearbyWorkers() {
 
     if (nearbyWorkers.length === 0) {
       resultBox.innerHTML = `
-        <strong>No verified ${safeText(service)} workers found within ${radius} km.</strong><br>
+        <strong>No ${safeText(service)} workers found within ${radius} km.</strong><br>
         You can still post work. Workers from your city can send bids.
       `;
       return;
@@ -2179,9 +2339,7 @@ async function findNearbyWorkers() {
       ...nearbyWorkers.map((worker) => [worker.latitude, worker.longitude])
     ];
 
-    localityMap.fitBounds(allPoints, {
-      padding: [40, 40]
-    });
+    localityMap.fitBounds(allPoints, { padding: [40, 40] });
   } catch (error) {
     resultBox.innerHTML = error.message;
   }
@@ -2209,9 +2367,12 @@ function wireEvents() {
   });
   document.getElementById("notificationCloseBtn")?.addEventListener("click", closeNotificationPanel);
 
+  document.getElementById("topSettingsBtn")?.addEventListener("click", openSettingsSection);
+
   document.getElementById("topLoginBtn")?.addEventListener("click", () => openAuthModal("login"));
   document.getElementById("topSignupBtn")?.addEventListener("click", () => openAuthModal("signup"));
   document.getElementById("heroSignupBtn")?.addEventListener("click", () => openAuthModal("signup"));
+  document.getElementById("footerLoginBtn")?.addEventListener("click", () => openAuthModal("login"));
   document.getElementById("footerSignupBtn")?.addEventListener("click", () => openAuthModal("signup"));
   document.getElementById("openLoginFromPage")?.addEventListener("click", () => openAuthModal("login"));
   document.getElementById("openSignupFromPage")?.addEventListener("click", () => openAuthModal("signup"));
@@ -2226,6 +2387,7 @@ function wireEvents() {
 
   document.getElementById("signupBtn")?.addEventListener("click", signupUser);
   document.getElementById("loginBtn")?.addEventListener("click", loginUser);
+  document.getElementById("forgotPasswordBtn")?.addEventListener("click", forgotPassword);
   document.getElementById("logoutBtn")?.addEventListener("click", logoutUser);
   document.getElementById("topLogoutBtn")?.addEventListener("click", logoutUser);
 
@@ -2246,12 +2408,25 @@ function wireEvents() {
 
   document.getElementById("findNearbyWorkersBtn")?.addEventListener("click", findNearbyWorkers);
   document.getElementById("saveWorkerLocationBtn")?.addEventListener("click", saveWorkerCurrentLocation);
+  document.getElementById("settingsShareLocationBtn")?.addEventListener("click", saveWorkerCurrentLocation);
 
   document.getElementById("loadOpenJobsBtn")?.addEventListener("click", loadWorkerDashboard);
 
   document.getElementById("savePriceSettingsBtn")?.addEventListener("click", saveMinimumPriceSettings);
   document.getElementById("loadPriceSettingsBtn")?.addEventListener("click", loadMinimumPriceSettings);
   document.getElementById("refreshAdminBtn")?.addEventListener("click", loadAdminData);
+
+  document.getElementById("verificationOnBtn")?.addEventListener("click", () => setWorkerVerificationMode(true));
+  document.getElementById("verificationOffBtn")?.addEventListener("click", () => setWorkerVerificationMode(false));
+
+  document.getElementById("saveSettingsBtn")?.addEventListener("click", saveUserSettingsPanel);
+  document.getElementById("loadSettingsBtn")?.addEventListener("click", loadUserSettingsPanel);
+  document.getElementById("settingsLoginBtn")?.addEventListener("click", () => openAuthModal("login"));
+  document.getElementById("settingsForgotBtn")?.addEventListener("click", () => {
+    openAuthModal("login");
+    showMessage("authMessage", "Enter your real email, then click Forgot Password.");
+  });
+  document.getElementById("settingsLogoutBtn")?.addEventListener("click", logoutUser);
 
   document.getElementById("countrySelector")?.addEventListener("change", () => {
     updateCurrencySymbols();
@@ -2280,19 +2455,13 @@ onAuthStateChanged(auth, async (user) => {
 
   if (user) {
     await loadUserProfile(user);
+    await loadAppControls();
+    loadUserSettingsPanel();
     await updateNotificationCount();
 
-    if (currentRole === "customer") {
-      loadCustomerBookings();
-    }
-
-    if (currentRole === "worker") {
-      loadWorkerDashboard();
-    }
-
-    if (isAdminUser()) {
-      loadAdminData();
-    }
+    if (currentRole === "customer") loadCustomerBookings();
+    if (currentRole === "worker") loadWorkerDashboard();
+    if (isAdminUser()) loadAdminData();
   } else {
     currentProfile = null;
     currentRole = "";
@@ -2311,4 +2480,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   initLocalityMap();
   buildAdminPriceManager();
   await loadMinimumPriceSettings();
+  await loadAppControls();
 });
