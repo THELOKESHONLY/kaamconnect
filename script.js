@@ -4,7 +4,10 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  FacebookAuthProvider,
+  signInWithPopup,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -43,6 +46,13 @@ let currentUser = null;
 let currentProfile = null;
 let currentRole = "";
 let currentAuthMode = "signup";
+
+const APP_CONTROLS_DOC_ID = "appControls";
+const PRICE_SETTINGS_DOC_ID = "minimumPrices";
+
+let appControls = {
+  requireWorkerVerification: true
+};
 
 const SERVICES = [
   ["Electrician", "Fan, light, switchboard and wiring repair."],
@@ -120,104 +130,21 @@ let MIN_PRICE_BY_SKILL = {
 };
 
 let WORK_TYPE_PRICE_RULES = {
-  "Freelancer": { label: "Per task / flexible work", multiplier: 1 },
-  "Part-time": { label: "Part-time work", multiplier: 1.5 },
-  "Full-time": { label: "Full-day work", multiplier: 3.5 },
-  "Contract": { label: "Contract work", multiplier: 5 }
-};
-
-const APP_CONTROLS_DOC_ID = "appControls";
-const PRICE_SETTINGS_DOC_ID = "minimumPrices";
-
-let appControls = {
-  requireWorkerVerification: true
-};
-
-const translations = {
-  en: {
-    top_status: "Trusted Local Service Marketplace",
-    my_profile: "My Profile",
-    account_access: "Account Access",
-    how_it_works: "How It Works",
-    services: "Services",
-    post_work: "Post Work",
-    my_bookings: "My Bookings",
-    worker_profile: "Worker Profile",
-    open_jobs: "Open Jobs",
-    notifications: "Notifications",
-    support_center: "Support Center",
-    city_growth: "City Growth",
-    admin_portal: "Admin Portal",
-    trust_safety: "Trust & Safety",
-    contact: "Contact"
+  "Freelancer": {
+    label: "Per task / flexible work",
+    multiplier: 1
   },
-  hi: {
-    top_status: "भरोसेमंद लोकल सर्विस मार्केटप्लेस",
-    my_profile: "मेरी प्रोफाइल",
-    account_access: "अकाउंट एक्सेस",
-    how_it_works: "कैसे काम करता है",
-    services: "सेवाएं",
-    post_work: "काम पोस्ट करें",
-    my_bookings: "मेरी बुकिंग",
-    worker_profile: "वर्कर प्रोफाइल",
-    open_jobs: "ओपन जॉब्स",
-    notifications: "नोटिफिकेशन",
-    support_center: "सपोर्ट सेंटर",
-    city_growth: "सिटी ग्रोथ",
-    admin_portal: "एडमिन पोर्टल",
-    trust_safety: "ट्रस्ट और सेफ्टी",
-    contact: "संपर्क"
+  "Part-time": {
+    label: "Part-time work",
+    multiplier: 1.5
   },
-  es: {
-    top_status: "Mercado local de servicios confiable",
-    my_profile: "Mi perfil",
-    account_access: "Acceso de cuenta",
-    how_it_works: "Cómo funciona",
-    services: "Servicios",
-    post_work: "Publicar trabajo",
-    my_bookings: "Mis reservas",
-    worker_profile: "Perfil de trabajador",
-    open_jobs: "Trabajos abiertos",
-    notifications: "Notificaciones",
-    support_center: "Centro de soporte",
-    city_growth: "Crecimiento de ciudad",
-    admin_portal: "Portal admin",
-    trust_safety: "Confianza y seguridad",
-    contact: "Contacto"
+  "Full-time": {
+    label: "Full-day work",
+    multiplier: 3.5
   },
-  ar: {
-    top_status: "سوق خدمات محلي موثوق",
-    my_profile: "ملفي الشخصي",
-    account_access: "الوصول للحساب",
-    how_it_works: "كيف يعمل",
-    services: "الخدمات",
-    post_work: "نشر عمل",
-    my_bookings: "حجوزاتي",
-    worker_profile: "ملف العامل",
-    open_jobs: "الأعمال المفتوحة",
-    notifications: "الإشعارات",
-    support_center: "مركز الدعم",
-    city_growth: "نمو المدينة",
-    admin_portal: "لوحة الإدارة",
-    trust_safety: "الثقة والأمان",
-    contact: "اتصال"
-  },
-  fr: {
-    top_status: "Marché local de services fiable",
-    my_profile: "Mon profil",
-    account_access: "Accès au compte",
-    how_it_works: "Comment ça marche",
-    services: "Services",
-    post_work: "Publier un travail",
-    my_bookings: "Mes réservations",
-    worker_profile: "Profil travailleur",
-    open_jobs: "Travaux ouverts",
-    notifications: "Notifications",
-    support_center: "Centre d’aide",
-    city_growth: "Croissance de ville",
-    admin_portal: "Portail admin",
-    trust_safety: "Confiance et sécurité",
-    contact: "Contact"
+  "Contract": {
+    label: "Contract work",
+    multiplier: 5
   }
 };
 
@@ -300,10 +227,17 @@ function clearForm(formId) {
   document.getElementById(formId)?.reset();
 }
 
+function profileRoleText(role) {
+  if (role === "customer") return "Customer Account";
+  if (role === "worker") return "Worker / Freelancer Account";
+  return "Account";
+}
+
 function profileTrustScore(profile) {
   if (!profile) return 0;
 
   let score = 20;
+
   if (profile.name) score += 15;
   if (profile.phone) score += 15;
   if (profile.city) score += 10;
@@ -315,25 +249,9 @@ function profileTrustScore(profile) {
   return Math.min(score, 100);
 }
 
-function profileRoleText(role) {
-  if (role === "customer") return "Customer Account";
-  if (role === "worker") return "Worker / Freelancer Account";
-  return "Account";
-}
-
 function updateCurrencySymbols() {
   document.querySelectorAll(".currency-symbol").forEach((el) => {
     el.textContent = currencySymbol();
-  });
-}
-
-function applyLanguage() {
-  const lang = getValue("languageSelector") || "en";
-  const data = translations[lang] || translations.en;
-
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
-    const key = el.getAttribute("data-i18n");
-    if (data[key]) el.textContent = data[key];
   });
 }
 
@@ -420,7 +338,7 @@ function showPriceCalculatorResult() {
     <p><strong>Quantity:</strong> ${quantity}</p>
     <p><strong>Minimum Starting Price:</strong> ${formatMoney(minPrice)}</p>
     <p><strong>Suggested Negotiation Range:</strong> ${formatMoney(minPrice)} - ${formatMoney(maxPrice)}</p>
-    <p class="safe-note">Customer can offer an amount. Worker can send a counter bid, but bid should not be below minimum price.</p>
+    <p class="safe-note">Customer can offer an amount. Worker can send counter bid, but bid should not be below minimum price.</p>
   `;
 }
 
@@ -481,12 +399,14 @@ function setAuthMode(mode = "signup") {
   const loginBtn = document.getElementById("loginBtn");
   const showSignupTab = document.getElementById("showSignupTab");
   const showLoginTab = document.getElementById("showLoginTab");
+  const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
 
   const isSignup = mode === "signup";
 
   signupFields?.classList.toggle("hidden", !isSignup);
   signupBtn?.classList.toggle("hidden", !isSignup);
   loginBtn?.classList.toggle("hidden", isSignup);
+  confirmPasswordGroup?.classList.toggle("hidden", !isSignup);
   showSignupTab?.classList.toggle("active", isSignup);
   showLoginTab?.classList.toggle("active", !isSignup);
 }
@@ -499,6 +419,17 @@ function openAuthModal(mode = "login") {
 
 function closeAuthModal() {
   document.getElementById("authModal")?.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function openForgotModal() {
+  closeAuthModal();
+  document.getElementById("forgotModal")?.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeForgotModal() {
+  document.getElementById("forgotModal")?.classList.remove("open");
   document.body.style.overflow = "";
 }
 
@@ -530,17 +461,6 @@ function openProfilePanel() {
 
   document.getElementById("profile-update")?.classList.remove("hidden");
   document.getElementById("profile-update")?.scrollIntoView({ behavior: "smooth" });
-}
-
-function openSettingsSection() {
-  if (!currentUser) {
-    openAuthModal("login");
-    showMessage("authMessage", "Login first to open settings.");
-    return;
-  }
-
-  document.getElementById("settings")?.scrollIntoView({ behavior: "smooth" });
-  loadUserSettingsPanel();
 }
 
 function requireLogin(messageId = "authMessage") {
@@ -769,10 +689,16 @@ async function signupUser() {
   const loginId = cleanText(getValue("authUserId"));
   const email = normalizeLoginEmail(loginId);
   const password = getValue("authPassword");
+  const confirmPassword = getValue("authConfirmPassword");
   const referral = getValue("authReferral");
 
-  if (!name || !phone || !role || !loginId || !password) {
+  if (!name || !phone || !role || !loginId || !password || !confirmPassword) {
     showMessage("authMessage", "Fill all signup details.");
+    return;
+  }
+
+  if (!loginId.includes("@")) {
+    showMessage("authMessage", "Please use a real email for signup so password reset can work.");
     return;
   }
 
@@ -783,6 +709,11 @@ async function signupUser() {
 
   if (password.length < 6) {
     showMessage("authMessage", "Password must be at least 6 characters.");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    showMessage("authMessage", "Password and confirm password do not match.");
     return;
   }
 
@@ -820,6 +751,7 @@ async function signupUser() {
         showWorkerLocation: true,
         hidePhoneUntilAccepted: true
       },
+      authProvider: "email",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -848,7 +780,7 @@ async function loginUser() {
   const password = getValue("authPassword");
 
   if (!loginId || !password) {
-    showMessage("authMessage", "Enter user ID/email and password.");
+    showMessage("authMessage", "Enter email/user ID and password.");
     return;
   }
 
@@ -862,25 +794,160 @@ async function loginUser() {
   }
 }
 
-async function forgotPassword() {
-  const loginId = getValue("authUserId");
+async function socialLogin(providerName) {
+  try {
+    let provider;
 
-  if (!loginId) {
-    showMessage("authMessage", "Enter your email first, then click Forgot Password.");
+    if (providerName === "google") provider = new GoogleAuthProvider();
+    if (providerName === "github") provider = new GithubAuthProvider();
+    if (providerName === "facebook") provider = new FacebookAuthProvider();
+
+    if (!provider) return;
+
+    showMessage("authMessage", "Opening " + providerName + " login...");
+
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      const role = getValue("authRole") || "customer";
+      const phone = cleanPhone(getValue("authPhone"));
+
+      if (!role || !phone || !isValidPhone(phone)) {
+        await signOut(auth);
+        showMessage("authMessage", "For new social account, first enter mobile number and select account type, then click social login.");
+        return;
+      }
+
+      await setDoc(userRef, {
+        uid: user.uid,
+        name: user.displayName || "KaamConnect User",
+        phone,
+        role,
+        loginId: user.email || user.uid,
+        email: user.email || "",
+        phoneVerified: false,
+        verificationStatus: "pending",
+        blocked: false,
+        referralCode: makeReferralCode(user.displayName || "KC"),
+        country: selectedCountry(),
+        currency: selectedCurrency(),
+        photoUrl: user.photoURL || "",
+        city: "",
+        bio: "",
+        settings: {
+          language: getValue("languageSelector") || "en",
+          defaultRadius: "5",
+          notifyBookings: true,
+          notifyBids: true,
+          notifyPayments: true,
+          notifySupport: true,
+          allowLocationMatching: true,
+          showWorkerLocation: true,
+          hidePhoneUntilAccepted: true
+        },
+        authProvider: providerName,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    showMessage("authMessage", "Logged in successfully with " + providerName + ".");
+    closeAuthModal();
+  } catch (error) {
+    showMessage("authMessage", "Social Login Error: " + error.message);
+  }
+}
+
+async function requestResetOtp() {
+  const email = getValue("resetEmail");
+  const phone = cleanPhone(getValue("resetPhone"));
+
+  if (!email || !phone) {
+    showMessage("forgotMessage", "Enter registered email and phone number.");
     return;
   }
 
-  if (!loginId.includes("@")) {
-    showMessage("authMessage", "Password reset needs a real email. Username accounts cannot receive reset email.");
+  if (!isValidPhone(phone)) {
+    showMessage("forgotMessage", "Enter valid registered phone number.");
     return;
   }
 
   try {
-    const email = normalizeLoginEmail(loginId);
-    await sendPasswordResetEmail(auth, email);
-    showMessage("authMessage", "Password reset link sent to your email. Check inbox/spam folder.");
+    showMessage("forgotMessage", "Sending OTP...");
+
+    const response = await fetch("/api/request-reset-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, phone })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showMessage("forgotMessage", data.error || "OTP send failed.");
+      return;
+    }
+
+    showMessage("forgotMessage", "OTP sent to your registered email.");
   } catch (error) {
-    showMessage("authMessage", "Reset Error: " + error.message);
+    showMessage("forgotMessage", "OTP Error: " + error.message);
+  }
+}
+
+async function resetPasswordWithOtp() {
+  const email = getValue("resetEmail");
+  const phone = cleanPhone(getValue("resetPhone"));
+  const otp = getValue("resetOtp");
+  const newPassword = getValue("resetNewPassword");
+  const confirmPassword = getValue("resetConfirmPassword");
+
+  if (!email || !phone || !otp || !newPassword || !confirmPassword) {
+    showMessage("forgotMessage", "Fill all reset password details.");
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    showMessage("forgotMessage", "Password must be minimum 6 characters.");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    showMessage("forgotMessage", "New password and confirm password do not match.");
+    return;
+  }
+
+  try {
+    showMessage("forgotMessage", "Resetting password...");
+
+    const response = await fetch("/api/reset-password-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, phone, otp, newPassword })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showMessage("forgotMessage", data.error || "Password reset failed.");
+      return;
+    }
+
+    showMessage("forgotMessage", "Password reset successfully. You can login now.");
+
+    setTimeout(() => {
+      closeForgotModal();
+      openAuthModal("login");
+    }, 1200);
+  } catch (error) {
+    showMessage("forgotMessage", "Reset Error: " + error.message);
   }
 }
 
@@ -971,22 +1038,18 @@ async function loadUserSettingsPanel() {
 
   const settingsCountry = document.getElementById("settingsCountry");
   const settingsCurrency = document.getElementById("settingsCurrency");
-  const settingsLanguage = document.getElementById("settingsLanguage");
   const settingsCity = document.getElementById("settingsCity");
   const settingsRadius = document.getElementById("settingsRadius");
 
   if (settingsCountry) settingsCountry.value = currentProfile.country || selectedCountry();
   if (settingsCurrency) settingsCurrency.value = currentProfile.currency || selectedCurrency();
-  if (settingsLanguage) settingsLanguage.value = settings.language || getValue("languageSelector") || "en";
   if (settingsCity) settingsCity.value = currentProfile.city || "";
   if (settingsRadius) settingsRadius.value = settings.defaultRadius || "5";
 
   setSettingsCheckbox("notifyBookings", settings.notifyBookings);
   setSettingsCheckbox("notifyBids", settings.notifyBids);
   setSettingsCheckbox("notifyPayments", settings.notifyPayments);
-  setSettingsCheckbox("notifySupport", settings.notifySupport);
   setSettingsCheckbox("allowLocationMatching", settings.allowLocationMatching);
-  setSettingsCheckbox("showWorkerLocation", settings.showWorkerLocation);
   setSettingsCheckbox("hidePhoneUntilAccepted", settings.hidePhoneUntilAccepted);
 
   const workerAvailableSetting = document.getElementById("workerAvailableSetting");
@@ -1011,19 +1074,18 @@ async function saveUserSettingsPanel() {
   try {
     const country = getValue("settingsCountry") || selectedCountry();
     const currency = getValue("settingsCurrency") || selectedCurrency();
-    const language = getValue("settingsLanguage") || "en";
     const city = getValue("settingsCity");
     const defaultRadius = getValue("settingsRadius") || "5";
 
     const settings = {
-      language,
+      language: getValue("languageSelector") || "en",
       defaultRadius,
       notifyBookings: settingsCheckboxValue("notifyBookings"),
       notifyBids: settingsCheckboxValue("notifyBids"),
       notifyPayments: settingsCheckboxValue("notifyPayments"),
-      notifySupport: settingsCheckboxValue("notifySupport"),
+      notifySupport: true,
       allowLocationMatching: settingsCheckboxValue("allowLocationMatching"),
-      showWorkerLocation: settingsCheckboxValue("showWorkerLocation"),
+      showWorkerLocation: true,
       hidePhoneUntilAccepted: settingsCheckboxValue("hidePhoneUntilAccepted")
     };
 
@@ -1042,22 +1104,34 @@ async function saveUserSettingsPanel() {
     if (currentRole === "worker") {
       const available = settingsCheckboxValue("workerAvailableSetting");
 
-      await setDoc(doc(db, "workers", currentUser.uid), { available, updatedAt: serverTimestamp() }, { merge: true });
-      await setDoc(doc(db, "workerPublic", currentUser.uid), { available, updatedAt: serverTimestamp() }, { merge: true });
+      await setDoc(
+        doc(db, "workers", currentUser.uid),
+        {
+          available,
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      await setDoc(
+        doc(db, "workerPublic", currentUser.uid),
+        {
+          available,
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
     }
 
     const countrySelector = document.getElementById("countrySelector");
     const currencySelector = document.getElementById("currencySelector");
-    const languageSelector = document.getElementById("languageSelector");
     const mapRadius = document.getElementById("mapRadius");
 
     if (countrySelector) countrySelector.value = country;
     if (currencySelector) currencySelector.value = currency;
-    if (languageSelector) languageSelector.value = language;
     if (mapRadius) mapRadius.value = defaultRadius;
 
     updateCurrencySymbols();
-    applyLanguage();
 
     await loadUserProfile(currentUser);
 
@@ -1483,7 +1557,9 @@ window.payForBooking = async function (bookingId) {
         email: currentProfile?.email || "",
         contact: currentProfile?.phone || ""
       },
-      theme: { color: "#2563eb" }
+      theme: {
+        color: "#2563eb"
+      }
     };
 
     const razorpay = new window.Razorpay(options);
@@ -1805,6 +1881,7 @@ async function saveMinimumPriceSettings() {
     Object.keys(MIN_PRICE_BY_SKILL).forEach((skill) => {
       const input = document.getElementById("adminPrice-" + skill);
       const value = Number(input?.value || MIN_PRICE_BY_SKILL[skill] || 0);
+
       if (value > 0) minPrices[skill] = value;
     });
 
@@ -1859,6 +1936,7 @@ async function loadAppControls() {
 
 function updateVerificationControlUI() {
   const text = document.getElementById("verificationModeText");
+
   if (!text) return;
 
   if (appControls.requireWorkerVerification) {
@@ -2200,6 +2278,7 @@ function clearWorkerMarkers() {
 
 function setCustomerMarker(location) {
   initLocalityMap();
+
   if (!localityMap) return;
 
   if (customerMapMarker) customerMapMarker.remove();
@@ -2345,6 +2424,51 @@ async function findNearbyWorkers() {
   }
 }
 
+function runAiWebsiteCheck() {
+  const result = document.getElementById("aiCheckResult");
+
+  if (!result) return;
+
+  const checks = [];
+
+  if (!currentUser) {
+    checks.push("Login system is available, but user is not logged in.");
+  } else {
+    checks.push("User login detected.");
+  }
+
+  if (!document.querySelector("#servicesGrid .service-card")) {
+    checks.push("Services are not loaded. Check script.js service loading.");
+  } else {
+    checks.push("Service cards loaded.");
+  }
+
+  if (!document.getElementById("localityMap")) {
+    checks.push("Locality map section missing.");
+  } else {
+    checks.push("Locality map section available.");
+  }
+
+  if (!document.getElementById("price-calculator")) {
+    checks.push("Price calculator missing.");
+  } else {
+    checks.push("Price calculator available.");
+  }
+
+  if (!document.getElementById("settings")) {
+    checks.push("Settings section missing.");
+  } else {
+    checks.push("Settings section available.");
+  }
+
+  checks.push("Use real email signup so password reset OTP works.");
+  checks.push("Enable Google, GitHub and Facebook providers in Firebase Authentication.");
+  checks.push("Add RESEND_API_KEY in Vercel for OTP email.");
+  checks.push("Replace support phone number and email with real business contact.");
+
+  result.innerHTML = checks.map((item) => `<p>✅ ${safeText(item)}</p>`).join("");
+}
+
 function wireEvents() {
   document.getElementById("sideToggle")?.addEventListener("click", toggleSidebar);
   document.getElementById("sideCloseBtn")?.addEventListener("click", closeSidebar);
@@ -2367,8 +2491,6 @@ function wireEvents() {
   });
   document.getElementById("notificationCloseBtn")?.addEventListener("click", closeNotificationPanel);
 
-  document.getElementById("topSettingsBtn")?.addEventListener("click", openSettingsSection);
-
   document.getElementById("topLoginBtn")?.addEventListener("click", () => openAuthModal("login"));
   document.getElementById("topSignupBtn")?.addEventListener("click", () => openAuthModal("signup"));
   document.getElementById("heroSignupBtn")?.addEventListener("click", () => openAuthModal("signup"));
@@ -2382,14 +2504,26 @@ function wireEvents() {
     if (event.target === document.getElementById("authModal")) closeAuthModal();
   });
 
+  document.getElementById("forgotModal")?.addEventListener("click", (event) => {
+    if (event.target === document.getElementById("forgotModal")) closeForgotModal();
+  });
+
   document.getElementById("showSignupTab")?.addEventListener("click", () => setAuthMode("signup"));
   document.getElementById("showLoginTab")?.addEventListener("click", () => setAuthMode("login"));
 
   document.getElementById("signupBtn")?.addEventListener("click", signupUser);
   document.getElementById("loginBtn")?.addEventListener("click", loginUser);
-  document.getElementById("forgotPasswordBtn")?.addEventListener("click", forgotPassword);
   document.getElementById("logoutBtn")?.addEventListener("click", logoutUser);
   document.getElementById("topLogoutBtn")?.addEventListener("click", logoutUser);
+
+  document.getElementById("googleLoginBtn")?.addEventListener("click", () => socialLogin("google"));
+  document.getElementById("githubLoginBtn")?.addEventListener("click", () => socialLogin("github"));
+  document.getElementById("facebookLoginBtn")?.addEventListener("click", () => socialLogin("facebook"));
+
+  document.getElementById("openForgotPasswordBtn")?.addEventListener("click", openForgotModal);
+  document.getElementById("forgotCloseBtn")?.addEventListener("click", closeForgotModal);
+  document.getElementById("sendOtpBtn")?.addEventListener("click", requestResetOtp);
+  document.getElementById("resetPasswordBtn")?.addEventListener("click", resetPasswordWithOtp);
 
   document.getElementById("profileForm")?.addEventListener("submit", saveProfile);
   document.getElementById("workerProfileForm")?.addEventListener("submit", saveWorkerProfile);
@@ -2422,11 +2556,10 @@ function wireEvents() {
   document.getElementById("saveSettingsBtn")?.addEventListener("click", saveUserSettingsPanel);
   document.getElementById("loadSettingsBtn")?.addEventListener("click", loadUserSettingsPanel);
   document.getElementById("settingsLoginBtn")?.addEventListener("click", () => openAuthModal("login"));
-  document.getElementById("settingsForgotBtn")?.addEventListener("click", () => {
-    openAuthModal("login");
-    showMessage("authMessage", "Enter your real email, then click Forgot Password.");
-  });
+  document.getElementById("settingsForgotBtn")?.addEventListener("click", openForgotModal);
   document.getElementById("settingsLogoutBtn")?.addEventListener("click", logoutUser);
+
+  document.getElementById("runAiCheckBtn")?.addEventListener("click", runAiWebsiteCheck);
 
   document.getElementById("countrySelector")?.addEventListener("change", () => {
     updateCurrencySymbols();
@@ -2439,13 +2572,12 @@ function wireEvents() {
     showPriceCalculatorResult();
   });
 
-  document.getElementById("languageSelector")?.addEventListener("change", applyLanguage);
-
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeSidebar();
       closeNotificationPanel();
       closeAuthModal();
+      closeForgotModal();
     }
   });
 }
@@ -2456,7 +2588,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     await loadUserProfile(user);
     await loadAppControls();
-    loadUserSettingsPanel();
+    await loadUserSettingsPanel();
     await updateNotificationCount();
 
     if (currentRole === "customer") loadCustomerBookings();
@@ -2475,7 +2607,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   fillServices();
   wireEvents();
   updateCurrencySymbols();
-  applyLanguage();
   setAuthMode("signup");
   initLocalityMap();
   buildAdminPriceManager();
