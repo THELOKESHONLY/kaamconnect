@@ -1,0 +1,10 @@
+{
+  "name": "kaamconnect",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "firebase-admin": "^12.5.0",
+    "razorpay": "^2.9.4"
+  }
+}
