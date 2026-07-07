@@ -6,7 +6,7 @@
 
   <title>KaamConnect - Trusted Local Service Marketplace</title>
 
-  <link rel="stylesheet" href="/style.css?v=reset-social-final-1" />
+  <link rel="stylesheet" href="/style.css?v=otp-email-phone-final-2" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 
@@ -14,7 +14,7 @@
   <header class="top-header">
     <nav class="top-nav">
       <div class="brand-wrap">
-        <button class="dashboard-toggle" id="sideToggle" type="button">☰</button>
+        <button class="dashboard-toggle" id="sideToggle" type="button" aria-label="Open menu">☰</button>
         <a href="#home" class="brand">KaamConnect</a>
       </div>
 
@@ -183,12 +183,14 @@
 
           <div class="social-login-box">
             <p>Or continue with</p>
+
             <div class="social-login-grid">
               <button type="button" class="social-btn" id="googleLoginBtn">G Google</button>
               <button type="button" class="social-btn" id="githubLoginBtn">GitHub</button>
               <button type="button" class="social-btn" id="facebookLoginBtn">Facebook</button>
             </div>
-            <small>For social login, choose mobile number and account type first if new user.</small>
+
+            <small>For new social login, enter mobile number and choose account type first.</small>
           </div>
 
           <button type="button" class="btn primary-btn full-btn" id="signupBtn">Create Account</button>
@@ -208,40 +210,47 @@
       <div class="auth-modal-header">
         <span>Password Recovery</span>
         <h2>Reset Password with OTP</h2>
-        <p>Enter registered email and phone number. OTP will be sent to your email after phone verification.</p>
+        <p>Select email or phone. After OTP is sent, password reset form will open.</p>
       </div>
 
       <div class="form-card">
         <div class="form-group">
-          <label>Registered Email</label>
-          <input type="email" id="resetEmail" placeholder="example@gmail.com" />
+          <label>Reset Using</label>
+          <select id="resetMethod">
+            <option value="email">Email Address</option>
+            <option value="phone">Mobile Number</option>
+          </select>
         </div>
 
         <div class="form-group">
-          <label>Registered Mobile Number</label>
-          <input type="tel" id="resetPhone" placeholder="Enter your registered phone number" />
+          <label id="resetIdentifierLabel">Registered Email</label>
+          <input type="text" id="resetIdentifier" placeholder="Enter your registered email" />
         </div>
 
-        <button class="btn primary-btn full-btn" id="sendOtpBtn" type="button">Send OTP</button>
-
-        <div class="form-group">
-          <label>Enter OTP</label>
-          <input type="text" id="resetOtp" placeholder="Enter OTP received on email" />
-        </div>
-
-        <div class="form-group">
-          <label>New Password</label>
-          <input type="password" id="resetNewPassword" placeholder="Minimum 6 characters" />
-        </div>
-
-        <div class="form-group">
-          <label>Confirm New Password</label>
-          <input type="password" id="resetConfirmPassword" placeholder="Enter new password again" />
-        </div>
-
-        <button class="btn secondary-btn full-btn" id="resetPasswordBtn" type="button">
-          Reset Password
+        <button class="btn primary-btn full-btn" id="sendOtpBtn" type="button">
+          Send OTP
         </button>
+
+        <div id="resetStepTwo" class="hidden">
+          <div class="form-group">
+            <label>Enter OTP</label>
+            <input type="text" id="resetOtp" placeholder="Enter OTP received on email" />
+          </div>
+
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="resetNewPassword" placeholder="Minimum 6 characters" />
+          </div>
+
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" id="resetConfirmPassword" placeholder="Enter new password again" />
+          </div>
+
+          <button class="btn secondary-btn full-btn" id="resetPasswordBtn" type="button">
+            Reset Password
+          </button>
+        </div>
 
         <p class="message" id="forgotMessage"></p>
       </div>
@@ -1031,6 +1040,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script type="module" src="/script.js?v=reset-social-final-1"></script>
+  <script type="module" src="/script.js?v=otp-email-phone-final-2"></script>
 </body>
 </html>
