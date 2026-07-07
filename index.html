@@ -6,7 +6,7 @@
 
   <title>KaamConnect - Trusted Local Service Marketplace</title>
 
-  <link rel="stylesheet" href="/style.css?v=endtoend-blue-1" />
+  <link rel="stylesheet" href="/style.css?v=settings-final-1" />
 
   <link
     rel="stylesheet"
@@ -62,6 +62,8 @@
           <span id="notificationBadge">0</span>
         </button>
 
+        <button class="settings-icon-btn" id="topSettingsBtn" type="button" title="Settings">⚙️</button>
+
         <button class="btn outline-btn top-auth-btn" id="topLoginBtn" type="button">Login</button>
         <button class="btn primary-btn top-auth-btn" id="topSignupBtn" type="button">Sign Up</button>
         <button class="btn secondary-btn top-auth-btn hidden" id="topLogoutBtn" type="button">Logout</button>
@@ -82,6 +84,7 @@
 
     <div class="sidebar-menu">
       <a href="#profile-update" class="profile-open-link" data-i18n="my_profile">My Profile</a>
+      <a href="#settings">Settings</a>
       <a href="#login" data-i18n="account_access">Account Access</a>
       <a href="#how-it-works" data-i18n="how_it_works">How It Works</a>
       <a href="#price-calculator">Price Calculator</a>
@@ -169,13 +172,21 @@
 
           <div class="form-group">
             <label>User ID / Email</label>
-            <input type="text" id="authUserId" placeholder="lokesh123 or email@example.com" />
+            <input type="text" id="authUserId" placeholder="Use real email for forgot password" />
           </div>
 
           <div class="form-group">
             <label>Password</label>
             <input type="password" id="authPassword" placeholder="Minimum 6 characters" />
           </div>
+
+          <button type="button" class="forgot-password-btn" id="forgotPasswordBtn">
+            Forgot Password?
+          </button>
+
+          <p class="auth-help-text">
+            Password reset works only with real email accounts like example@gmail.com.
+          </p>
 
           <button type="button" class="btn primary-btn full-btn" id="signupBtn">Create Account</button>
           <button type="button" class="btn secondary-btn full-btn hidden" id="loginBtn">Login</button>
@@ -196,7 +207,7 @@
           <p>
             KaamConnect connects customers with electricians, plumbers, cleaners, tutors,
             cooks, freelancers and many more local workers with safe contact protection,
-            bidding, verification and smart price guidance.
+            bidding, verification control, smart price guidance and locality map.
           </p>
 
           <div class="hero-actions">
@@ -250,7 +261,7 @@
       <div class="section-heading">
         <span>How It Works</span>
         <h2>Simple, safe and professional workflow</h2>
-        <p>KaamConnect connects customers and workers with booking, bidding, verification and secure contact protection.</p>
+        <p>KaamConnect connects customers and workers with booking, bidding, verification control and secure contact protection.</p>
       </div>
 
       <div class="how-grid">
@@ -263,7 +274,7 @@
         <div class="how-card">
           <div class="how-visual ai-visual"><span>02</span></div>
           <h3>Find nearby workers</h3>
-          <p>Location map shows verified available workers around your locality within selected radius.</p>
+          <p>Location map shows available workers around your locality within selected radius.</p>
         </div>
 
         <div class="how-card">
@@ -324,7 +335,7 @@
       <div class="section-heading">
         <span>Live Locality</span>
         <h2>Find nearby available workers</h2>
-        <p>Allow location to see verified workers available near your area, like Ola, Uber and inDrive style matching.</p>
+        <p>Allow location to see workers available near your area, like Ola, Uber and inDrive style matching.</p>
       </div>
 
       <div class="map-layout">
@@ -387,7 +398,7 @@
 
       <div class="auth-cta-card">
         <h3>Continue with KaamConnect</h3>
-        <p>Customers can post work. Workers can create profiles and bid after verification.</p>
+        <p>Customers can post work. Workers can create profiles and bid based on admin verification setting.</p>
 
         <div class="auth-cta-buttons">
           <button class="btn primary-btn" id="openSignupFromPage" type="button">Create Account</button>
@@ -433,6 +444,162 @@
           <button class="btn primary-btn full-btn" type="submit">Save Profile</button>
           <p class="message" id="profileMessage"></p>
         </form>
+      </div>
+    </section>
+
+    <section class="section light-section" id="settings">
+      <div class="section-heading">
+        <span>Settings</span>
+        <h2>App & Account Settings</h2>
+        <p>Control your account preferences, notifications, privacy, location and worker availability.</p>
+      </div>
+
+      <div class="settings-layout">
+        <div class="settings-card">
+          <h3>Account Preferences</h3>
+          <p>Save your default app preferences.</p>
+
+          <div class="form-group">
+            <label>Default Country</label>
+            <select id="settingsCountry">
+              <option value="India">India</option>
+              <option value="UAE">UAE</option>
+              <option value="United States">USA</option>
+              <option value="United Kingdom">UK</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Default Currency</label>
+            <select id="settingsCurrency">
+              <option value="INR">₹ INR</option>
+              <option value="AED">د.إ AED</option>
+              <option value="USD">$ USD</option>
+              <option value="GBP">£ GBP</option>
+              <option value="CAD">C$ CAD</option>
+              <option value="AUD">A$ AUD</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Default Language</label>
+            <select id="settingsLanguage">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी</option>
+              <option value="es">Español</option>
+              <option value="ar">العربية</option>
+              <option value="fr">Français</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Default City</label>
+            <input type="text" id="settingsCity" placeholder="Example: Delhi, Mumbai, Pune">
+          </div>
+
+          <div class="form-group">
+            <label>Default Map Search Radius</label>
+            <select id="settingsRadius">
+              <option value="3">3 km</option>
+              <option value="5">5 km</option>
+              <option value="10">10 km</option>
+              <option value="20">20 km</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Notifications</h3>
+          <p>Choose which alerts you want to receive.</p>
+
+          <label class="setting-switch-row">
+            <span>Booking updates</span>
+            <input type="checkbox" id="notifyBookings" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>New bid alerts</span>
+            <input type="checkbox" id="notifyBids" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Payment alerts</span>
+            <input type="checkbox" id="notifyPayments" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Support ticket alerts</span>
+            <input type="checkbox" id="notifySupport" checked>
+          </label>
+        </div>
+
+        <div class="settings-card">
+          <h3>Privacy & Location</h3>
+          <p>Control how your location is used for nearby worker matching.</p>
+
+          <label class="setting-switch-row">
+            <span>Allow location for nearby matching</span>
+            <input type="checkbox" id="allowLocationMatching" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Show worker location on map</span>
+            <input type="checkbox" id="showWorkerLocation" checked>
+          </label>
+
+          <label class="setting-switch-row">
+            <span>Hide phone until booking accepted</span>
+            <input type="checkbox" id="hidePhoneUntilAccepted" checked>
+          </label>
+
+          <p class="safe-note">
+            Recommended: keep phone and address hidden until customer accepts bid and payment is verified.
+          </p>
+        </div>
+
+        <div class="settings-card worker-only hidden">
+          <h3>Worker Settings</h3>
+          <p>Control your worker availability.</p>
+
+          <label class="setting-switch-row">
+            <span>Available for new work</span>
+            <input type="checkbox" id="workerAvailableSetting" checked>
+          </label>
+
+          <button class="btn outline-btn full-btn" id="settingsShareLocationBtn" type="button">
+            Share / Update My Work Location
+          </button>
+
+          <p class="safe-note">
+            Customers can see nearby available workers, but your phone stays hidden until booking is accepted.
+          </p>
+        </div>
+
+        <div class="settings-card admin-only hidden">
+          <h3>Admin Quick Settings</h3>
+          <p>Quick access for important admin controls.</p>
+
+          <a class="settings-link-btn" href="#admin">Open Admin Portal</a>
+          <a class="settings-link-btn" href="#price-calculator">Open Price Calculator</a>
+          <a class="settings-link-btn" href="#locality-map">Open Locality Map</a>
+        </div>
+
+        <div class="settings-card">
+          <h3>Security</h3>
+          <p>Manage login and account access.</p>
+
+          <button class="btn primary-btn full-btn" id="settingsLoginBtn" type="button">Login</button>
+          <button class="btn outline-btn full-btn" id="settingsForgotBtn" type="button">Forgot Password</button>
+          <button class="btn secondary-btn full-btn" id="settingsLogoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+
+      <div class="settings-save-card">
+        <button class="btn primary-btn" id="saveSettingsBtn" type="button">Save Settings</button>
+        <button class="btn outline-btn" id="loadSettingsBtn" type="button">Reload Settings</button>
+        <p class="message" id="settingsMessage"></p>
       </div>
     </section>
 
@@ -526,7 +693,7 @@
       <div class="section-heading">
         <span>Worker Profile</span>
         <h2>Create your worker profile</h2>
-        <p>Workers must create profile and get admin verification before bidding.</p>
+        <p>Workers can bid based on admin verification ON/OFF setting.</p>
       </div>
 
       <form class="form-card wide-form" id="workerProfileForm">
@@ -587,7 +754,7 @@
       <div class="section-heading">
         <span>Worker Dashboard</span>
         <h2>Open jobs and assigned work</h2>
-        <p>Verified workers can see matching open jobs and send counter bids.</p>
+        <p>Workers can see matching open jobs and send counter bids.</p>
       </div>
 
       <p class="message" id="workerDashboardMessage"></p>
@@ -657,7 +824,7 @@
       <div class="section-heading">
         <span>Admin Portal</span>
         <h2>Admin control center</h2>
-        <p>Verify users, verify workers, manage tickets, manage prices and view payments.</p>
+        <p>Verify users, verify workers, manage tickets, manage prices, verification mode and payments.</p>
       </div>
 
       <div class="dashboard-actions">
@@ -674,6 +841,27 @@
           <h3>Workers</h3>
           <div id="adminWorkerList" class="admin-list"></div>
         </div>
+      </div>
+
+      <div class="admin-box">
+        <h3>Verification Control</h3>
+        <p>
+          Admin can turn worker verification ON or OFF. If OFF, workers can bid without admin verification.
+        </p>
+
+        <div class="verification-control-card">
+          <p><strong>Current Mode:</strong> <span id="verificationModeText">Loading...</span></p>
+
+          <button class="btn primary-btn" id="verificationOnBtn" type="button">
+            Turn Verification ON
+          </button>
+
+          <button class="btn secondary-btn" id="verificationOffBtn" type="button">
+            Turn Verification OFF
+          </button>
+        </div>
+
+        <p class="message" id="verificationControlMessage"></p>
       </div>
 
       <div class="admin-box" id="adminPriceManager">
@@ -752,8 +940,8 @@
           <div class="trust-photo-wrap">
             <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80" alt="Worker Verification" class="trust-photo">
           </div>
-          <h3>Worker Verification</h3>
-          <p>Workers need admin verification before they can bid on customer jobs.</p>
+          <h3>Verification Control</h3>
+          <p>Admin can keep verification ON or OFF depending on marketplace needs.</p>
         </div>
 
         <div class="safety-card">
@@ -790,27 +978,78 @@
       </div>
     </section>
 
-    <section class="section light-section" id="contact">
-      <div class="section-heading">
-        <span>Contact</span>
-        <h2>Ready to build your local worker network?</h2>
-        <p>KaamConnect is designed for professional local service booking with worker bidding and safety.</p>
-      </div>
+    <section class="bottom-cta-section" id="contact">
+      <div class="bottom-cta-card">
+        <div>
+          <h2>Ready to Get Your Work Done?</h2>
+          <p>Join customers and workers building a safer local service marketplace.</p>
+        </div>
 
-      <div class="contact-card">
-        <h3>KaamConnect</h3>
-        <p>Trusted marketplace for local customers and verified workers.</p>
-        <button class="btn primary-btn" id="footerSignupBtn" type="button">Join Now</button>
+        <div class="bottom-cta-actions">
+          <button class="btn outline-light-btn" id="footerLoginBtn" type="button">Login</button>
+          <button class="btn white-btn" id="footerSignupBtn" type="button">Sign Up</button>
+        </div>
       </div>
     </section>
-  </main>
 
-  <footer class="site-footer">
-    <p>© 2026 KaamConnect. Built for safe local work marketplace.</p>
-  </footer>
+    <footer class="professional-footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h2>KaamConnect</h2>
+          <p>
+            Trusted local service marketplace connecting customers and workers with safety,
+            fair pricing and smart bidding.
+          </p>
+        </div>
+
+        <div class="footer-column">
+          <h3>Quick Links</h3>
+          <a href="#home">Home</a>
+          <a href="#services">Services</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#locality-map">Locality Map</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>For Customers</h3>
+          <a href="#book">Post Work</a>
+          <a href="#customer-dashboard">My Bookings</a>
+          <a href="#price-calculator">Price Calculator</a>
+          <a href="#support-center">Help & Support</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>For Workers</h3>
+          <a href="#worker-profile">Worker Profile</a>
+          <a href="#worker-dashboard">Find Work</a>
+          <a href="#locality-map">Share Location</a>
+          <a href="#support-center">Worker Support</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Legal & Safety</h3>
+          <a href="#safety">Trust & Safety</a>
+          <a href="#support-center">Report Problem</a>
+          <a href="#safety">Community Guidelines</a>
+          <a href="#admin">Admin Control</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Future App</h3>
+          <button class="app-badge" type="button">▶ Google Play</button>
+          <button class="app-badge" type="button"> App Store</button>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 KaamConnect. All rights reserved.</p>
+        <p>Made with ❤️ for a better local work community.</p>
+      </div>
+    </footer>
+  </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script type="module" src="/script.js?v=endtoend-blue-1"></script>
+  <script type="module" src="/script.js?v=settings-final-1"></script>
 </body>
 </html>
