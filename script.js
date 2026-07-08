@@ -534,19 +534,18 @@ async function requestResetOtp() {
   try {
     showMessage("forgotMessage", "Sending OTP...");
 
-    await postJsonSafe("/api/request-reset-otp", {
+    const data = await postJsonSafe("/api/request-reset-otp", {
       method,
       identifier
     });
 
     document.getElementById("resetStepTwo")?.classList.remove("hidden");
 
-    showMessage("forgotMessage", method === "phone" ? "OTP sent to email linked with this phone number." : "OTP sent to your registered email.");
+    showMessage("forgotMessage", data.message || "OTP sent successfully.");
   } catch (error) {
     showMessage("forgotMessage", "OTP Error: " + error.message);
   }
 }
-
 async function resetPasswordWithOtp() {
   const method = getValue("resetMethod") || "email";
   const identifier = getValue("resetIdentifier");
