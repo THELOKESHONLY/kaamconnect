@@ -301,7 +301,7 @@ function fillServices() {
     return `
       <button class="service-card service-card-click" data-service="${safeText(name)}" type="button">
         <div class="service-photo-wrap">
-          <img src="${safeText(image)}" alt="${safeText(name)}" class="service-photo" loading="lazy">
+         <img src="${safeText(image)}" alt="${safeText(name)}" class="service-photo" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('image-fallback');">
         </div>
 
         <div class="service-content">
@@ -3134,7 +3134,22 @@ function runAiWebsiteCheck() {
 
   result.innerHTML = checks.map((item) => `<p>✅ ${safeText(item)}</p>`).join("");
 }
+function openSettingsSection() {
+  if (!currentUser) {
+    openAuthModal("login");
+    showMessage("authMessage", "Login first to open settings.");
+    return;
+  }
 
+  const settings = document.getElementById("settings");
+
+  if (settings) {
+    settings.classList.remove("hidden");
+    settings.scrollIntoView({ behavior: "smooth" });
+  }
+
+  loadUserSettingsPanel();
+}
 function wireEvents() {
   document.getElementById("sideToggle")?.addEventListener("click", toggleSidebar);
   document.getElementById("sideCloseBtn")?.addEventListener("click", closeSidebar);
@@ -3146,6 +3161,11 @@ function wireEvents() {
 
       if (link.classList.contains("profile-open-link")) {
         setTimeout(openProfilePanel, 50);
+        document.querySelector('.sidebar-menu a[href="#settings"]')?.addEventListener("click", (event) => {
+  event.preventDefault();
+  closeSidebar();
+  openSettingsSection();
+});
       }
     });
   });
