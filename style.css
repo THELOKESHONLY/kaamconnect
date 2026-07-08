@@ -2089,3 +2089,19 @@ a {
   }
 }
 }
+.service-photo-wrap.image-fallback {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.28), transparent 25%),
+    linear-gradient(135deg, #475569, #2563eb);
+}
+
+.service-photo-wrap.image-fallback::after {
+  content: "KaamConnect Service";
+  color: #ffffff;
+  font-weight: 950;
+  font-size: 22px;
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
