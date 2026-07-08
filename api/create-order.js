@@ -1,126 +1,133 @@
-const Razorpay = require("razorpay");
 const admin = require("firebase-admin");
+const Razorpay = require("razorpay");
 
 function initAdmin() {
-  if (admin.apps.length) return;
+  if (admin.apps.length) return admin;
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = String(process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
+
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error("Firebase Admin environment variables are missing.");
+  }
 
   admin.initializeApp({
     credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: String(process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n")
+      projectId,
+      clientEmail,
+      privateKey
     })
   });
+
+  return admin;
 }
 
-async function getUserFromToken(req) {
-  const authHeader = req.headers.authorization || "";
-  const token = authHeader.replace("Bearer ", "");
-
-  if (!token) throw new Error("Missing auth token.");
-
-  return admin.auth().verifyIdToken(token);
+function sendJson(res, status, data) {
+  res.status(status).setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(data));
 }
 
-function parseBody(req) {
-  if (typeof req.body === "string") return JSON.parse(req.body || "{}");
-  return req.body || {};
+async function verifyUser(req) {
+  const app = initAdmin();
+  const header = req.headers.authorization || "";
+
+  if (!header.startsWith("Bearer ")) {
+    throw new Error("Missing authorization token.");
+  }
+
+  const token = header.replace("Bearer ", "").trim();
+  return app.auth().verifyIdToken(token);
 }
 
 module.exports = async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed." });
-    return;
-  }
-
   try {
-    initAdmin();
-
-    const user = await getUserFromToken(req);
-    const body = parseBody(req);
-    const bookingId = body.bookingId;
-
-    if (!bookingId) {
-      res.status(400).json({ error: "Missing bookingId." });
-      return;
+    if (req.method !== "POST") {
+      return sendJson(res, 405, { error: "Method not allowed." });
     }
 
-    const db = admin.firestore();
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+      return sendJson(res, 500, { error: "Razorpay environment variables are missing." });
+    }
+
+    const decodedUser = await verifyUser(req);
+    const { bookingId } = req.body || {};
+
+    if (!bookingId) {
+      return sendJson(res, 400, { error: "bookingId is required." });
+    }
+
+    const app = initAdmin();
+    const db = app.firestore();
+
     const bookingRef = db.collection("bookings").doc(bookingId);
     const bookingSnap = await bookingRef.get();
 
     if (!bookingSnap.exists) {
-      res.status(404).json({ error: "Booking not found." });
-      return;
+      return sendJson(res, 404, { error: "Booking not found." });
     }
 
     const booking = bookingSnap.data();
 
-    if (booking.customerId !== user.uid) {
-      res.status(403).json({ error: "This booking does not belong to you." });
-      return;
+    if (booking.customerId !== decodedUser.uid) {
+      return sendJson(res, 403, { error: "Only booking customer can pay." });
     }
 
-    if (booking.bookingStatus !== "payment_pending") {
-      res.status(400).json({ error: "Booking is not ready for payment." });
-      return;
+    if (!booking.acceptedBid || !booking.acceptedBid.bidAmount) {
+      return sendJson(res, 400, { error: "No accepted bid found for this booking." });
     }
 
-    const amount = Number(booking.acceptedBidAmount || 0);
-
-    if (!amount || amount <= 0) {
-      res.status(400).json({ error: "Invalid payment amount." });
-      return;
+    if (booking.paymentStatus === "paid") {
+      return sendJson(res, 400, { error: "Payment already completed." });
     }
 
-    const currency = booking.currency || "INR";
-    const commission = Math.ceil(amount * 0.10);
-    const workerAmount = amount - commission;
+    const amountInRupees = Number(booking.acceptedBid.bidAmount || booking.budget || 0);
+
+    if (!amountInRupees || amountInRupees <= 0) {
+      return sendJson(res, 400, { error: "Invalid payment amount." });
+    }
 
     const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET
+      key_id: keyId,
+      key_secret: keySecret
     });
 
     const order = await razorpay.orders.create({
-      amount: amount * 100,
-      currency,
-      receipt: `booking_${bookingId}`,
+      amount: Math.round(amountInRupees * 100),
+      currency: "INR",
+      receipt: `rs_${bookingId.slice(0, 20)}`,
       notes: {
         bookingId,
-        customerId: booking.customerId,
-        workerId: booking.assignedWorkerUserId || ""
+        customerId: decodedUser.uid,
+        brand: "RapideService"
       }
     });
 
     await db.collection("payments").doc(order.id).set({
-      paymentProviderOrderId: order.id,
       bookingId,
-      customerId: booking.customerId,
-      workerId: booking.assignedWorkerUserId || "",
-      amount,
-      commission,
-      workerAmount,
-      currency,
-      paymentStatus: "order_created",
-      provider: "razorpay",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    await bookingRef.set({
+      customerId: decodedUser.uid,
+      workerUserId: booking.acceptedBid.workerUserId || booking.assignedWorkerId || "",
+      amount: amountInRupees,
+      amountPaise: Math.round(amountInRupees * 100),
+      currency: "INR",
       razorpayOrderId: order.id,
-      paymentStatus: "order_created",
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      status: "created",
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    res.status(200).json({
-      keyId: process.env.RAZORPAY_KEY_ID,
+    return sendJson(res, 200, {
+      success: true,
+      keyId,
       orderId: order.id,
       amount: order.amount,
       currency: order.currency
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendJson(res, 500, {
+      error: error.message || "Create order failed."
+    });
   }
 };
