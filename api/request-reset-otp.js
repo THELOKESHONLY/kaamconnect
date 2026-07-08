@@ -1,234 +1,210 @@
 const admin = require("firebase-admin");
-
-function sendJson(res, status, data) {
-  res.setHeader("Content-Type", "application/json");
-  res.status(status).json(data);
-}
+const twilio = require("twilio");
 
 function initAdmin() {
-  if (admin.apps.length) return;
+  if (admin.apps.length) return admin;
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = String(process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
+
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error("Firebase Admin environment variables are missing.");
+  }
 
   admin.initializeApp({
     credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: String(process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n")
+      projectId,
+      clientEmail,
+      privateKey
     })
   });
+
+  return admin;
 }
 
-function parseBody(req) {
-  if (typeof req.body === "string") return JSON.parse(req.body || "{}");
-  return req.body || {};
+function sendJson(res, status, data) {
+  res.status(status).setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(data));
 }
 
-function cleanPhone(value) {
-  return String(value || "").replace(/[^\d]/g, "");
-}
-
-function formatIndianPhone(phone) {
-  const clean = cleanPhone(phone);
-
-  if (String(phone || "").trim().startsWith("+")) {
-    return String(phone).trim();
-  }
-
-  if (clean.length === 10) {
-    return "+91" + clean;
-  }
-
-  if (clean.length === 12 && clean.startsWith("91")) {
-    return "+" + clean;
-  }
-
-  return "+" + clean;
-}
-
-function otpCode() {
+function generateOtp() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-async function sendOtpEmail(email, otp) {
-  if (!process.env.RESEND_API_KEY) {
+async function sendResendEmail(to, otp) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.FROM_EMAIL || "RapideService <onboarding@resend.dev>";
+
+  if (!apiKey) {
     throw new Error("RESEND_API_KEY is missing.");
   }
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: process.env.FROM_EMAIL || "KaamConnect <onboarding@resend.dev>",
-      to: email,
-      subject: "KaamConnect Password Reset OTP",
+      from: fromEmail,
+      to,
+      subject: "RapideService Password Reset OTP",
       html: `
-        <h2>KaamConnect Password Reset</h2>
-        <p>Your OTP is:</p>
-        <h1 style="letter-spacing:4px;">${otp}</h1>
-        <p>This OTP will expire in 10 minutes.</p>
+        <div style="font-family:Arial,sans-serif;line-height:1.6">
+          <h2>RapideService Password Reset</h2>
+          <p>Your OTP is:</p>
+          <h1 style="letter-spacing:4px">${otp}</h1>
+          <p>This OTP is valid for 10 minutes.</p>
+          <p>If you did not request this, ignore this email.</p>
+        </div>
       `
     })
   });
 
+  const text = await response.text();
+
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error("Email send failed: " + text);
+    throw new Error(`Email send failed: ${text}`);
   }
+
+  return true;
 }
 
-async function sendOtpSms(phone, otp) {
-  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
-    throw new Error("Twilio SMS variables are missing.");
+async function sendTwilioSms(toPhone, otp) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromPhone = process.env.TWILIO_PHONE_NUMBER;
+
+  if (!accountSid || !authToken || !fromPhone) {
+    return false;
   }
 
-  const twilio = require("twilio");
-  const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  const client = twilio(accountSid, authToken);
 
   await client.messages.create({
-    body: `Your KaamConnect password reset OTP is ${otp}. It will expire in 10 minutes.`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: formatIndianPhone(phone)
-  });
-}
-
-async function findUserByPhone(db, phone) {
-  const phoneDigits = cleanPhone(phone);
-
-  const exactSnap = await db.collection("users").where("phone", "==", phoneDigits).limit(1).get();
-
-  if (!exactSnap.empty) {
-    const docSnap = exactSnap.docs[0];
-    return {
-      uid: docSnap.id,
-      data: docSnap.data()
-    };
-  }
-
-  const allUsers = await db.collection("users").get();
-  let found = null;
-
-  allUsers.forEach((docSnap) => {
-    const data = docSnap.data();
-    if (cleanPhone(data.phone) === phoneDigits) {
-      found = {
-        uid: docSnap.id,
-        data
-      };
-    }
+    from: fromPhone,
+    to: toPhone,
+    body: `Your RapideService password reset OTP is ${otp}. It is valid for 10 minutes.`
   });
 
-  return found;
+  return true;
 }
 
-async function resolveUser(method, identifier) {
-  const db = admin.firestore();
+async function resolveUserByEmail(email) {
+  const app = initAdmin();
+  const user = await app.auth().getUserByEmail(email);
 
-  if (method === "email") {
-    const email = String(identifier || "").trim().toLowerCase();
+  return {
+    uid: user.uid,
+    email: user.email || email,
+    phone: user.phoneNumber || ""
+  };
+}
 
-    if (!email.includes("@")) {
-      throw new Error("Enter valid registered email.");
-    }
+async function resolveUserByPhone(phone) {
+  const app = initAdmin();
+  const db = app.firestore();
 
-    const userRecord = await admin.auth().getUserByEmail(email);
-    const userSnap = await db.collection("users").doc(userRecord.uid).get();
+  const phoneValue = String(phone || "").trim();
 
-    return {
-      uid: userRecord.uid,
-      email: userRecord.email,
-      phone: userSnap.exists ? userSnap.data().phone || "" : ""
-    };
+  const usersSnap = await db.collection("users")
+    .where("phone", "==", phoneValue)
+    .limit(1)
+    .get();
+
+  if (usersSnap.empty) {
+    throw new Error("No user found with this phone number.");
   }
 
-  if (method === "phone") {
-    const found = await findUserByPhone(db, identifier);
+  const userDoc = usersSnap.docs[0];
+  const userData = userDoc.data();
 
-    if (!found) {
-      throw new Error("No account found with this phone number.");
-    }
+  let authUser = null;
 
-    const userRecord = await admin.auth().getUser(found.uid);
-
-    return {
-      uid: found.uid,
-      email: userRecord.email || found.data.email || "",
-      phone: found.data.phone || identifier
-    };
+  try {
+    authUser = await app.auth().getUser(userDoc.id);
+  } catch {
+    authUser = null;
   }
 
-  throw new Error("Invalid reset method.");
+  return {
+    uid: userDoc.id,
+    email: userData.email || authUser?.email || "",
+    phone: userData.phone || phoneValue
+  };
 }
 
 module.exports = async function handler(req, res) {
   try {
-    res.setHeader("Content-Type", "application/json");
-
     if (req.method !== "POST") {
       return sendJson(res, 405, { error: "Method not allowed." });
     }
 
-    initAdmin();
+    const { method, identity } = req.body || {};
 
-    const body = parseBody(req);
-    const method = String(body.method || "email").trim();
-    const identifier = String(body.identifier || "").trim();
-
-    if (!identifier) {
-      return sendJson(res, 400, { error: "Email or phone is required." });
+    if (!method || !identity) {
+      return sendJson(res, 400, { error: "Method and identity are required." });
     }
 
-    const resolved = await resolveUser(method, identifier);
+    const app = initAdmin();
+    const db = app.firestore();
 
-    const otp = otpCode();
+    let resolvedUser;
+
+    if (method === "email") {
+      resolvedUser = await resolveUserByEmail(String(identity).trim().toLowerCase());
+    } else if (method === "phone") {
+      resolvedUser = await resolveUserByPhone(String(identity).trim());
+    } else {
+      return sendJson(res, 400, { error: "Invalid reset method." });
+    }
+
+    const otp = generateOtp();
     const expiresAt = Date.now() + 10 * 60 * 1000;
 
-    const db = admin.firestore();
-
-    await db.collection("passwordOtps").doc(resolved.uid).set({
-      uid: resolved.uid,
+    await db.collection("passwordOtps").doc(resolvedUser.uid).set({
+      uid: resolvedUser.uid,
       method,
-      identifier,
-      email: resolved.email || "",
-      phone: resolved.phone || "",
+      identity: String(identity).trim(),
       otp,
       used: false,
       expiresAt,
       createdAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+    }, { merge: true });
 
     let delivery = "email";
 
     if (method === "phone") {
-      try {
-        await sendOtpSms(resolved.phone || identifier, otp);
-        delivery = "phone";
-      } catch (smsError) {
-        if (!resolved.email) {
-          throw new Error("SMS failed and no email is linked with this phone. SMS error: " + smsError.message);
+      const smsSent = await sendTwilioSms(resolvedUser.phone, otp);
+
+      if (smsSent) {
+        delivery = "sms";
+      } else {
+        if (!resolvedUser.email) {
+          return sendJson(res, 400, {
+            error: "Twilio is not configured and no email is linked with this phone number."
+          });
         }
 
-        await sendOtpEmail(resolved.email, otp);
+        await sendResendEmail(resolvedUser.email, otp);
         delivery = "email_fallback";
       }
     } else {
-      await sendOtpEmail(resolved.email, otp);
+      await sendResendEmail(resolvedUser.email, otp);
+      delivery = "email";
     }
 
     return sendJson(res, 200, {
       success: true,
       delivery,
-      message:
-        delivery === "phone"
-          ? "OTP sent to your registered mobile number."
-          : delivery === "email_fallback"
-            ? "SMS is not configured, so OTP was sent to email linked with this phone."
-            : "OTP sent to your registered email."
+      message: delivery === "sms"
+        ? "OTP sent to your mobile number."
+        : "OTP sent to your registered email."
     });
   } catch (error) {
     return sendJson(res, 500, {
-      error: error.message
+      error: error.message || "OTP request failed."
     });
   }
 };
