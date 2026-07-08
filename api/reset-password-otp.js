@@ -1,5 +1,10 @@
 const admin = require("firebase-admin");
 
+function sendJson(res, status, data) {
+  res.setHeader("Content-Type", "application/json");
+  res.status(status).json(data);
+}
+
 function initAdmin() {
   if (admin.apps.length) return;
 
@@ -21,16 +26,25 @@ function cleanPhone(value) {
   return String(value || "").replace(/[^\d]/g, "");
 }
 
-async function findUserByPhone(db, phoneDigits) {
-  const usersSnap = await db.collection("users").get();
+async function findUserByPhone(db, phone) {
+  const phoneDigits = cleanPhone(phone);
 
+  const exactSnap = await db.collection("users").where("phone", "==", phoneDigits).limit(1).get();
+
+  if (!exactSnap.empty) {
+    const docSnap = exactSnap.docs[0];
+    return {
+      uid: docSnap.id,
+      data: docSnap.data()
+    };
+  }
+
+  const allUsers = await db.collection("users").get();
   let found = null;
 
-  usersSnap.forEach((docSnap) => {
+  allUsers.forEach((docSnap) => {
     const data = docSnap.data();
-    const savedPhone = cleanPhone(data.phone || "");
-
-    if (savedPhone === phoneDigits) {
+    if (cleanPhone(data.phone) === phoneDigits) {
       found = {
         uid: docSnap.id,
         data
@@ -47,36 +61,26 @@ async function resolveUser(method, identifier) {
   if (method === "email") {
     const email = String(identifier || "").trim().toLowerCase();
 
-    if (!email || !email.includes("@")) {
+    if (!email.includes("@")) {
       throw new Error("Enter valid registered email.");
     }
 
     const userRecord = await admin.auth().getUserByEmail(email);
 
     return {
-      uid: userRecord.uid,
-      email: userRecord.email
+      uid: userRecord.uid
     };
   }
 
   if (method === "phone") {
-    const phoneDigits = cleanPhone(identifier);
-
-    if (!phoneDigits || phoneDigits.length < 10) {
-      throw new Error("Enter valid registered mobile number.");
-    }
-
-    const found = await findUserByPhone(db, phoneDigits);
+    const found = await findUserByPhone(db, identifier);
 
     if (!found) {
       throw new Error("No account found with this phone number.");
     }
 
-    const userRecord = await admin.auth().getUser(found.uid);
-
     return {
-      uid: found.uid,
-      email: userRecord.email || found.data.email
+      uid: found.uid
     };
   }
 
@@ -84,14 +88,13 @@ async function resolveUser(method, identifier) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader("Content-Type", "application/json");
-
-  if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed." });
-    return;
-  }
-
   try {
+    res.setHeader("Content-Type", "application/json");
+
+    if (req.method !== "POST") {
+      return sendJson(res, 405, { error: "Method not allowed." });
+    }
+
     initAdmin();
 
     const body = parseBody(req);
@@ -101,13 +104,11 @@ module.exports = async function handler(req, res) {
     const newPassword = String(body.newPassword || "");
 
     if (!identifier || !otp || !newPassword) {
-      res.status(400).json({ error: "All fields are required." });
-      return;
+      return sendJson(res, 400, { error: "All fields are required." });
     }
 
     if (newPassword.length < 6) {
-      res.status(400).json({ error: "Password must be at least 6 characters." });
-      return;
+      return sendJson(res, 400, { error: "Password must be at least 6 characters." });
     }
 
     const resolved = await resolveUser(method, identifier);
@@ -117,25 +118,21 @@ module.exports = async function handler(req, res) {
     const otpSnap = await otpRef.get();
 
     if (!otpSnap.exists) {
-      res.status(404).json({ error: "OTP not found. Request a new OTP." });
-      return;
+      return sendJson(res, 404, { error: "OTP not found. Request a new OTP." });
     }
 
     const otpData = otpSnap.data();
 
     if (otpData.used) {
-      res.status(400).json({ error: "OTP already used." });
-      return;
+      return sendJson(res, 400, { error: "OTP already used." });
     }
 
     if (Date.now() > Number(otpData.expiresAt || 0)) {
-      res.status(400).json({ error: "OTP expired. Request a new OTP." });
-      return;
+      return sendJson(res, 400, { error: "OTP expired. Request a new OTP." });
     }
 
-    if (otpData.otp !== otp) {
-      res.status(400).json({ error: "Invalid OTP." });
-      return;
+    if (String(otpData.otp) !== otp) {
+      return sendJson(res, 400, { error: "Invalid OTP." });
     }
 
     await admin.auth().updateUser(resolved.uid, {
@@ -159,12 +156,12 @@ module.exports = async function handler(req, res) {
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.status(200).json({
+    return sendJson(res, 200, {
       success: true,
       message: "Password reset successful."
     });
   } catch (error) {
-    res.status(500).json({
+    return sendJson(res, 500, {
       error: error.message
     });
   }
