@@ -5,6 +5,6 @@
   "type": "commonjs",
   "dependencies": {
     "firebase-admin": "^12.5.0",
-    "razorpay": "^2.9.4"
+    "razorpay": "^2.9.5"
   }
 }
