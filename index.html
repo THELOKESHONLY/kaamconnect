@@ -4,17 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>RapideService - Hire Trusted Workers</title>
+  <title>RapideService - Hire Trusted Workers Near You</title>
 
   <meta
     name="description"
-    content="RapideService helps customers hire trusted local workers, freelancers and helpers with bidding, reviews, payments and verified profiles."
+    content="RapideService helps customers hire trusted local workers, freelancers and helpers with bidding, verified profiles, secure payments, reviews and support."
   />
 
   <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
-
-  <link rel="stylesheet" href="style.css?v=rapideservice-1" />
+  <link rel="stylesheet" href="style.css?v=rapideservice-pro-10" />
 
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
@@ -25,6 +24,8 @@
 <body>
   <div id="toast" class="toast hidden"></div>
 
+  <div id="overlay" class="overlay hidden" onclick="closeAllOverlays()"></div>
+
   <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-head">
@@ -32,65 +33,52 @@
         <span class="logo-badge">RS</span>
         <div>
           <h3>RapideService</h3>
-          <p>Hire Trusted Workers</p>
+          <p>Hire trusted workers near you</p>
         </div>
       </div>
       <button class="icon-btn" onclick="closeSidebar()">✕</button>
     </div>
 
     <nav class="side-nav">
-      <button onclick="goToSection('home')">Home</button>
-      <button onclick="goToSection('services')">Services</button>
-      <button onclick="goToSection('book')">Book Service</button>
-      <button onclick="goToSection('worker')">Worker Registration</button>
-      <button onclick="goToSection('jobs')">Open Jobs</button>
-      <button onclick="goToSection('dashboard')">Dashboard</button>
-      <button onclick="goToSection('support')">Support</button>
-      <button onclick="openSettingsSection()">Settings</button>
-      <button id="adminSideBtn" class="hidden" onclick="goToSection('admin')">Admin Panel</button>
+      <button onclick="goToSection('home')">🏠 Home</button>
+      <button onclick="goToSection('services')">🛠 Services</button>
+      <button onclick="goToSection('book')">📌 Post Work</button>
+      <button onclick="goToSection('worker')">👷 Join as Worker</button>
+      <button onclick="goToSection('jobs')">💼 Open Jobs</button>
+      <button onclick="goToSection('dashboard')">📊 Dashboard</button>
+      <button onclick="goToSection('support')">🎧 Support</button>
+      <button onclick="openSettingsSection()">⚙ Settings</button>
+      <button id="adminSideBtn" class="hidden" onclick="goToSection('admin')">🔐 Admin Panel</button>
     </nav>
-  </aside>
 
-  <div id="overlay" class="overlay hidden" onclick="closeSidebar(); closeNotificationDrawer(); closeAuthModal(); closeForgotModal();"></div>
+    <div class="side-settings-card">
+      <h4>Quick Settings</h4>
 
-  <!-- Header -->
-  <header class="topbar">
-    <button class="menu-btn" onclick="openSidebar()">☰</button>
-
-    <a href="#home" class="brand">
-      <span class="logo-badge">RS</span>
-      <span>RapideService</span>
-    </a>
-
-    <div class="market-pill">Local Service Marketplace</div>
-
-    <div class="header-actions">
-      <select id="countrySelect" class="small-select">
+      <label>Country</label>
+      <select id="sideCountrySelect">
         <option value="IN">India</option>
         <option value="US">USA</option>
         <option value="UK">UK</option>
         <option value="AE">UAE</option>
       </select>
 
-      <select id="currencySelect" class="small-select">
+      <label>Currency</label>
+      <select id="sideCurrencySelect">
         <option value="INR">₹ INR</option>
         <option value="USD">$ USD</option>
         <option value="GBP">£ GBP</option>
         <option value="AED">AED</option>
       </select>
 
-      <select id="languageSelect" class="small-select">
+      <label>Language</label>
+      <select id="sideLanguageSelect">
         <option value="en">English</option>
         <option value="hi">Hindi</option>
       </select>
 
-      <button id="notifyBtn" class="icon-btn" onclick="toggleNotificationDrawer()">🔔</button>
-
-      <button id="loginBtn" class="btn light" onclick="openAuthModal('login')">Login</button>
-      <button id="signupBtn" class="btn primary" onclick="openAuthModal('signup')">Sign Up</button>
-      <button id="logoutBtn" class="btn danger hidden" onclick="logoutUser()">Logout</button>
+      <button class="btn primary full" onclick="saveSideSettings()">Apply</button>
     </div>
-  </header>
+  </aside>
 
   <!-- Notification Drawer -->
   <aside id="notificationDrawer" class="notification-drawer">
@@ -103,11 +91,45 @@
     </div>
   </aside>
 
+  <!-- Header -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="openSidebar()" aria-label="Open menu">☰</button>
+
+      <a href="#home" class="brand">
+        <span class="logo-badge">RS</span>
+        <span>RapideService</span>
+      </a>
+    </div>
+
+    <nav class="desktop-nav">
+      <a href="#services">Services</a>
+      <a href="#book">Post Work</a>
+      <a href="#worker">Workers</a>
+      <a href="#jobs">Open Jobs</a>
+      <a href="#support">Support</a>
+    </nav>
+
+    <div class="header-actions">
+      <button id="notifyBtn" class="icon-btn notify-btn" onclick="toggleNotificationDrawer()" aria-label="Notifications">
+        🔔
+        <span id="notifyDot" class="notify-dot hidden"></span>
+      </button>
+
+      <button id="loginBtn" class="btn light" onclick="openAuthModal('login')">Login</button>
+      <button id="signupBtn" class="btn primary signup-fixed" onclick="openAuthModal('signup')">Sign Up</button>
+      <button id="logoutBtn" class="btn danger hidden" onclick="logoutUser()">Logout</button>
+    </div>
+  </header>
+
   <!-- Auth Modal -->
   <div id="authModal" class="modal hidden">
-    <div class="modal-card">
+    <div class="modal-card auth-card">
       <div class="modal-head">
-        <h2 id="authTitle">Login</h2>
+        <div>
+          <p class="modal-kicker">RapideService Account</p>
+          <h2 id="authTitle">Login</h2>
+        </div>
         <button class="icon-btn" onclick="closeAuthModal()">✕</button>
       </div>
 
@@ -135,7 +157,7 @@
         </div>
 
         <label>Email Address</label>
-        <input id="authEmail" type="email" placeholder="Enter email" required />
+        <input id="authEmail" type="email" placeholder="Enter email address" required />
 
         <label>Password</label>
         <input id="authPassword" type="password" placeholder="Enter password" required />
@@ -160,11 +182,16 @@
 
   <!-- Forgot Modal -->
   <div id="forgotModal" class="modal hidden">
-    <div class="modal-card">
+    <div class="modal-card auth-card">
       <div class="modal-head">
-        <h2>Reset Password</h2>
+        <div>
+          <p class="modal-kicker">Password Recovery</p>
+          <h2>Reset Password with OTP</h2>
+        </div>
         <button class="icon-btn" onclick="closeForgotModal()">✕</button>
       </div>
+
+      <p class="muted">Select email or phone. After OTP is sent, password reset form will open.</p>
 
       <label>Reset Using</label>
       <select id="resetMethod" onchange="changeResetMethod()">
@@ -185,32 +212,70 @@
         <input id="resetNewPassword" type="password" placeholder="New password" />
 
         <label>Confirm New Password</label>
-        <input id="resetConfirmPassword" type="password" placeholder="Confirm password" />
+        <input id="resetConfirmPassword" type="password" placeholder="Confirm new password" />
 
         <button class="btn success full" onclick="verifyResetOtp()">Reset Password</button>
       </div>
     </div>
   </div>
 
-  <!-- Main -->
   <main>
-    <!-- Hero -->
-    <section id="home" class="hero">
-      <div class="hero-content">
-        <div class="badge">Trusted Local Worker Marketplace</div>
-        <h1>Hire verified workers, freelancers and helpers near you.</h1>
+    <!-- Premium Hero -->
+    <section id="home" class="hero premium-hero">
+      <div class="hero-content premium-hero-content">
+        <div class="badge premium-badge">⚡ Fast Local Service Marketplace</div>
+
+        <h1>
+          Book trusted
+          <span class="gradient-text">workers</span>,
+          freelancers and helpers near you.
+        </h1>
+
         <p>
-          RapideService connects customers with electricians, plumbers, cleaners,
-          drivers, tutors, freelancers and local service experts with bidding,
-          payments, reviews and verified profiles.
+          RapideService helps customers hire verified electricians, plumbers,
+          cleaners, drivers, tutors, freelancers and local service experts with
+          bidding, secure payments, reviews and trusted profiles.
         </p>
 
-        <div class="hero-actions">
-          <button class="btn primary big" onclick="goToSection('book')">Book a Service</button>
-          <button class="btn outline big" onclick="goToSection('worker')">Register as Worker</button>
+        <div class="hero-search-box">
+          <div>
+            <label>What service do you need?</label>
+            <select id="homeServiceSelect">
+              <option value="Electrician">Electrician</option>
+              <option value="Plumber">Plumber</option>
+              <option value="Cleaner">Cleaner</option>
+              <option value="Tutor">Tutor</option>
+              <option value="Cook">Cook</option>
+              <option value="Painter">Painter</option>
+              <option value="AC Repair">AC Repair</option>
+              <option value="Carpenter">Carpenter</option>
+              <option value="Driver">Driver</option>
+              <option value="Freelancer / General Helper">Freelancer / General Helper</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Your city</label>
+            <input id="homeCityInput" type="text" placeholder="Enter city" />
+          </div>
+
+          <button class="btn primary hero-search-btn" onclick="heroFindWorkers()">
+            Find Workers
+          </button>
         </div>
 
-        <div class="stats-row">
+        <div class="hero-actions premium-actions">
+          <button class="btn primary big" onclick="goToSection('book')">Post Work Now</button>
+          <button class="btn outline big" onclick="goToSection('worker')">Join as Worker</button>
+        </div>
+
+        <div class="trust-mini-row">
+          <span>✅ Verified profiles</span>
+          <span>🔒 Contact hidden until accepted</span>
+          <span>⭐ Ratings & reviews</span>
+        </div>
+
+        <div id="liveStats" class="stats-row premium-stats hidden">
           <div>
             <strong id="statWorkers">0</strong>
             <span>Workers</span>
@@ -224,26 +289,87 @@
             <span>Reviews</span>
           </div>
         </div>
+
+        <div id="launchTrustRow" class="launch-trust-row">
+          <div>
+            <strong>Verified</strong>
+            <span>Worker Profiles</span>
+          </div>
+          <div>
+            <strong>Secure</strong>
+            <span>Payment Flow</span>
+          </div>
+          <div>
+            <strong>24/7</strong>
+            <span>Support Ready</span>
+          </div>
+        </div>
       </div>
 
-      <div class="hero-card">
-        <h3>How it works</h3>
-        <div class="step">
-          <span>1</span>
-          <p>Customer posts work with city, skill and budget.</p>
+      <div class="premium-hero-visual">
+        <div class="phone-mockup">
+          <div class="phone-top"></div>
+
+          <div class="app-card verified-worker-card">
+            <div class="app-avatar">RS</div>
+            <div>
+              <h4>Verified Worker</h4>
+              <p>Electrician • 4.8 ★</p>
+            </div>
+            <span class="verified-pill">Verified</span>
+          </div>
+
+          <div class="app-card bid-card">
+            <small>New Bid Received</small>
+            <h3>₹450</h3>
+            <p>Available today in your city</p>
+          </div>
+
+          <div class="app-card payment-card">
+            <span>🔐</span>
+            <div>
+              <h4>Secure Payment</h4>
+              <p>Contact unlocks after payment</p>
+            </div>
+          </div>
+
+          <div class="app-steps">
+            <div><b>1</b> Post Work</div>
+            <div><b>2</b> Get Bids</div>
+            <div><b>3</b> Pay Securely</div>
+            <div><b>4</b> Review Worker</div>
+          </div>
         </div>
-        <div class="step">
-          <span>2</span>
-          <p>Workers send bids with price and message.</p>
+
+        <div class="floating-card floating-card-1">
+          <strong>Fast</strong>
+          <span>Worker Matching</span>
         </div>
-        <div class="step">
-          <span>3</span>
-          <p>Customer accepts worker and completes payment.</p>
+
+        <div class="floating-card floating-card-2">
+          <strong>Safe</strong>
+          <span>Hidden Contact</span>
         </div>
-        <div class="step">
-          <span>4</span>
-          <p>Contact unlocks, work starts, review after completion.</p>
-        </div>
+      </div>
+    </section>
+
+    <!-- Trust Bar -->
+    <section class="trust-bar">
+      <div>
+        <strong>Verified Workers</strong>
+        <span>Admin verification support</span>
+      </div>
+      <div>
+        <strong>Bidding System</strong>
+        <span>Customers compare worker prices</span>
+      </div>
+      <div>
+        <strong>Secure Payment</strong>
+        <span>Contact unlocks after payment</span>
+      </div>
+      <div>
+        <strong>Reviews</strong>
+        <span>Ratings build worker trust</span>
       </div>
     </section>
 
@@ -251,8 +377,8 @@
     <section id="services" class="section">
       <div class="section-head">
         <p class="eyebrow">Services</p>
-        <h2>Popular Services</h2>
-        <p>Choose a skill and find trusted workers around your area.</p>
+        <h2>Popular services on RapideService</h2>
+        <p>Choose a skill and post your work. Workers can send bids with price and message.</p>
       </div>
 
       <div id="serviceGrid" class="service-grid"></div>
@@ -262,11 +388,11 @@
     <section id="book" class="section alt">
       <div class="section-head">
         <p class="eyebrow">Post Work</p>
-        <h2>Book a Service</h2>
-        <p>Post your work and receive bids from nearby workers.</p>
+        <h2>Post your work and get worker bids</h2>
+        <p>Your phone and full address stay hidden until worker is accepted and payment is verified.</p>
       </div>
 
-      <div class="form-card">
+      <div class="form-card premium-form">
         <form id="bookingForm" onsubmit="createBooking(event)">
           <div class="grid-2">
             <div>
@@ -315,7 +441,7 @@
             </div>
           </div>
 
-          <label>Address</label>
+          <label>Full Address</label>
           <textarea id="bookingAddress" placeholder="Full address hidden until worker accepted/payment verified" required></textarea>
 
           <label>Work Details</label>
@@ -330,11 +456,11 @@
     <section id="worker" class="section">
       <div class="section-head">
         <p class="eyebrow">Worker</p>
-        <h2>Register as Worker</h2>
-        <p>Create a public worker profile and receive work requests.</p>
+        <h2>Join RapideService as a worker</h2>
+        <p>Create your public worker profile and receive work bids from customers.</p>
       </div>
 
-      <div class="form-card">
+      <div class="form-card premium-form">
         <form id="workerForm" onsubmit="registerWorker(event)">
           <div class="grid-2">
             <div>
@@ -390,8 +516,8 @@
     <section id="jobs" class="section alt">
       <div class="section-head">
         <p class="eyebrow">Worker Jobs</p>
-        <h2>Open Jobs</h2>
-        <p>Workers can send bids on public jobs.</p>
+        <h2>Open jobs for workers</h2>
+        <p>Workers can view public jobs and send bids.</p>
       </div>
 
       <div class="filters">
@@ -409,8 +535,8 @@
     <section id="dashboard" class="section">
       <div class="section-head">
         <p class="eyebrow">Dashboard</p>
-        <h2>My Dashboard</h2>
-        <p>Manage bookings, bids, payments and reviews.</p>
+        <h2>Manage your account</h2>
+        <p>Track bookings, bids, payments, reviews and worker profile.</p>
       </div>
 
       <div id="userInfoCard" class="info-card">
@@ -426,29 +552,34 @@
       <div id="dashboardContent" class="dashboard-content"></div>
     </section>
 
-    <!-- Trust -->
+    <!-- Trust & Safety -->
     <section id="trust" class="section alt">
       <div class="section-head">
         <p class="eyebrow">Trust & Safety</p>
         <h2>Built for safe local hiring</h2>
+        <p>RapideService is designed with hidden contact, verified profiles, payment flow and reviews.</p>
       </div>
 
       <div class="trust-grid">
         <div class="trust-card">
+          <div class="trust-icon">🛡</div>
           <h3>Verified Profiles</h3>
-          <p>Workers can be verified by admin for better trust.</p>
+          <p>Workers can be verified by admin for better customer trust.</p>
         </div>
         <div class="trust-card">
+          <div class="trust-icon">🔒</div>
           <h3>Hidden Contact</h3>
           <p>Phone and address stay hidden until accepted/payment verified.</p>
         </div>
         <div class="trust-card">
+          <div class="trust-icon">⭐</div>
           <h3>Reviews</h3>
           <p>Customers can review workers after service completion.</p>
         </div>
         <div class="trust-card">
+          <div class="trust-icon">🎧</div>
           <h3>Support</h3>
-          <p>Report problems and contact RapideService support anytime.</p>
+          <p>Report issues and contact RapideService support anytime.</p>
         </div>
       </div>
     </section>
@@ -461,7 +592,7 @@
         <p>Need help with booking, payment, worker profile or account?</p>
       </div>
 
-      <div class="form-card">
+      <div class="form-card premium-form">
         <form id="supportForm" onsubmit="createSupportTicket(event)">
           <div class="grid-2">
             <div>
@@ -498,7 +629,7 @@
         <h2>RapideService Settings</h2>
       </div>
 
-      <div class="form-card">
+      <div class="form-card premium-form">
         <label>Country</label>
         <select id="settingsCountry">
           <option value="IN">India</option>
@@ -509,9 +640,9 @@
 
         <label>Currency</label>
         <select id="settingsCurrency">
-          <option value="INR">INR</option>
-          <option value="USD">USD</option>
-          <option value="GBP">GBP</option>
+          <option value="INR">₹ INR</option>
+          <option value="USD">$ USD</option>
+          <option value="GBP">£ GBP</option>
           <option value="AED">AED</option>
         </select>
 
@@ -629,6 +760,6 @@
     <p class="copyright">© 2026 RapideService. All rights reserved.</p>
   </footer>
 
-  <script src="script.js?v=rapideservice-1"></script>
+  <script src="script.js?v=rapideservice-pro-10"></script>
 </body>
 </html>
