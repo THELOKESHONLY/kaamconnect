@@ -2,9 +2,9 @@
   "name": "kaamconnect",
   "version": "1.0.0",
   "private": true,
-  "type": "commonjs",
   "dependencies": {
-    "firebase-admin": "^12.5.0",
-    "razorpay": "^2.9.5"
+    "firebase-admin": "^12.7.0",
+    "razorpay": "^2.9.6",
+    "twilio": "^5.3.0"
   }
 }
