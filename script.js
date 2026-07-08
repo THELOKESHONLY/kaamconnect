@@ -1,8 +1,11 @@
 /* =========================================================
-   RapideService - Complete Frontend Script
+   RapideService Pro 10/10 Frontend Script
+   Brand: RapideService
+   Domain: rapideservice.com
+
    IMPORTANT:
-   Firebase project stays same: kaamconnect-fdf87
-   Only public brand changed to RapideService.
+   Do NOT change Firebase project values.
+   Firebase project remains: kaamconnect-fdf87
 ========================================================= */
 
 /* ---------------- Firebase Config ---------------- */
@@ -21,25 +24,30 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+/* ---------------- Brand ---------------- */
 const BRAND = {
   name: "RapideService",
   shortName: "RS",
   domain: "rapideservice.com",
+  website: "https://rapideservice.com",
   supportEmail: "support@rapideservice.com",
   otpEmail: "otp@rapideservice.com",
   phone: "+91 7303041394",
   tagline: "Hire trusted workers, freelancers and local helpers near you."
 };
 
+/* ---------------- Admin ---------------- */
 const ADMIN_LOGIN_IDS = ["thelokeshonly"];
 const ADMIN_EMAILS = ["lokeshyadav4399@gmail.com"];
 
+/* ---------------- App State ---------------- */
 let currentUser = null;
 let currentUserProfile = null;
 let currentAuthMode = "login";
 let currentDashboardTab = "bookings";
 let currentAdminTab = "workers";
 let allPublicJobsCache = [];
+let allNotificationsCache = [];
 
 /* ---------------- Skills and Prices ---------------- */
 const SKILLS = [
@@ -126,7 +134,7 @@ const SERVICE_IMAGES = {
   "Freelancer / General Helper": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80"
 };
 
-/* ---------------- Helpers ---------------- */
+/* ---------------- Basic Helpers ---------------- */
 function $(id) {
   return document.getElementById(id);
 }
@@ -134,58 +142,6 @@ function $(id) {
 function safeText(value, fallback = "") {
   if (value === undefined || value === null || value === "") return fallback;
   return String(value);
-}
-
-function currencySymbol(currency = "INR") {
-  if (currency === "USD") return "$";
-  if (currency === "GBP") return "£";
-  if (currency === "AED") return "AED ";
-  return "₹";
-}
-
-function getSelectedCurrency() {
-  return $("currencySelect")?.value || "INR";
-}
-
-function formatMoney(amount, currency = getSelectedCurrency()) {
-  const num = Number(amount || 0);
-  return `${currencySymbol(currency)}${num.toLocaleString("en-IN")}`;
-}
-
-function nowServer() {
-  return firebase.firestore.FieldValue.serverTimestamp();
-}
-
-function makeReferralCode(name = "RS") {
-  const clean = String(name || "RS").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 5);
-  return `${clean}${Math.floor(10000 + Math.random() * 90000)}`;
-}
-
-function getEmailLoginId(email) {
-  return String(email || "").split("@")[0].toLowerCase().trim();
-}
-
-function isAdminUser(profile = currentUserProfile, user = currentUser) {
-  const email = String(user?.email || profile?.email || "").toLowerCase();
-  const loginId = String(profile?.loginId || "").toLowerCase();
-
-  return ADMIN_EMAILS.includes(email) || ADMIN_LOGIN_IDS.includes(loginId);
-}
-
-function showToast(message, type = "success") {
-  const toast = $("toast");
-  if (!toast) {
-    alert(message);
-    return;
-  }
-
-  toast.textContent = message;
-  toast.className = `toast ${type}`;
-  toast.classList.remove("hidden");
-
-  setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 3600);
 }
 
 function escapeHtml(value) {
@@ -197,30 +153,87 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function goToSection(id) {
-  closeSidebar();
-
-  document.querySelectorAll("main section").forEach((section) => {
-    if (section.id === "settings" || section.id === "admin") {
-      section.classList.add("hidden");
-    }
-  });
-
-  const section = $(id);
-  if (!section) return;
-
-  if (id === "settings") section.classList.remove("hidden");
-  if (id === "admin" && isAdminUser()) section.classList.remove("hidden");
-
-  section.scrollIntoView({ behavior: "smooth", block: "start" });
-
-  if (id === "jobs") loadPublicJobs();
-  if (id === "dashboard") loadDashboard();
-  if (id === "admin") loadAdminPanel();
+function nowServer() {
+  return firebase.firestore.FieldValue.serverTimestamp();
 }
 
-function openSettingsSection() {
-  goToSection("settings");
+function getEmailLoginId(email) {
+  return String(email || "").split("@")[0].toLowerCase().trim();
+}
+
+function makeReferralCode(name = "RS") {
+  const clean = String(name || "RS")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase()
+    .slice(0, 5);
+
+  return `${clean}${Math.floor(10000 + Math.random() * 90000)}`;
+}
+
+function currencySymbol(currency = "INR") {
+  if (currency === "USD") return "$";
+  if (currency === "GBP") return "£";
+  if (currency === "AED") return "AED ";
+  return "₹";
+}
+
+function getSelectedCurrency() {
+  return (
+    $("sideCurrencySelect")?.value ||
+    $("settingsCurrency")?.value ||
+    currentUserProfile?.currency ||
+    currentUserProfile?.settings?.currency ||
+    "INR"
+  );
+}
+
+function getSelectedCountry() {
+  return (
+    $("sideCountrySelect")?.value ||
+    $("settingsCountry")?.value ||
+    currentUserProfile?.country ||
+    currentUserProfile?.settings?.country ||
+    "IN"
+  );
+}
+
+function getSelectedLanguage() {
+  return (
+    $("sideLanguageSelect")?.value ||
+    $("settingsLanguage")?.value ||
+    currentUserProfile?.language ||
+    currentUserProfile?.settings?.language ||
+    "en"
+  );
+}
+
+function formatMoney(amount, currency = getSelectedCurrency()) {
+  const num = Number(amount || 0);
+  return `${currencySymbol(currency)}${num.toLocaleString("en-IN")}`;
+}
+
+function isAdminUser(profile = currentUserProfile, user = currentUser) {
+  const email = String(user?.email || profile?.email || "").toLowerCase();
+  const loginId = String(profile?.loginId || "").toLowerCase();
+
+  return ADMIN_EMAILS.includes(email) || ADMIN_LOGIN_IDS.includes(loginId);
+}
+
+function showToast(message, type = "success") {
+  const toast = $("toast");
+
+  if (!toast) {
+    alert(message);
+    return;
+  }
+
+  toast.textContent = message;
+  toast.className = `toast ${type}`;
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 3800);
 }
 
 function setButtonLoading(button, loadingText, isLoading) {
@@ -236,20 +249,77 @@ function setButtonLoading(button, loadingText, isLoading) {
   }
 }
 
-/* ---------------- Sidebar / Drawer ---------------- */
-function openSidebar() {
-  $("sidebar")?.classList.add("open");
+/* ---------------- Overlay / Navigation ---------------- */
+function openOverlay() {
   $("overlay")?.classList.remove("hidden");
   document.body.classList.add("no-scroll");
 }
 
-function closeSidebar() {
-  $("sidebar")?.classList.remove("open");
+function closeOverlayIfNothingOpen() {
+  const sidebarOpen = $("sidebar")?.classList.contains("open");
+  const drawerOpen = $("notificationDrawer")?.classList.contains("open");
+  const authOpen = !$("authModal")?.classList.contains("hidden");
+  const forgotOpen = !$("forgotModal")?.classList.contains("hidden");
 
-  if (!$("notificationDrawer")?.classList.contains("open")) {
+  if (!sidebarOpen && !drawerOpen && !authOpen && !forgotOpen) {
     $("overlay")?.classList.add("hidden");
     document.body.classList.remove("no-scroll");
   }
+}
+
+function closeAllOverlays() {
+  closeSidebar();
+  closeNotificationDrawer();
+  closeAuthModal();
+  closeForgotModal();
+
+  $("overlay")?.classList.add("hidden");
+  document.body.classList.remove("no-scroll");
+}
+
+function goToSection(id) {
+  closeSidebar();
+
+  document.querySelectorAll("main section").forEach((section) => {
+    if (section.id === "settings" || section.id === "admin") {
+      section.classList.add("hidden");
+    }
+  });
+
+  const section = $(id);
+  if (!section) return;
+
+  if (id === "settings") section.classList.remove("hidden");
+
+  if (id === "admin") {
+    if (isAdminUser()) {
+      section.classList.remove("hidden");
+    } else {
+      showToast("Admin access required.", "error");
+      return;
+    }
+  }
+
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  if (id === "jobs") loadPublicJobs();
+  if (id === "dashboard") loadDashboard();
+  if (id === "admin") loadAdminPanel();
+}
+
+function openSettingsSection() {
+  goToSection("settings");
+}
+
+/* ---------------- Sidebar / Drawer ---------------- */
+function openSidebar() {
+  $("sidebar")?.classList.add("open");
+  openOverlay();
+}
+
+function closeSidebar() {
+  $("sidebar")?.classList.remove("open");
+  closeOverlayIfNothingOpen();
 }
 
 function toggleNotificationDrawer() {
@@ -259,8 +329,7 @@ function toggleNotificationDrawer() {
   drawer.classList.toggle("open");
 
   if (drawer.classList.contains("open")) {
-    $("overlay")?.classList.remove("hidden");
-    document.body.classList.add("no-scroll");
+    openOverlay();
     loadNotifications();
   } else {
     closeNotificationDrawer();
@@ -269,32 +338,31 @@ function toggleNotificationDrawer() {
 
 function closeNotificationDrawer() {
   $("notificationDrawer")?.classList.remove("open");
-
-  if (!$("sidebar")?.classList.contains("open")) {
-    $("overlay")?.classList.add("hidden");
-    document.body.classList.remove("no-scroll");
-  }
+  closeOverlayIfNothingOpen();
 }
 
 /* ---------------- Auth Modal ---------------- */
 function openAuthModal(mode = "login") {
   setAuthMode(mode);
   $("authModal")?.classList.remove("hidden");
-  $("overlay")?.classList.remove("hidden");
-  document.body.classList.add("no-scroll");
+  openOverlay();
 }
 
 function closeAuthModal() {
   $("authModal")?.classList.add("hidden");
-  $("overlay")?.classList.add("hidden");
-  document.body.classList.remove("no-scroll");
+  closeOverlayIfNothingOpen();
 }
 
 function setAuthMode(mode = "login") {
   currentAuthMode = mode;
 
-  $("authTitle").textContent = mode === "signup" ? "Create Account" : "Login";
-  $("authSubmitBtn").textContent = mode === "signup" ? "Sign Up" : "Login";
+  if ($("authTitle")) {
+    $("authTitle").textContent = mode === "signup" ? "Create Account" : "Login";
+  }
+
+  if ($("authSubmitBtn")) {
+    $("authSubmitBtn").textContent = mode === "signup" ? "Create Account" : "Login";
+  }
 
   $("loginTab")?.classList.toggle("active", mode === "login");
   $("signupTab")?.classList.toggle("active", mode === "signup");
@@ -342,6 +410,11 @@ async function handleAuth(event) {
         return;
       }
 
+      if (password.length < 6) {
+        showToast("Password must be at least 6 characters.", "error");
+        return;
+      }
+
       const cred = await auth.createUserWithEmailAndPassword(email, password);
       const user = cred.user;
 
@@ -359,18 +432,18 @@ async function handleAuth(event) {
         blocked: false,
         referralCode: makeReferralCode(name),
         invitedBy: referral || "",
-        country: $("countrySelect")?.value || "IN",
-        currency: $("currencySelect")?.value || "INR",
-        language: $("languageSelect")?.value || "en",
-        authProvider: "email",
+        country: getSelectedCountry(),
+        currency: getSelectedCurrency(),
+        language: getSelectedLanguage(),
         photoUrl: "",
         city: "",
         bio: "",
         settings: {
-          country: $("countrySelect")?.value || "IN",
-          currency: $("currencySelect")?.value || "INR",
-          language: $("languageSelect")?.value || "en"
+          country: getSelectedCountry(),
+          currency: getSelectedCurrency(),
+          language: getSelectedLanguage()
         },
+        authProvider: "email",
         createdAt: nowServer(),
         updatedAt: nowServer()
       };
@@ -387,7 +460,11 @@ async function handleAuth(event) {
         });
       }
 
-      await createNotification(user.uid, "Welcome to RapideService", "Your account was created successfully.");
+      await createNotification(
+        user.uid,
+        "Welcome to RapideService",
+        "Your RapideService account was created successfully."
+      );
 
       showToast("Account created successfully.");
       closeAuthModal();
@@ -425,6 +502,7 @@ async function socialLogin(providerName) {
 
     const result = await auth.signInWithPopup(provider);
     const user = result.user;
+
     const ref = db.collection("users").doc(user.uid);
     const snap = await ref.get();
 
@@ -441,15 +519,15 @@ async function socialLogin(providerName) {
         blocked: false,
         referralCode: makeReferralCode(user.displayName || "RS"),
         invitedBy: "",
-        country: $("countrySelect")?.value || "IN",
-        currency: $("currencySelect")?.value || "INR",
-        language: $("languageSelect")?.value || "en",
+        country: getSelectedCountry(),
+        currency: getSelectedCurrency(),
+        language: getSelectedLanguage(),
         photoUrl: user.photoURL || "",
         authProvider: providerName,
         settings: {
-          country: $("countrySelect")?.value || "IN",
-          currency: $("currencySelect")?.value || "INR",
-          language: $("languageSelect")?.value || "en"
+          country: getSelectedCountry(),
+          currency: getSelectedCurrency(),
+          language: getSelectedLanguage()
         },
         createdAt: nowServer(),
         updatedAt: nowServer()
@@ -468,28 +546,32 @@ async function socialLogin(providerName) {
 }
 
 async function logoutUser() {
-  await auth.signOut();
-  showToast("Logged out successfully.");
+  try {
+    await auth.signOut();
+    showToast("Logged out successfully.");
+  } catch (error) {
+    showToast(error.message || "Logout failed.", "error");
+  }
 }
 
 /* ---------------- Forgot Password ---------------- */
 function openForgotModal() {
   closeAuthModal();
   $("forgotModal")?.classList.remove("hidden");
-  $("overlay")?.classList.remove("hidden");
-  document.body.classList.add("no-scroll");
+  openOverlay();
 }
 
 function closeForgotModal() {
   $("forgotModal")?.classList.add("hidden");
-  $("overlay")?.classList.add("hidden");
-  document.body.classList.remove("no-scroll");
+  closeOverlayIfNothingOpen();
 }
 
 function changeResetMethod() {
-  const method = $("resetMethod").value;
+  const method = $("resetMethod")?.value || "email";
   const label = $("resetIdentityLabel");
   const input = $("resetIdentity");
+
+  if (!label || !input) return;
 
   if (method === "phone") {
     label.textContent = "Registered Mobile Number";
@@ -501,8 +583,8 @@ function changeResetMethod() {
 }
 
 async function requestResetOtp() {
-  const method = $("resetMethod").value;
-  const identity = $("resetIdentity").value.trim();
+  const method = $("resetMethod")?.value || "email";
+  const identity = $("resetIdentity")?.value.trim() || "";
   const btn = $("sendOtpBtn");
 
   if (!identity) {
@@ -534,7 +616,8 @@ async function requestResetOtp() {
       throw new Error(data.error || data.message || "OTP send failed.");
     }
 
-    $("resetOtpFields").classList.remove("hidden");
+    $("resetOtpFields")?.classList.remove("hidden");
+
     showToast(data.message || "OTP sent successfully.");
   } catch (error) {
     showToast(`OTP Error: ${error.message}`, "error");
@@ -544,11 +627,11 @@ async function requestResetOtp() {
 }
 
 async function verifyResetOtp() {
-  const method = $("resetMethod").value;
-  const identity = $("resetIdentity").value.trim();
-  const otp = $("resetOtp").value.trim();
-  const newPassword = $("resetNewPassword").value;
-  const confirmPassword = $("resetConfirmPassword").value;
+  const method = $("resetMethod")?.value || "email";
+  const identity = $("resetIdentity")?.value.trim() || "";
+  const otp = $("resetOtp")?.value.trim() || "";
+  const newPassword = $("resetNewPassword")?.value || "";
+  const confirmPassword = $("resetConfirmPassword")?.value || "";
 
   if (!identity || !otp || !newPassword || !confirmPassword) {
     showToast("Please fill all reset fields.", "error");
@@ -626,6 +709,9 @@ auth.onAuthStateChanged(async (user) => {
         loginId: getEmailLoginId(user.email),
         email: user.email || "",
         referralCode: makeReferralCode(user.displayName || "RS"),
+        country: "IN",
+        currency: "INR",
+        language: "en",
         createdAt: nowServer(),
         updatedAt: nowServer()
       };
@@ -635,12 +721,14 @@ auth.onAuthStateChanged(async (user) => {
 
     updateAuthUI();
     applyUserSettingsToUI();
-    loadDashboard();
-    loadNotifications();
-    loadPublicJobs();
+
+    await Promise.all([
+      loadDashboard(),
+      loadNotifications(),
+      loadPublicJobs()
+    ]);
 
     if (isAdminUser()) {
-      $("admin")?.classList.remove("hidden");
       $("adminSideBtn")?.classList.remove("hidden");
       loadAdminPanel();
     }
@@ -666,33 +754,51 @@ function updateAuthUI() {
 
 function renderLoggedOutState() {
   const userInfo = $("userInfoCard");
+
   if (userInfo) {
-    userInfo.innerHTML = `<p class="muted">Login to view your dashboard.</p>`;
+    userInfo.innerHTML = `
+      <p class="muted">Login to view your dashboard, bookings, bids and worker profile.</p>
+    `;
   }
 
   const dashboardContent = $("dashboardContent");
+
   if (dashboardContent) {
-    dashboardContent.innerHTML = `<div class="empty-state">Please login to view bookings and bids.</div>`;
+    dashboardContent.innerHTML = `
+      <div class="empty-state">
+        Please login to view bookings and bids.
+        <br><br>
+        <button class="btn primary" onclick="openAuthModal('login')">Login Now</button>
+      </div>
+    `;
   }
 
   const notificationList = $("notificationList");
+
   if (notificationList) {
     notificationList.innerHTML = `<p class="muted">Login to view notifications.</p>`;
   }
+
+  $("notifyDot")?.classList.add("hidden");
 }
 
 /* ---------------- Init UI ---------------- */
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadMinimumPrices();
-  fillSkillDropdowns();
-  renderServices();
-  calculateMinimumPrice();
-  loadPublicJobs();
-  loadStats();
+  try {
+    await loadMinimumPrices();
+    fillSkillDropdowns();
+    renderServices();
+    calculateMinimumPrice();
+    applyDefaultSettings();
+    bindSettingEvents();
 
-  $("countrySelect")?.addEventListener("change", syncHeaderSettings);
-  $("currencySelect")?.addEventListener("change", syncHeaderSettings);
-  $("languageSelect")?.addEventListener("change", syncHeaderSettings);
+    await Promise.all([
+      loadPublicJobs(),
+      loadStats()
+    ]);
+  } catch (error) {
+    showToast(error.message || "Website loading failed.", "error");
+  }
 });
 
 async function loadMinimumPrices() {
@@ -748,12 +854,28 @@ function renderServices() {
         </div>
         <div class="service-body">
           <h3>${escapeHtml(skill)}</h3>
-          <p>Find verified ${escapeHtml(skill.toLowerCase())} workers near your area.</p>
+          <p>Find trusted ${escapeHtml(skill.toLowerCase())} workers near your area.</p>
           <span class="price-chip">From ${formatMoney(price)}</span>
+          <div class="card-actions">
+            <button class="btn light" onclick="selectServiceAndBook('${escapeHtml(skill)}')">Book Now</button>
+          </div>
         </div>
       </article>
     `;
   }).join("");
+}
+
+function selectServiceAndBook(skill) {
+  if ($("bookingSkill")) {
+    $("bookingSkill").value = skill;
+    calculateMinimumPrice();
+  }
+
+  if ($("homeServiceSelect")) {
+    $("homeServiceSelect").value = skill;
+  }
+
+  goToSection("book");
 }
 
 async function loadStats() {
@@ -764,59 +886,129 @@ async function loadStats() {
       db.collection("reviews").limit(1000).get()
     ]);
 
-    if ($("statWorkers")) $("statWorkers").textContent = workersSnap.size;
-    if ($("statJobs")) $("statJobs").textContent = jobsSnap.size;
-    if ($("statReviews")) $("statReviews").textContent = reviewsSnap.size;
+    const workers = workersSnap.size;
+    const jobs = jobsSnap.size;
+    const reviews = reviewsSnap.size;
+
+    if ($("statWorkers")) $("statWorkers").textContent = workers;
+    if ($("statJobs")) $("statJobs").textContent = jobs;
+    if ($("statReviews")) $("statReviews").textContent = reviews;
+
+    const total = workers + jobs + reviews;
+
+    if (total > 0) {
+      $("liveStats")?.classList.remove("hidden");
+      $("launchTrustRow")?.classList.add("hidden");
+    } else {
+      $("liveStats")?.classList.add("hidden");
+      $("launchTrustRow")?.classList.remove("hidden");
+    }
   } catch {
-    if ($("statWorkers")) $("statWorkers").textContent = "0";
-    if ($("statJobs")) $("statJobs").textContent = "0";
-    if ($("statReviews")) $("statReviews").textContent = "0";
+    $("liveStats")?.classList.add("hidden");
+    $("launchTrustRow")?.classList.remove("hidden");
   }
 }
 
 /* ---------------- Settings ---------------- */
-function syncHeaderSettings() {
-  calculateMinimumPrice();
+function applyDefaultSettings() {
+  if ($("sideCountrySelect")) $("sideCountrySelect").value = "IN";
+  if ($("sideCurrencySelect")) $("sideCurrencySelect").value = "INR";
+  if ($("sideLanguageSelect")) $("sideLanguageSelect").value = "en";
 
-  if ($("settingsCountry")) $("settingsCountry").value = $("countrySelect")?.value || "IN";
-  if ($("settingsCurrency")) $("settingsCurrency").value = $("currencySelect")?.value || "INR";
-  if ($("settingsLanguage")) $("settingsLanguage").value = $("languageSelect")?.value || "en";
-
-  if (currentUser) {
-    db.collection("users").doc(currentUser.uid).set({
-      country: $("countrySelect")?.value || "IN",
-      currency: $("currencySelect")?.value || "INR",
-      language: $("languageSelect")?.value || "en",
-      settings: {
-        country: $("countrySelect")?.value || "IN",
-        currency: $("currencySelect")?.value || "INR",
-        language: $("languageSelect")?.value || "en"
-      },
-      updatedAt: nowServer()
-    }, { merge: true }).catch(() => {});
-  }
+  if ($("settingsCountry")) $("settingsCountry").value = "IN";
+  if ($("settingsCurrency")) $("settingsCurrency").value = "INR";
+  if ($("settingsLanguage")) $("settingsLanguage").value = "en";
 }
 
 function applyUserSettingsToUI() {
   const settings = currentUserProfile?.settings || currentUserProfile || {};
 
-  if ($("countrySelect") && settings.country) $("countrySelect").value = settings.country;
-  if ($("currencySelect") && settings.currency) $("currencySelect").value = settings.currency;
-  if ($("languageSelect") && settings.language) $("languageSelect").value = settings.language;
+  const country = settings.country || "IN";
+  const currency = settings.currency || "INR";
+  const language = settings.language || "en";
 
-  if ($("settingsCountry")) $("settingsCountry").value = $("countrySelect")?.value || "IN";
-  if ($("settingsCurrency")) $("settingsCurrency").value = $("currencySelect")?.value || "INR";
-  if ($("settingsLanguage")) $("settingsLanguage").value = $("languageSelect")?.value || "en";
+  if ($("sideCountrySelect")) $("sideCountrySelect").value = country;
+  if ($("sideCurrencySelect")) $("sideCurrencySelect").value = currency;
+  if ($("sideLanguageSelect")) $("sideLanguageSelect").value = language;
+
+  if ($("settingsCountry")) $("settingsCountry").value = country;
+  if ($("settingsCurrency")) $("settingsCurrency").value = currency;
+  if ($("settingsLanguage")) $("settingsLanguage").value = language;
+}
+
+function bindSettingEvents() {
+  ["sideCountrySelect", "sideCurrencySelect", "sideLanguageSelect"].forEach((id) => {
+    const el = $(id);
+    if (el) {
+      el.addEventListener("change", () => {
+        syncSideSettingsToSettings();
+        calculateMinimumPrice();
+        renderServices();
+      });
+    }
+  });
+
+  ["settingsCountry", "settingsCurrency", "settingsLanguage"].forEach((id) => {
+    const el = $(id);
+    if (el) {
+      el.addEventListener("change", () => {
+        syncSettingsToSideSettings();
+        calculateMinimumPrice();
+        renderServices();
+      });
+    }
+  });
+}
+
+function syncSideSettingsToSettings() {
+  if ($("settingsCountry") && $("sideCountrySelect")) {
+    $("settingsCountry").value = $("sideCountrySelect").value;
+  }
+
+  if ($("settingsCurrency") && $("sideCurrencySelect")) {
+    $("settingsCurrency").value = $("sideCurrencySelect").value;
+  }
+
+  if ($("settingsLanguage") && $("sideLanguageSelect")) {
+    $("settingsLanguage").value = $("sideLanguageSelect").value;
+  }
+}
+
+function syncSettingsToSideSettings() {
+  if ($("sideCountrySelect") && $("settingsCountry")) {
+    $("sideCountrySelect").value = $("settingsCountry").value;
+  }
+
+  if ($("sideCurrencySelect") && $("settingsCurrency")) {
+    $("sideCurrencySelect").value = $("settingsCurrency").value;
+  }
+
+  if ($("sideLanguageSelect") && $("settingsLanguage")) {
+    $("sideLanguageSelect").value = $("settingsLanguage").value;
+  }
+}
+
+async function saveSideSettings() {
+  syncSideSettingsToSettings();
+  await saveSettings();
+  closeSidebar();
 }
 
 async function saveSettings() {
-  const country = $("settingsCountry")?.value || "IN";
-  const currency = $("settingsCurrency")?.value || "INR";
-  const language = $("settingsLanguage")?.value || "en";
+  const country = $("settingsCountry")?.value || $("sideCountrySelect")?.value || "IN";
+  const currency = $("settingsCurrency")?.value || $("sideCurrencySelect")?.value || "INR";
+  const language = $("settingsLanguage")?.value || $("sideLanguageSelect")?.value || "en";
 
-  if ($("countrySelect")) $("countrySelect").value = country;
-  if ($("currencySelect")) $("currencySelect").value = currency;
-  if ($("languageSelect")) $("languageSelect").value = language;
+  if ($("sideCountrySelect")) $("sideCountrySelect").value = country;
+  if ($("sideCurrencySelect")) $("sideCurrencySelect").value = currency;
+  if ($("sideLanguageSelect")) $("sideLanguageSelect").value = language;
+
+  if ($("settingsCountry")) $("settingsCountry").value = country;
+  if ($("settingsCurrency")) $("settingsCurrency").value = currency;
+  if ($("settingsLanguage")) $("settingsLanguage").value = language;
+
+  calculateMinimumPrice();
+  renderServices();
 
   if (!currentUser) {
     showToast("Settings saved on this device.");
@@ -840,6 +1032,23 @@ async function saveSettings() {
   };
 
   showToast("Settings saved.");
+}
+
+/* ---------------- Hero Search ---------------- */
+function heroFindWorkers() {
+  const service = $("homeServiceSelect")?.value || "";
+  const city = $("homeCityInput")?.value.trim() || "";
+
+  if ($("bookingSkill") && service) {
+    $("bookingSkill").value = service;
+    calculateMinimumPrice();
+  }
+
+  if ($("bookingCity") && city) {
+    $("bookingCity").value = city;
+  }
+
+  goToSection("book");
 }
 
 /* ---------------- Price Calculator ---------------- */
@@ -883,6 +1092,11 @@ async function createBooking(event) {
     return;
   }
 
+  if (budget < 1) {
+    showToast("Please enter a valid budget.", "error");
+    return;
+  }
+
   try {
     const bookingRef = await db.collection("bookings").add({
       customerId: currentUser.uid,
@@ -899,6 +1113,7 @@ async function createBooking(event) {
       address,
       details,
       currency: getSelectedCurrency(),
+      country: getSelectedCountry(),
       bookingStatus: "open",
       paymentStatus: "unpaid",
       jobProgress: "posted",
@@ -923,6 +1138,7 @@ async function createBooking(event) {
       budget,
       minimumPrice: minPrice,
       currency: getSelectedCurrency(),
+      country: getSelectedCountry(),
       details,
       biddingOpen: true,
       bookingStatus: "open",
@@ -930,15 +1146,17 @@ async function createBooking(event) {
       updatedAt: nowServer()
     });
 
-    await createNotification(currentUser.uid, "Work posted", `Your ${skill} work has been posted.`);
+    await createNotification(
+      currentUser.uid,
+      "Work posted",
+      `Your ${skill} work has been posted successfully.`
+    );
 
     $("bookingForm").reset();
     calculateMinimumPrice();
 
     showToast("Work posted successfully. Workers can now bid.");
-    loadPublicJobs();
-    loadDashboard();
-    loadStats();
+    await Promise.all([loadPublicJobs(), loadDashboard(), loadStats()]);
     goToSection("dashboard");
   } catch (error) {
     showToast(error.message || "Booking failed.", "error");
@@ -969,6 +1187,9 @@ async function registerWorker(event) {
   }
 
   try {
+    const existingWorker = await db.collection("workers").doc(currentUser.uid).get();
+    const createdAtValue = existingWorker.exists ? existingWorker.data().createdAt || nowServer() : nowServer();
+
     const privateData = {
       uid: currentUser.uid,
       workerName,
@@ -978,16 +1199,16 @@ async function registerWorker(event) {
       workerAbout,
       workerCity,
       workerCityLower: workerCity.toLowerCase(),
-      workerCountry: $("countrySelect")?.value || "IN",
+      workerCountry: getSelectedCountry(),
       availability,
       available: availability !== "Not Available",
-      verified: false,
-      verificationStatus: "pending",
-      workerRating: 0,
-      totalReviews: 0,
-      totalJobs: 0,
-      updatedAt: nowServer(),
-      createdAt: nowServer()
+      verified: existingWorker.exists ? !!existingWorker.data().verified : false,
+      verificationStatus: existingWorker.exists ? existingWorker.data().verificationStatus || "pending" : "pending",
+      workerRating: existingWorker.exists ? Number(existingWorker.data().workerRating || 0) : 0,
+      totalReviews: existingWorker.exists ? Number(existingWorker.data().totalReviews || 0) : 0,
+      totalJobs: existingWorker.exists ? Number(existingWorker.data().totalJobs || 0) : 0,
+      createdAt: createdAtValue,
+      updatedAt: nowServer()
     };
 
     const publicData = {
@@ -998,24 +1219,17 @@ async function registerWorker(event) {
       workerAbout,
       workerCity,
       workerCityLower: workerCity.toLowerCase(),
-      workerCountry: $("countrySelect")?.value || "IN",
+      workerCountry: getSelectedCountry(),
       availability,
       available: availability !== "Not Available",
-      verified: false,
-      verificationStatus: "pending",
-      workerRating: 0,
-      totalReviews: 0,
-      totalJobs: 0,
-      updatedAt: nowServer(),
-      createdAt: nowServer()
+      verified: privateData.verified,
+      verificationStatus: privateData.verificationStatus,
+      workerRating: privateData.workerRating,
+      totalReviews: privateData.totalReviews,
+      totalJobs: privateData.totalJobs,
+      createdAt: createdAtValue,
+      updatedAt: nowServer()
     };
-
-    const existingWorker = await db.collection("workers").doc(currentUser.uid).get();
-
-    if (existingWorker.exists) {
-      delete privateData.createdAt;
-      delete publicData.createdAt;
-    }
 
     await db.collection("workers").doc(currentUser.uid).set(privateData, { merge: true });
     await db.collection("workerPublic").doc(currentUser.uid).set(publicData, { merge: true });
@@ -1027,11 +1241,14 @@ async function registerWorker(event) {
       updatedAt: nowServer()
     }, { merge: true });
 
-    await createNotification(currentUser.uid, "Worker profile saved", "Your worker profile is now visible to customers.");
+    await createNotification(
+      currentUser.uid,
+      "Worker profile saved",
+      "Your worker profile is now visible to customers."
+    );
 
     showToast("Worker profile saved successfully.");
-    loadDashboard();
-    loadStats();
+    await Promise.all([loadDashboard(), loadStats()]);
   } catch (error) {
     showToast(error.message || "Worker registration failed.", "error");
   }
@@ -1045,11 +1262,10 @@ async function loadPublicJobs() {
   try {
     list.innerHTML = `<div class="empty-state">Loading jobs...</div>`;
 
-    let query = db.collection("publicJobs")
+    const snap = await db.collection("publicJobs")
       .where("biddingOpen", "==", true)
-      .limit(50);
-
-    const snap = await query.get();
+      .limit(50)
+      .get();
 
     allPublicJobsCache = snap.docs.map((doc) => ({
       id: doc.id,
@@ -1058,7 +1274,13 @@ async function loadPublicJobs() {
 
     renderPublicJobs();
   } catch (error) {
-    list.innerHTML = `<div class="empty-state">Login may be required to view jobs. ${escapeHtml(error.message)}</div>`;
+    list.innerHTML = `
+      <div class="empty-state">
+        Login may be required to view jobs.
+        <br>
+        ${escapeHtml(error.message)}
+      </div>
+    `;
   }
 }
 
@@ -1089,7 +1311,13 @@ function renderPublicJobs() {
   });
 
   if (!jobs.length) {
-    list.innerHTML = `<div class="empty-state">No open jobs found.</div>`;
+    list.innerHTML = `
+      <div class="empty-state">
+        No open jobs found.
+        <br><br>
+        <button class="btn primary" onclick="goToSection('book')">Post First Work</button>
+      </div>
+    `;
     return;
   }
 
@@ -1131,6 +1359,7 @@ async function openBidPrompt(bookingId) {
     if (!amount) return;
 
     const bidAmount = Number(amount);
+
     if (!bidAmount || bidAmount <= 0) {
       showToast("Please enter a valid bid amount.", "error");
       return;
@@ -1147,9 +1376,16 @@ async function openBidPrompt(bookingId) {
 
 async function sendBid(bookingId, bidAmount, message) {
   const workerSnap = await db.collection("workers").doc(currentUser.uid).get();
+
+  if (!workerSnap.exists) {
+    showToast("Worker profile not found.", "error");
+    return;
+  }
+
   const worker = workerSnap.data();
 
   const bookingSnap = await db.collection("bookings").doc(bookingId).get();
+
   if (!bookingSnap.exists) {
     showToast("Booking not found.", "error");
     return;
@@ -1190,10 +1426,14 @@ async function sendBid(bookingId, bidAmount, message) {
     updatedAt: nowServer()
   });
 
-  await createNotification(booking.customerId, "New worker bid", `${worker.workerName} sent a bid of ${formatMoney(bidAmount, booking.currency)}.`);
+  await createNotification(
+    booking.customerId,
+    "New worker bid",
+    `${worker.workerName} sent a bid of ${formatMoney(bidAmount, booking.currency)}.`
+  );
 
   showToast("Bid sent successfully.");
-  loadDashboard();
+  await loadDashboard();
 }
 
 /* ---------------- Dashboard ---------------- */
@@ -1205,6 +1445,7 @@ function setDashboardTab(tab) {
   });
 
   const buttons = document.querySelectorAll("#dashboard .dash-tabs .tab");
+
   if (tab === "bookings") buttons[0]?.classList.add("active");
   if (tab === "bids") buttons[1]?.classList.add("active");
   if (tab === "profile") buttons[2]?.classList.add("active");
@@ -1241,6 +1482,7 @@ async function loadDashboard() {
 
 async function loadMyBookings() {
   const content = $("dashboardContent");
+
   if (!content || !currentUser) return;
 
   content.innerHTML = `<div class="empty-state">Loading bookings...</div>`;
@@ -1257,7 +1499,13 @@ async function loadMyBookings() {
     })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
     if (!bookings.length) {
-      content.innerHTML = `<div class="empty-state">No bookings yet.</div>`;
+      content.innerHTML = `
+        <div class="empty-state">
+          No bookings yet.
+          <br><br>
+          <button class="btn primary" onclick="goToSection('book')">Post Work</button>
+        </div>
+      `;
       return;
     }
 
@@ -1293,7 +1541,12 @@ function renderBookingCard(booking, bids = []) {
         <p>${escapeHtml(bid.workerSkill)} • ${escapeHtml(bid.workerCity)}</p>
         <p><strong>Bid:</strong> ${formatMoney(bid.bidAmount, booking.currency)}</p>
         <p>${escapeHtml(bid.message)}</p>
-        <p><span class="status ${bid.status === "accepted" ? "success" : "pending"}">${escapeHtml(bid.status)}</span></p>
+        <p>
+          <span class="status ${bid.status === "accepted" ? "success" : "pending"}">
+            ${escapeHtml(bid.status)}
+          </span>
+        </p>
+
         ${booking.bookingStatus === "open" ? `
           <button class="btn success" onclick="acceptBid('${booking.id}', '${bid.id}')">Accept Bid</button>
         ` : ""}
@@ -1321,14 +1574,21 @@ function renderBookingCard(booking, bids = []) {
         <div class="bid-box">
           <strong>Accepted Worker: ${escapeHtml(accepted.workerName)}</strong>
           <p>Final Amount: ${formatMoney(accepted.bidAmount, booking.currency)}</p>
+
           ${booking.paymentStatus !== "paid" ? `
             <button class="btn primary" onclick="payForBooking('${booking.id}')">Pay Now</button>
           ` : `
             <span class="status success">Payment Paid</span>
           `}
+
+          ${booking.workerCanSeeContact ? `
+            <p><strong>Contact Unlocked:</strong> Worker can now see your contact details.</p>
+          ` : ""}
+
           ${booking.bookingStatus !== "completed" ? `
             <button class="btn success" onclick="markBookingComplete('${booking.id}')">Mark Completed</button>
           ` : ""}
+
           ${booking.bookingStatus === "completed" && !booking.reviewGiven ? `
             <button class="btn primary" onclick="reviewWorker('${booking.id}', '${accepted.workerUserId}')">Give Review</button>
           ` : ""}
@@ -1353,6 +1613,7 @@ function timelineRow(label, done) {
 async function acceptBid(bookingId, bidId) {
   try {
     const bidSnap = await db.collection("bids").doc(bidId).get();
+
     if (!bidSnap.exists) {
       showToast("Bid not found.", "error");
       return;
@@ -1388,11 +1649,14 @@ async function acceptBid(bookingId, bidId) {
       updatedAt: nowServer()
     }, { merge: true });
 
-    await createNotification(bid.workerUserId, "Bid accepted", "Your bid was accepted. Payment/contact unlock will happen next.");
+    await createNotification(
+      bid.workerUserId,
+      "Bid accepted",
+      "Your bid was accepted. Payment/contact unlock will happen next."
+    );
 
     showToast("Bid accepted. Customer can now pay.");
-    loadDashboard();
-    loadPublicJobs();
+    await Promise.all([loadDashboard(), loadPublicJobs()]);
   } catch (error) {
     showToast(error.message || "Accept bid failed.", "error");
   }
@@ -1448,7 +1712,7 @@ async function payForBooking(bookingId) {
         }
 
         showToast("Payment verified. Contact unlocked.");
-        loadDashboard();
+        await loadDashboard();
       },
       prefill: {
         name: currentUserProfile?.name || "",
@@ -1470,6 +1734,7 @@ async function payForBooking(bookingId) {
 async function markBookingComplete(bookingId) {
   try {
     const snap = await db.collection("bookings").doc(bookingId).get();
+
     if (!snap.exists) return;
 
     const booking = snap.data();
@@ -1491,11 +1756,15 @@ async function markBookingComplete(bookingId) {
         updatedAt: nowServer()
       }, { merge: true });
 
-      await createNotification(booking.assignedWorkerId, "Job completed", "Customer marked your job as completed.");
+      await createNotification(
+        booking.assignedWorkerId,
+        "Job completed",
+        "Customer marked your job as completed."
+      );
     }
 
     showToast("Booking marked completed.");
-    loadDashboard();
+    await loadDashboard();
   } catch (error) {
     showToast(error.message || "Completion failed.", "error");
   }
@@ -1503,15 +1772,18 @@ async function markBookingComplete(bookingId) {
 
 async function reviewWorker(bookingId, workerUserId) {
   const ratingValue = prompt("Give rating 1 to 5:");
+
   if (!ratingValue) return;
 
   const rating = Number(ratingValue);
+
   if (!rating || rating < 1 || rating > 5) {
     showToast("Rating must be between 1 and 5.", "error");
     return;
   }
 
   const reviewText = prompt("Write review:", "Good service.");
+
   if (reviewText === null) return;
 
   try {
@@ -1531,11 +1803,15 @@ async function reviewWorker(bookingId, workerUserId) {
     }, { merge: true });
 
     await recalculateWorkerRating(workerUserId);
-    await createNotification(workerUserId, "New review received", `You received ${rating} star rating.`);
+
+    await createNotification(
+      workerUserId,
+      "New review received",
+      `You received ${rating} star rating.`
+    );
 
     showToast("Review submitted.");
-    loadDashboard();
-    loadStats();
+    await Promise.all([loadDashboard(), loadStats()]);
   } catch (error) {
     showToast(error.message || "Review failed.", "error");
   }
@@ -1548,6 +1824,7 @@ async function recalculateWorkerRating(workerUserId) {
     .get();
 
   let total = 0;
+
   snap.forEach((doc) => {
     total += Number(doc.data().rating || 0);
   });
@@ -1570,6 +1847,7 @@ async function recalculateWorkerRating(workerUserId) {
 
 async function loadMyBids() {
   const content = $("dashboardContent");
+
   if (!content || !currentUser) return;
 
   content.innerHTML = `<div class="empty-state">Loading bids...</div>`;
@@ -1586,23 +1864,66 @@ async function loadMyBids() {
     })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
     if (!bids.length) {
-      content.innerHTML = `<div class="empty-state">No bids sent yet.</div>`;
+      content.innerHTML = `
+        <div class="empty-state">
+          No bids sent yet.
+          <br><br>
+          <button class="btn primary" onclick="goToSection('jobs')">View Open Jobs</button>
+        </div>
+      `;
       return;
     }
 
-    content.innerHTML = `
-      <div class="card-grid">
-        ${bids.map((bid) => `
-          <article class="data-card">
-            <span class="status ${bid.status === "accepted" ? "success" : "pending"}">${escapeHtml(bid.status)}</span>
-            <h3>${escapeHtml(bid.workerSkill)}</h3>
-            <p><strong>Bid Amount:</strong> ${formatMoney(bid.bidAmount)}</p>
-            <p>${escapeHtml(bid.message)}</p>
-            <p><strong>Booking ID:</strong> ${escapeHtml(bid.bookingId)}</p>
-          </article>
-        `).join("")}
-      </div>
-    `;
+    const cards = [];
+
+    for (const bid of bids) {
+      let bookingHtml = "";
+
+      try {
+        const bookingSnap = await db.collection("bookings").doc(bid.bookingId).get();
+
+        if (bookingSnap.exists) {
+          const booking = bookingSnap.data();
+
+          if (
+            bid.status === "accepted" &&
+            booking.workerCanSeeContact &&
+            booking.paymentStatus === "paid"
+          ) {
+            bookingHtml = `
+              <div class="bid-box">
+                <strong>Customer Contact Unlocked</strong>
+                <p><strong>Name:</strong> ${escapeHtml(booking.customerName)}</p>
+                <p><strong>Phone:</strong> ${escapeHtml(booking.customerPhone)}</p>
+                <p><strong>Address:</strong> ${escapeHtml(booking.address)}</p>
+              </div>
+            `;
+          } else if (bid.status === "accepted") {
+            bookingHtml = `
+              <div class="bid-box">
+                <strong>Bid accepted</strong>
+                <p>Customer contact will unlock after payment verification.</p>
+              </div>
+            `;
+          }
+        }
+      } catch {
+        bookingHtml = "";
+      }
+
+      cards.push(`
+        <article class="data-card">
+          <span class="status ${bid.status === "accepted" ? "success" : "pending"}">${escapeHtml(bid.status)}</span>
+          <h3>${escapeHtml(bid.workerSkill)}</h3>
+          <p><strong>Bid Amount:</strong> ${formatMoney(bid.bidAmount)}</p>
+          <p>${escapeHtml(bid.message)}</p>
+          <p><strong>Booking ID:</strong> ${escapeHtml(bid.bookingId)}</p>
+          ${bookingHtml}
+        </article>
+      `);
+    }
+
+    content.innerHTML = `<div class="card-grid">${cards.join("")}</div>`;
   } catch (error) {
     content.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   }
@@ -1610,6 +1931,7 @@ async function loadMyBids() {
 
 async function loadMyWorkerProfile() {
   const content = $("dashboardContent");
+
   if (!content || !currentUser) return;
 
   content.innerHTML = `<div class="empty-state">Loading worker profile...</div>`;
@@ -1639,9 +1961,19 @@ async function loadMyWorkerProfile() {
         <p><strong>City:</strong> ${escapeHtml(worker.workerCity)}</p>
         <p><strong>Phone:</strong> ${escapeHtml(worker.workerPhone)}</p>
         <p><strong>Availability:</strong> ${escapeHtml(worker.availability)}</p>
-        <p><strong>Verification:</strong> <span class="status ${worker.verified ? "success" : "pending"}">${worker.verified ? "Verified" : "Pending"}</span></p>
+        <p>
+          <strong>Verification:</strong>
+          <span class="status ${worker.verified ? "success" : "pending"}">
+            ${worker.verified ? "Verified" : "Pending"}
+          </span>
+        </p>
         <p><strong>Rating:</strong> <span class="rating">★ ${worker.workerRating || 0}</span> (${worker.totalReviews || 0} reviews)</p>
         <p>${escapeHtml(worker.workerAbout)}</p>
+
+        <div class="card-actions">
+          <button class="btn primary" onclick="goToSection('worker')">Update Profile</button>
+          <button class="btn light" onclick="goToSection('jobs')">View Open Jobs</button>
+        </div>
       </div>
     `;
   } catch (error) {
@@ -1702,10 +2034,12 @@ async function createNotification(toUserId, title, message) {
 
 async function loadNotifications() {
   const list = $("notificationList");
+
   if (!list) return;
 
   if (!currentUser) {
     list.innerHTML = `<p class="muted">Login to view notifications.</p>`;
+    $("notifyDot")?.classList.add("hidden");
     return;
   }
 
@@ -1715,17 +2049,21 @@ async function loadNotifications() {
       .limit(30)
       .get();
 
-    const notifications = snap.docs.map((doc) => ({
+    allNotificationsCache = snap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
     })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
-    if (!notifications.length) {
+    const unreadCount = allNotificationsCache.filter((n) => !n.read).length;
+
+    $("notifyDot")?.classList.toggle("hidden", unreadCount === 0);
+
+    if (!allNotificationsCache.length) {
       list.innerHTML = `<p class="muted">No notifications yet.</p>`;
       return;
     }
 
-    list.innerHTML = notifications.map((item) => `
+    list.innerHTML = allNotificationsCache.map((item) => `
       <div class="notification-item">
         <strong>${escapeHtml(item.title)}</strong>
         <p>${escapeHtml(item.message)}</p>
@@ -1745,6 +2083,7 @@ function setAdminTab(tab) {
   });
 
   const buttons = document.querySelectorAll("#admin .dash-tabs .tab");
+
   if (tab === "workers") buttons[0]?.classList.add("active");
   if (tab === "bookings") buttons[1]?.classList.add("active");
   if (tab === "support") buttons[2]?.classList.add("active");
@@ -1757,6 +2096,7 @@ async function loadAdminPanel() {
   if (!currentUser || !isAdminUser()) return;
 
   const content = $("adminContent");
+
   if (!content) return;
 
   await loadAdminStats();
@@ -1792,10 +2132,12 @@ async function loadAdminStats() {
 
 async function loadAdminWorkers() {
   const content = $("adminContent");
+
   content.innerHTML = `<div class="empty-state">Loading workers...</div>`;
 
   try {
     const snap = await db.collection("workers").limit(100).get();
+
     const workers = snap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
@@ -1810,12 +2152,15 @@ async function loadAdminWorkers() {
       <div class="card-grid">
         ${workers.map((worker) => `
           <article class="data-card">
-            <span class="status ${worker.verified ? "success" : "pending"}">${worker.verified ? "Verified" : "Pending"}</span>
+            <span class="status ${worker.verified ? "success" : "pending"}">
+              ${worker.verified ? "Verified" : "Pending"}
+            </span>
             <h3>${escapeHtml(worker.workerName)}</h3>
             <p><strong>Skill:</strong> ${escapeHtml(worker.workerSkill)}</p>
             <p><strong>Phone:</strong> ${escapeHtml(worker.workerPhone)}</p>
             <p><strong>City:</strong> ${escapeHtml(worker.workerCity)}</p>
             <p>${escapeHtml(worker.workerAbout)}</p>
+
             <div class="card-actions">
               <button class="btn success" onclick="adminVerifyWorker('${worker.id}', true)">Verify</button>
               <button class="btn danger" onclick="adminVerifyWorker('${worker.id}', false)">Unverify</button>
@@ -1845,10 +2190,14 @@ async function adminVerifyWorker(workerId, verified) {
       updatedAt: nowServer()
     }, { merge: true });
 
-    await createNotification(workerId, "Worker verification updated", verified ? "Your worker profile is verified." : "Your worker profile verification was removed.");
+    await createNotification(
+      workerId,
+      "Worker verification updated",
+      verified ? "Your worker profile is verified." : "Your worker profile verification was removed."
+    );
 
     showToast(verified ? "Worker verified." : "Worker unverified.");
-    loadAdminPanel();
+    await loadAdminPanel();
   } catch (error) {
     showToast(error.message || "Worker update failed.", "error");
   }
@@ -1856,10 +2205,12 @@ async function adminVerifyWorker(workerId, verified) {
 
 async function loadAdminBookings() {
   const content = $("adminContent");
+
   content.innerHTML = `<div class="empty-state">Loading bookings...</div>`;
 
   try {
     const snap = await db.collection("bookings").limit(100).get();
+
     const bookings = snap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
@@ -1893,10 +2244,12 @@ async function loadAdminBookings() {
 
 async function loadAdminSupport() {
   const content = $("adminContent");
+
   content.innerHTML = `<div class="empty-state">Loading support tickets...</div>`;
 
   try {
     const snap = await db.collection("supportTickets").limit(100).get();
+
     const tickets = snap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
@@ -1911,12 +2264,15 @@ async function loadAdminSupport() {
       <div class="card-grid">
         ${tickets.map((ticket) => `
           <article class="data-card">
-            <span class="status ${ticket.status === "closed" ? "success" : "pending"}">${escapeHtml(ticket.status)}</span>
+            <span class="status ${ticket.status === "closed" ? "success" : "pending"}">
+              ${escapeHtml(ticket.status)}
+            </span>
             <h3>${escapeHtml(ticket.type)}</h3>
             <p><strong>Name:</strong> ${escapeHtml(ticket.name)}</p>
             <p><strong>Contact:</strong> ${escapeHtml(ticket.contact)}</p>
             <p>${escapeHtml(ticket.message)}</p>
             ${ticket.adminReply ? `<p><strong>Admin Reply:</strong> ${escapeHtml(ticket.adminReply)}</p>` : ""}
+
             <div class="card-actions">
               <button class="btn primary" onclick="adminReplyTicket('${ticket.id}')">Reply</button>
               <button class="btn success" onclick="adminCloseTicket('${ticket.id}')">Close</button>
@@ -1932,6 +2288,7 @@ async function loadAdminSupport() {
 
 async function adminReplyTicket(ticketId) {
   const reply = prompt("Enter support reply:");
+
   if (!reply) return;
 
   try {
@@ -1949,7 +2306,7 @@ async function adminReplyTicket(ticketId) {
     }
 
     showToast("Reply saved.");
-    loadAdminPanel();
+    await loadAdminPanel();
   } catch (error) {
     showToast(error.message || "Reply failed.", "error");
   }
@@ -1963,7 +2320,7 @@ async function adminCloseTicket(ticketId) {
     }, { merge: true });
 
     showToast("Ticket closed.");
-    loadAdminPanel();
+    await loadAdminPanel();
   } catch (error) {
     showToast(error.message || "Close failed.", "error");
   }
@@ -1971,10 +2328,11 @@ async function adminCloseTicket(ticketId) {
 
 function renderAdminPrices() {
   const content = $("adminContent");
+
   if (!content) return;
 
   content.innerHTML = `
-    <div class="form-card">
+    <div class="form-card premium-form">
       <h3>Minimum Price Manager</h3>
       <p class="muted">Update suggested minimum prices for each skill.</p>
 
@@ -2024,7 +2382,9 @@ async function adminSavePrices() {
   }
 }
 
-/* ---------------- Make functions global ---------------- */
+/* ---------------- Global Functions ---------------- */
+window.closeAllOverlays = closeAllOverlays;
+
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
 window.toggleNotificationDrawer = toggleNotificationDrawer;
@@ -2046,6 +2406,10 @@ window.verifyResetOtp = verifyResetOtp;
 window.goToSection = goToSection;
 window.openSettingsSection = openSettingsSection;
 window.saveSettings = saveSettings;
+window.saveSideSettings = saveSideSettings;
+
+window.heroFindWorkers = heroFindWorkers;
+window.selectServiceAndBook = selectServiceAndBook;
 
 window.calculateMinimumPrice = calculateMinimumPrice;
 window.createBooking = createBooking;
