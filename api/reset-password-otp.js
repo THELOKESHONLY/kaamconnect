@@ -1,11 +1,19 @@
 const admin = require("firebase-admin");
 
-function initAdmin() {
-  if (admin.apps.length) return admin;
+function sendJson(res, status, data) {
+  res.statusCode = status;
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(data));
+}
+
+function initFirebaseAdmin() {
+  if (admin.apps.length) return;
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = String(process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY
+    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+    : "";
 
   if (!projectId || !clientEmail || !privateKey) {
     throw new Error("Firebase Admin environment variables are missing.");
@@ -18,98 +26,115 @@ function initAdmin() {
       privateKey
     })
   });
-
-  return admin;
 }
 
-function sendJson(res, status, data) {
-  res.status(status).setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(data));
+function getBody(req) {
+  if (typeof req.body === "object" && req.body !== null) {
+    return req.body;
+  }
+
+  try {
+    return JSON.parse(req.body || "{}");
+  } catch {
+    return {};
+  }
 }
 
-async function resolveUserByEmail(email) {
-  const app = initAdmin();
-  const user = await app.auth().getUserByEmail(email);
-
-  return {
-    uid: user.uid,
-    email: user.email || email
-  };
-}
-
-async function resolveUserByPhone(phone) {
-  const app = initAdmin();
-  const db = app.firestore();
-
-  const usersSnap = await db.collection("users")
-    .where("phone", "==", String(phone || "").trim())
+async function findUserByPhone(db, phone) {
+  const snap = await db.collection("users")
+    .where("phone", "==", phone)
     .limit(1)
     .get();
 
-  if (usersSnap.empty) {
-    throw new Error("No user found with this phone number.");
-  }
-
-  const userDoc = usersSnap.docs[0];
+  if (snap.empty) return null;
 
   return {
-    uid: userDoc.id,
-    email: userDoc.data().email || ""
+    uid: snap.docs[0].id,
+    ...snap.docs[0].data()
   };
 }
 
 module.exports = async function handler(req, res) {
+  if (req.method === "OPTIONS") {
+    return sendJson(res, 200, { ok: true });
+  }
+
+  if (req.method !== "POST") {
+    return sendJson(res, 405, { error: "Method not allowed." });
+  }
+
   try {
-    if (req.method !== "POST") {
-      return sendJson(res, 405, { error: "Method not allowed." });
+    initFirebaseAdmin();
+
+    const body = getBody(req);
+
+    const method = body.method || "email";
+    const identity = String(body.identity || "").trim().toLowerCase();
+    const otp = String(body.otp || "").trim();
+    const newPassword = String(body.newPassword || "");
+
+    if (!identity || !otp || !newPassword) {
+      return sendJson(res, 400, {
+        error: "All fields are required."
+      });
     }
 
-    const { method, identity, otp, newPassword } = req.body || {};
-
-    if (!method || !identity || !otp || !newPassword) {
-      return sendJson(res, 400, { error: "All fields are required." });
+    if (newPassword.length < 6) {
+      return sendJson(res, 400, {
+        error: "Password must be at least 6 characters."
+      });
     }
 
-    if (String(newPassword).length < 6) {
-      return sendJson(res, 400, { error: "Password must be at least 6 characters." });
-    }
+    const db = admin.firestore();
 
-    const app = initAdmin();
-    const db = app.firestore();
+    let uid = "";
 
-    let resolvedUser;
+    if (method === "phone") {
+      const profile = await findUserByPhone(db, identity);
 
-    if (method === "email") {
-      resolvedUser = await resolveUserByEmail(String(identity).trim().toLowerCase());
-    } else if (method === "phone") {
-      resolvedUser = await resolveUserByPhone(String(identity).trim());
+      if (!profile) {
+        return sendJson(res, 404, {
+          error: "No account found with this phone."
+        });
+      }
+
+      uid = profile.uid;
     } else {
-      return sendJson(res, 400, { error: "Invalid reset method." });
+      const userRecord = await admin.auth().getUserByEmail(identity);
+      uid = userRecord.uid;
     }
 
-    const otpRef = db.collection("passwordOtps").doc(resolvedUser.uid);
+    const otpRef = db.collection("passwordOtps").doc(uid);
     const otpSnap = await otpRef.get();
 
     if (!otpSnap.exists) {
-      return sendJson(res, 400, { error: "OTP not found. Please request a new OTP." });
+      return sendJson(res, 400, {
+        error: "OTP not found. Please request again."
+      });
     }
 
     const otpData = otpSnap.data();
 
     if (otpData.used) {
-      return sendJson(res, 400, { error: "OTP already used. Please request a new OTP." });
+      return sendJson(res, 400, {
+        error: "OTP already used."
+      });
     }
 
     if (Date.now() > Number(otpData.expiresAt || 0)) {
-      return sendJson(res, 400, { error: "OTP expired. Please request a new OTP." });
+      return sendJson(res, 400, {
+        error: "OTP expired. Please request again."
+      });
     }
 
-    if (String(otpData.otp) !== String(otp).trim()) {
-      return sendJson(res, 400, { error: "Invalid OTP." });
+    if (String(otpData.otp) !== otp) {
+      return sendJson(res, 400, {
+        error: "Invalid OTP."
+      });
     }
 
-    await app.auth().updateUser(resolvedUser.uid, {
-      password: String(newPassword)
+    await admin.auth().updateUser(uid, {
+      password: newPassword
     });
 
     await otpRef.set({
@@ -117,19 +142,13 @@ module.exports = async function handler(req, res) {
       usedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    await db.collection("notifications").add({
-      toUserId: resolvedUser.uid,
-      title: "Password changed",
-      message: "Your RapideService account password was changed successfully.",
-      read: false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
-    });
-
     return sendJson(res, 200, {
       success: true,
       message: "Password reset successful."
     });
   } catch (error) {
+    console.error("reset-password-otp error:", error);
+
     return sendJson(res, 500, {
       error: error.message || "Password reset failed."
     });
