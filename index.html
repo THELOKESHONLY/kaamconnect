@@ -3,725 +3,301 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>RapideService - Hire Trusted Workers Near You</title>
-
-  <meta name="description" content="RapideService is a local service marketplace where customers post work, workers send bids, payments are secured, contact is protected, and reviews build trust." />
+  <title>RapideService - Local Worker Marketplace</title>
+  <meta name="description" content="Hire nearby workers, post work, chat during bookings, track payments and worker earnings." />
   <meta name="theme-color" content="#0f172a" />
-
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="/icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=rapideservice-clean-15" />
+  <link rel="stylesheet" href="style.css?v=final-1" />
 
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-storage-compat.js"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-</head>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
 <body>
   <div id="toast" class="toast hidden"></div>
   <div id="overlay" class="overlay hidden" onclick="closeAllOverlays()"></div>
 
-  <!-- SIDEBAR -->
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-head">
-      <div class="brand-mini">
-        <span class="logo-badge">RS</span>
-        <div>
-          <h3>RapideService</h3>
-          <p>Trusted local service marketplace</p>
-        </div>
-      </div>
+      <div class="brand-mini"><span class="logo-badge">RS</span><div><h3>RapideService</h3><p>Local worker marketplace</p></div></div>
       <button class="icon-btn" onclick="closeSidebar()">✕</button>
     </div>
-
     <nav class="side-nav">
       <button onclick="goToSection('home')">🏠 Home</button>
       <button onclick="goToSection('services')">🛠 Services</button>
+      <button onclick="goToSection('nearby')">📍 Nearby Workers</button>
       <button onclick="goToSection('howItWorks')">⚡ How It Works</button>
-      <button onclick="goToSection('book')">📌 Post Work</button>
-      <button onclick="goToSection('worker')">👷 Join as Worker</button>
-      <button onclick="goToSection('jobs')">💼 Open Jobs</button>
-      <button onclick="goToSection('dashboard')">📊 Dashboard</button>
-      <button onclick="goToSection('trust')">🛡 Trust & Safety</button>
+      <button onclick="goToSection('qrSection')">🔳 Website QR</button>
+      <button class="customer-link hidden" onclick="goToSection('book')">📌 Post Work</button>
+      <button class="customer-link hidden" onclick="goToSection('customerDashboard')">👤 Customer Dashboard</button>
+      <button class="worker-link hidden" onclick="goToSection('workerProfile')">👷 Worker Profile</button>
+      <button class="worker-link hidden" onclick="goToSection('workerJobs')">💼 Worker Jobs</button>
+      <button class="worker-link hidden" onclick="goToSection('workerEarnings')">💰 Worker Earnings</button>
+      <button class="shared-link hidden" onclick="goToSection('profile')">🧾 My Profile</button>
+      <button class="shared-link hidden" onclick="goToSection('accounts')">🏦 Accounts / UPI</button>
+      <button class="shared-link hidden" onclick="goToSection('chat')">💬 Chats</button>
       <button onclick="goToSection('support')">🎧 Support</button>
       <button onclick="openSettingsSection()">⚙ Settings</button>
       <button id="adminSideBtn" class="hidden" onclick="goToSection('admin')">🔐 Admin Panel</button>
     </nav>
-
     <div class="side-settings-card">
       <h4>Quick Settings</h4>
-
-      <label>Country</label>
-      <select id="sideCountrySelect">
-        <option value="IN">India</option>
-        <option value="US">USA</option>
-        <option value="UK">UK</option>
-        <option value="AE">UAE</option>
-      </select>
-
-      <label>Currency</label>
-      <select id="sideCurrencySelect">
-        <option value="INR">₹ INR</option>
-        <option value="USD">$ USD</option>
-        <option value="GBP">£ GBP</option>
-        <option value="AED">AED</option>
-      </select>
-
-      <label>Language</label>
-      <select id="sideLanguageSelect">
-        <option value="en">English</option>
-        <option value="hi">Hindi</option>
-      </select>
-
+      <label>Country</label><select id="sideCountrySelect"><option value="IN">India</option><option value="US">USA</option><option value="UK">UK</option><option value="AE">UAE</option></select>
+      <label>Currency</label><select id="sideCurrencySelect"><option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="GBP">£ GBP</option><option value="AED">AED</option></select>
+      <label>Language</label><select id="sideLanguageSelect"><option value="en">English</option><option value="hi">Hindi</option></select>
       <button class="btn primary full" onclick="saveSideSettings()">Apply Settings</button>
     </div>
   </aside>
 
-  <!-- NOTIFICATIONS -->
   <aside id="notificationDrawer" class="notification-drawer">
-    <div class="drawer-head">
-      <div>
-        <p class="drawer-kicker">RapideService</p>
-        <h3>Notifications</h3>
-      </div>
-      <button class="icon-btn" onclick="closeNotificationDrawer()">✕</button>
-    </div>
-
-    <div id="notificationList" class="notification-list">
-      <p class="muted">Login to view notifications.</p>
-    </div>
+    <div class="drawer-head"><div><p class="drawer-kicker">RapideService</p><h3>Notifications</h3></div><button class="icon-btn" onclick="closeNotificationDrawer()">✕</button></div>
+    <div id="notificationList" class="notification-list"><p class="muted">Login to view notifications.</p></div>
   </aside>
 
-  <!-- HEADER -->
   <header class="topbar">
     <div class="topbar-left">
-      <button class="menu-btn" onclick="openSidebar()" aria-label="Open menu">☰</button>
-
-      <a href="javascript:void(0)" onclick="goToSection('home')" class="brand">
-        <span class="logo-badge">RS</span>
-        <span>RapideService</span>
-      </a>
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <a href="javascript:void(0)" onclick="goToSection('home')" class="brand"><span class="logo-badge">RS</span><span>RapideService</span></a>
     </div>
-
     <nav class="desktop-nav">
-      <a href="javascript:void(0)" onclick="goToSection('services')">Services</a>
-      <a href="javascript:void(0)" onclick="goToSection('howItWorks')">How it works</a>
-      <a href="javascript:void(0)" onclick="goToSection('book')">Post Work</a>
-      <a href="javascript:void(0)" onclick="goToSection('worker')">Workers</a>
-      <a href="javascript:void(0)" onclick="goToSection('jobs')">Jobs</a>
-      <a href="javascript:void(0)" onclick="goToSection('support')">Support</a>
+      <a onclick="goToSection('services')">Services</a>
+      <a onclick="goToSection('nearby')">Nearby</a>
+      <a onclick="goToSection('howItWorks')">How it works</a>
+      <a class="customer-link hidden" onclick="goToSection('book')">Post Work</a>
+      <a class="worker-link hidden" onclick="goToSection('workerJobs')">Worker Jobs</a>
+      <a class="shared-link hidden" onclick="goToSection('profile')">Profile</a>
+      <a onclick="goToSection('support')">Support</a>
     </nav>
-
     <div class="header-actions">
-      <button id="notifyBtn" class="icon-btn notify-btn" onclick="toggleNotificationDrawer()">🔔 <span id="notifyDot" class="notify-dot hidden"></span></button>
+      <button class="icon-btn notify-btn" onclick="toggleNotificationDrawer()">🔔<span id="notifyDot" class="notify-dot hidden"></span></button>
       <button id="loginBtn" class="btn light" onclick="openAuthModal('login')">Login</button>
-      <button id="signupBtn" class="btn primary signup-fixed" onclick="openAuthModal('signup')">Sign Up</button>
+      <button id="signupBtn" class="btn primary" onclick="openAuthModal('signup')">Sign Up</button>
       <button id="logoutBtn" class="btn danger hidden" onclick="logoutUser()">Logout</button>
     </div>
   </header>
 
-  <!-- LOGIN / SIGNUP MODAL -->
   <div id="authModal" class="modal hidden">
-    <div class="modal-card auth-card">
-      <div class="modal-head">
-        <div>
-          <p class="modal-kicker">RapideService Account</p>
-          <h2 id="authTitle">Login</h2>
-        </div>
-        <button class="icon-btn" onclick="closeAuthModal()">✕</button>
-      </div>
-
-      <div class="tabs">
-        <button id="loginTab" class="tab active" onclick="setAuthMode('login')">Login</button>
-        <button id="signupTab" class="tab" onclick="setAuthMode('signup')">Create Account</button>
-      </div>
-
+    <div class="modal-card">
+      <div class="modal-head"><div><p class="modal-kicker">RapideService Account</p><h2 id="authTitle">Login</h2></div><button class="icon-btn" onclick="closeAuthModal()">✕</button></div>
+      <div class="tabs"><button id="loginTab" class="tab active" onclick="setAuthMode('login')">Login</button><button id="signupTab" class="tab" onclick="setAuthMode('signup')">Create Account</button></div>
       <form id="authForm" onsubmit="handleAuth(event)">
         <div id="signupFields" class="hidden">
-          <label>Full Name</label>
-          <input id="authName" type="text" placeholder="Enter full name" />
-
-          <label>Mobile Number</label>
-          <input id="authPhone" type="tel" placeholder="Enter mobile number" />
-
-          <label>Account Type</label>
-          <select id="authRole">
-            <option value="customer">Customer</option>
-            <option value="worker">Worker</option>
-          </select>
-
-          <label>Referral Code Optional</label>
-          <input id="authReferral" type="text" placeholder="Referral code" />
+          <label>Full Name</label><input id="authName" type="text" placeholder="Enter full name" />
+          <label>Mobile Number</label><input id="authPhone" type="tel" placeholder="Enter mobile number" />
+          <label>Account Type</label><select id="authRole"><option value="customer">Customer</option><option value="worker">Worker</option></select>
+          <label>Referral Code Optional</label><input id="authReferral" type="text" placeholder="Referral code" />
         </div>
-
-        <label>Email Address</label>
-        <input id="authEmail" type="email" placeholder="Enter email address" required />
-
-        <label>Password</label>
-        <input id="authPassword" type="password" placeholder="Enter password" required />
-
-        <div id="confirmPasswordWrap" class="hidden">
-          <label>Confirm Password</label>
-          <input id="authConfirmPassword" type="password" placeholder="Confirm password" />
-        </div>
-
+        <label>Email Address</label><input id="authEmail" type="email" placeholder="Enter email address" required />
+        <label>Password</label><input id="authPassword" type="password" placeholder="Enter password" required />
+        <div id="confirmPasswordWrap" class="hidden"><label>Confirm Password</label><input id="authConfirmPassword" type="password" placeholder="Confirm password" /></div>
         <button id="authSubmitBtn" class="btn primary full" type="submit">Login</button>
       </form>
-
       <button class="link-btn" onclick="openForgotModal()">Forgot Password?</button>
-
-      <div class="social-login">
-        <button onclick="socialLogin('google')">Continue with Google</button>
-        <button onclick="socialLogin('github')">Continue with GitHub</button>
-        <button onclick="socialLogin('facebook')">Continue with Facebook</button>
-      </div>
+      <div class="social-login"><button onclick="socialLogin('google')">Continue with Google</button><button onclick="socialLogin('github')">Continue with GitHub</button><button onclick="socialLogin('facebook')">Continue with Facebook</button></div>
     </div>
   </div>
 
-  <!-- FORGOT PASSWORD MODAL -->
   <div id="forgotModal" class="modal hidden">
-    <div class="modal-card auth-card">
-      <div class="modal-head">
-        <div>
-          <p class="modal-kicker">Password Recovery</p>
-          <h2>Reset Password with OTP</h2>
-        </div>
-        <button class="icon-btn" onclick="closeForgotModal()">✕</button>
-      </div>
-
-      <label>Reset Using</label>
-      <select id="resetMethod" onchange="changeResetMethod()">
-        <option value="email">Email Address</option>
-        <option value="phone">Mobile Number</option>
-      </select>
-
-      <label id="resetIdentityLabel">Registered Email</label>
-      <input id="resetIdentity" type="text" placeholder="Enter registered email" />
-
+    <div class="modal-card">
+      <div class="modal-head"><div><p class="modal-kicker">Password Recovery</p><h2>Reset Password with OTP</h2></div><button class="icon-btn" onclick="closeForgotModal()">✕</button></div>
+      <label>Reset Using</label><select id="resetMethod" onchange="changeResetMethod()"><option value="email">Email Address</option><option value="phone">Mobile Number</option></select>
+      <label id="resetIdentityLabel">Registered Email</label><input id="resetIdentity" type="text" placeholder="Enter registered email" />
       <button id="sendOtpBtn" class="btn primary full" onclick="requestResetOtp()">Send OTP</button>
-
       <div id="resetOtpFields" class="hidden">
-        <label>OTP</label>
-        <input id="resetOtp" type="text" placeholder="Enter OTP" />
-
-        <label>New Password</label>
-        <input id="resetNewPassword" type="password" placeholder="New password" />
-
-        <label>Confirm New Password</label>
-        <input id="resetConfirmPassword" type="password" placeholder="Confirm new password" />
-
+        <label>OTP</label><input id="resetOtp" type="text" placeholder="Enter OTP" />
+        <label>New Password</label><input id="resetNewPassword" type="password" placeholder="New password" />
+        <label>Confirm New Password</label><input id="resetConfirmPassword" type="password" placeholder="Confirm new password" />
         <button class="btn success full" onclick="verifyResetOtp()">Reset Password</button>
       </div>
     </div>
   </div>
 
   <main>
-    <!-- HOME -->
-    <section id="home" class="hero ultra-hero">
+    <section id="home" class="hero">
       <div class="hero-content">
-        <div class="hero-badge-row">
-          <span class="badge premium-badge">⚡ Fast Local Service Marketplace</span>
-          <span class="badge ghost-badge">🛡 Secure Hiring Flow</span>
-        </div>
-
-        <h1>Hire trusted <span class="gradient-text">workers</span> near you in minutes.</h1>
-
-        <p>Post your work, compare worker bids, accept the best profile, pay securely, unlock contact details and review the service after completion.</p>
-
+        <div class="hero-badge-row"><span class="badge">⚡ Local Service Marketplace</span><span class="badge ghost">🛡 Profile + Chat + Payment Tracking</span></div>
+        <h1>Hire trusted <span>workers</span> near you with chat, map and secure payment.</h1>
+        <p>Customers post work. Workers receive jobs, send bids, chat after acceptance, and track earnings. Admin manages payments, support and verification.</p>
         <div class="hero-search-box">
-          <div>
-            <label>What service do you need?</label>
-            <select id="homeServiceSelect"></select>
-          </div>
-
-          <div>
-            <label>Your city</label>
-            <input id="homeCityInput" type="text" placeholder="Enter city" />
-          </div>
-
-          <button class="btn primary hero-search-btn" onclick="heroFindWorkers()">Find Workers</button>
+          <div><label>What service do you need?</label><select id="homeServiceSelect"></select></div>
+          <div><label>Your city</label><input id="homeCityInput" type="text" placeholder="Enter city" /></div>
+          <button class="btn primary" onclick="heroFindWorkers()">Find Workers</button>
         </div>
-
         <div class="hero-actions">
-          <button class="btn primary big" onclick="goToSection('book')">Post Work Now</button>
-          <button class="btn outline big" onclick="goToSection('worker')">Join as Worker</button>
+          <button class="btn primary big" onclick="goToSection('book')">Post Work</button>
+          <button class="btn outline big" onclick="goToSection('workerProfile')">Join as Worker</button>
+          <button class="btn light big" onclick="goToSection('nearby')">Find Nearby</button>
         </div>
-
-        <div class="trust-mini-row">
-          <span>✅ Verified profiles</span>
-          <span>🔒 Contact hidden until payment</span>
-          <span>⭐ Ratings & reviews</span>
-          <span>💳 Razorpay-ready payments</span>
-        </div>
-
-        <div id="liveStats" class="stats-row hidden">
-          <div><strong id="statWorkers">0</strong><span>Workers</span></div>
-          <div><strong id="statJobs">0</strong><span>Jobs Posted</span></div>
-          <div><strong id="statReviews">0</strong><span>Reviews</span></div>
-        </div>
-
-        <div id="launchTrustRow" class="launch-trust-row">
-          <div><strong>Verified</strong><span>Worker Profiles</span></div>
-          <div><strong>Secure</strong><span>Payment Flow</span></div>
-          <div><strong>24/7</strong><span>Support Ready</span></div>
-        </div>
+        <div class="trust-mini-row"><span>✅ Worker profiles</span><span>📍 Nearby map</span><span>💬 Booking chat</span><span>💰 Earnings ledger</span></div>
+        <div id="liveStats" class="stats-row hidden"><div><strong id="statWorkers">0</strong><span>Workers</span></div><div><strong id="statJobs">0</strong><span>Jobs</span></div><div><strong id="statReviews">0</strong><span>Reviews</span></div></div>
       </div>
-
       <div class="hero-visual">
         <div class="phone-mockup">
-          <div class="phone-top"></div>
-
-          <div class="phone-screen-title">
-            <span>RapideService</span>
-            <strong>Live Hiring</strong>
-          </div>
-
-          <div class="app-card verified-worker-card">
-            <div class="app-avatar">RS</div>
-            <div>
-              <h4>Verified Electrician</h4>
-              <p>4.8 ★ • Available today</p>
-            </div>
-            <span class="verified-pill">Verified</span>
-          </div>
-
-          <div class="app-card bid-card">
-            <small>Best Worker Bid</small>
-            <h3>₹450</h3>
-            <p>Can reach your area in 35 minutes</p>
-          </div>
-
-          <div class="app-card payment-card">
-            <span>🔐</span>
-            <div>
-              <h4>Contact Protected</h4>
-              <p>Unlocks after payment verification</p>
-            </div>
-          </div>
-
-          <div class="app-steps">
-            <div><b>1</b> Post Work</div>
-            <div><b>2</b> Compare Bids</div>
-            <div><b>3</b> Pay Securely</div>
-            <div><b>4</b> Review Worker</div>
-          </div>
+          <div class="phone-top"></div><div class="phone-title"><span>RapideService</span><strong>Live Hiring</strong></div>
+          <div class="app-card worker"><div class="app-avatar">RS</div><div><h4>Verified Worker</h4><p>Electrician • 4.8 ★</p></div><b>Online</b></div>
+          <div class="app-card"><small>Worker Earning</small><h3>₹4,250</h3><p>Pending payout visible in profile</p></div>
+          <div class="app-card worker"><span>💬</span><div><h4>Booking Chat</h4><p>Chat only during active work</p></div></div>
         </div>
       </div>
     </section>
 
-    <!-- TRUST BAR -->
     <section class="trust-bar">
-      <div><strong>Verified Workers</strong><span>Admin verification for better trust</span></div>
-      <div><strong>Smart Bidding</strong><span>Workers send price and message</span></div>
-      <div><strong>Secure Payments</strong><span>Contact unlocks after payment</span></div>
-      <div><strong>Real Reviews</strong><span>After booking completion</span></div>
+      <div><strong>Role Based App</strong><span>Customer, worker and admin separated</span></div>
+      <div><strong>Worker Accounts</strong><span>UPI, bank and earnings ledger</span></div>
+      <div><strong>Nearby Map</strong><span>Workers visible with location</span></div>
+      <div><strong>Booking Chat</strong><span>Chat available only during work</span></div>
     </section>
 
-    <!-- SERVICES -->
     <section id="services" class="section">
-      <div class="section-head">
-        <p class="eyebrow">Popular Services</p>
-        <h2>Everything you need, one trusted platform</h2>
-        <p>Choose a service, post your work and receive bids from nearby workers.</p>
-      </div>
-
+      <div class="section-head"><p class="eyebrow">Services</p><h2>Book local workers for every need</h2><p>Choose a service, post work, accept bid and manage everything from your profile.</p></div>
       <div id="serviceGrid" class="service-grid"></div>
     </section>
 
-    <!-- HOW IT WORKS -->
-    <section id="howItWorks" class="section alt">
-      <div class="section-head">
-        <p class="eyebrow">How It Works</p>
-        <h2>A clear marketplace flow</h2>
-        <p>RapideService is not just a contact list. It is a complete hiring system.</p>
-      </div>
+    <section id="nearby" class="section alt">
+      <div class="section-head"><p class="eyebrow">Nearby Workers</p><h2>Find workers around your current location</h2><p>Workers save their location from profile; visitors can see available workers on the map.</p></div>
+      <div class="map-actions"><button class="btn primary" onclick="useCurrentLocationForMap()">📍 Use My Current Location</button><button class="btn light" onclick="loadNearbyWorkers()">Refresh Workers</button></div>
+      <div id="map" class="map-box"></div>
+      <div id="nearbyWorkersList" class="card-grid"></div>
+    </section>
 
+    <section id="howItWorks" class="section">
+      <div class="section-head"><p class="eyebrow">How It Works</p><h2>Complete marketplace flow</h2></div>
       <div class="flow-grid">
-        <div class="flow-card"><span>01</span><h3>Post Work</h3><p>Customer posts service, city, budget and details.</p></div>
-        <div class="flow-card"><span>02</span><h3>Get Bids</h3><p>Workers send price, timing and message.</p></div>
-        <div class="flow-card"><span>03</span><h3>Accept Worker</h3><p>Customer compares bids and accepts the best worker.</p></div>
-        <div class="flow-card"><span>04</span><h3>Pay & Unlock</h3><p>After payment, contact unlocks for the worker.</p></div>
+        <div class="flow-card"><span>01</span><h3>Customer Profile</h3><p>Customer adds photo, phone, city and location.</p></div>
+        <div class="flow-card"><span>02</span><h3>Worker Profile</h3><p>Worker adds skill, experience, bank/UPI and location.</p></div>
+        <div class="flow-card"><span>03</span><h3>Booking Chat</h3><p>Customer and worker can chat after bid acceptance.</p></div>
+        <div class="flow-card"><span>04</span><h3>Payment Ledger</h3><p>Payment comes to RapideService and worker earning is reflected.</p></div>
       </div>
     </section>
 
-    <!-- FEATURED WORKERS -->
-    <section id="featuredWorkers" class="section">
-      <div class="section-head">
-        <p class="eyebrow">Worker Profiles</p>
-        <h2>Featured verified workers</h2>
-        <p>Public worker cards show skill, city, rating and verification status.</p>
-      </div>
-
+    <section id="featuredWorkers" class="section alt">
+      <div class="section-head"><p class="eyebrow">Worker Profiles</p><h2>Featured workers</h2></div>
       <div id="featuredWorkersGrid" class="card-grid"></div>
     </section>
 
-    <!-- BOOKING - HIDDEN UNTIL LOGIN -->
-    <section id="book" class="section alt auth-required hidden">
-      <div class="section-head">
-        <p class="eyebrow">Post Work</p>
-        <h2>Post your work and receive worker bids</h2>
-        <p>Your mobile number and full address remain protected until payment is verified.</p>
-      </div>
-
-      <div class="form-card premium-form">
-        <form id="bookingForm" onsubmit="createBooking(event)">
-          <div class="grid-2">
-            <div>
-              <label>Your Name</label>
-              <input id="customerName" type="text" placeholder="Your name" required />
-            </div>
-
-            <div>
-              <label>Mobile Number</label>
-              <input id="customerPhone" type="tel" placeholder="Mobile number" required />
-            </div>
-
-            <div>
-              <label>Service Skill</label>
-              <select id="bookingSkill" required onchange="calculateMinimumPrice()"></select>
-            </div>
-
-            <div>
-              <label>Work Type</label>
-              <select id="bookingType" onchange="calculateMinimumPrice()">
-                <option value="Freelancer">Freelancer</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Full-time">Full-time</option>
-                <option value="Contract">Contract</option>
-              </select>
-            </div>
-
-            <div>
-              <label>City</label>
-              <input id="bookingCity" type="text" placeholder="City" required />
-            </div>
-
-            <div>
-              <label>Area / Locality</label>
-              <input id="bookingArea" type="text" placeholder="Area or locality" required />
-            </div>
-
-            <div>
-              <label>Your Offer / Budget</label>
-              <input id="bookingBudget" type="number" min="1" placeholder="Your offer amount" required />
-            </div>
-
-            <div>
-              <label>Suggested Minimum Price</label>
-              <input id="minimumPrice" type="text" readonly />
-            </div>
-          </div>
-
-          <label>Full Address</label>
-          <textarea id="bookingAddress" placeholder="Full address stays hidden until payment is verified" required></textarea>
-
-          <label>Work Details</label>
-          <textarea id="bookingDetails" placeholder="Explain your work requirement clearly" required></textarea>
-
-          <button class="btn primary full" type="submit">Post Work & Get Bids</button>
-        </form>
-      </div>
+    <section id="profile" class="section auth-required hidden">
+      <div class="section-head"><p class="eyebrow">My Profile</p><h2>Your RapideService profile</h2></div>
+      <div class="form-card"><div id="profilePreview"></div><form onsubmit="saveUserProfile(event)">
+        <label>Profile Photo</label><input id="profilePhoto" type="file" accept="image/*" />
+        <div class="grid-2"><div><label>Full Name</label><input id="profileName" required /></div><div><label>Phone</label><input id="profilePhone" required /></div><div><label>City</label><input id="profileCity" /></div><div><label>Area</label><input id="profileArea" /></div></div>
+        <label>About</label><textarea id="profileAbout"></textarea><button class="btn primary full">Save Profile</button>
+      </form></div>
     </section>
 
-    <!-- WORKER REGISTRATION - HIDDEN UNTIL LOGIN -->
-    <section id="worker" class="section auth-required hidden">
-      <div class="section-head">
-        <p class="eyebrow">Worker Registration</p>
-        <h2>Join RapideService and start receiving work</h2>
-        <p>Create your professional worker profile.</p>
-      </div>
-
-      <div class="form-card premium-form">
-        <form id="workerForm" onsubmit="registerWorker(event)">
-          <div class="grid-2">
-            <div>
-              <label>Worker Name</label>
-              <input id="workerName" type="text" placeholder="Worker name" required />
-            </div>
-
-            <div>
-              <label>Mobile Number</label>
-              <input id="workerPhone" type="tel" placeholder="Mobile number" required />
-            </div>
-
-            <div>
-              <label>Skill</label>
-              <select id="workerSkill" required></select>
-            </div>
-
-            <div>
-              <label>Worker Type</label>
-              <select id="workerType">
-                <option value="Freelancer">Freelancer</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Full-time">Full-time</option>
-                <option value="Contract">Contract</option>
-              </select>
-            </div>
-
-            <div>
-              <label>City</label>
-              <input id="workerCity" type="text" placeholder="City" required />
-            </div>
-
-            <div>
-              <label>Availability</label>
-              <select id="workerAvailability">
-                <option value="Available Now">Available Now</option>
-                <option value="Available Today">Available Today</option>
-                <option value="Available Tomorrow">Available Tomorrow</option>
-                <option value="Not Available">Not Available</option>
-              </select>
-            </div>
-          </div>
-
-          <label>About / Experience</label>
-          <textarea id="workerAbout" placeholder="Tell customers about your experience" required></textarea>
-
-          <button class="btn primary full" type="submit">Save Worker Profile</button>
-        </form>
-      </div>
+    <section id="book" class="section alt auth-required customer-only hidden">
+      <div class="section-head"><p class="eyebrow">Customer</p><h2>Post work and receive worker bids</h2></div>
+      <div class="form-card"><form id="bookingForm" onsubmit="createBooking(event)">
+        <div class="grid-2">
+          <div><label>Your Name</label><input id="customerName" required /></div>
+          <div><label>Mobile Number</label><input id="customerPhone" required /></div>
+          <div><label>Service Skill</label><select id="bookingSkill" required onchange="calculateMinimumPrice()"></select></div>
+          <div><label>Work Type</label><select id="bookingType" onchange="calculateMinimumPrice()"><option>Freelancer</option><option>Part-time</option><option>Full-time</option><option>Contract</option></select></div>
+          <div><label>City</label><input id="bookingCity" required /></div>
+          <div><label>Area / Locality</label><input id="bookingArea" required /></div>
+          <div><label>Your Offer / Budget</label><input id="bookingBudget" type="number" min="1" required /></div>
+          <div><label>Suggested Minimum Price</label><input id="minimumPrice" readonly /></div>
+        </div>
+        <label>Full Address</label><textarea id="bookingAddress" required></textarea>
+        <label>Work Details</label><textarea id="bookingDetails" required></textarea>
+        <button class="btn primary full">Post Work & Get Bids</button>
+      </form></div>
     </section>
 
-    <!-- JOBS - HIDDEN UNTIL LOGIN -->
-    <section id="jobs" class="section alt auth-required hidden">
-      <div class="section-head">
-        <p class="eyebrow">Open Jobs</p>
-        <h2>Jobs available for workers</h2>
-        <p>Workers can search public jobs and send bids.</p>
-      </div>
+    <section id="customerDashboard" class="section auth-required customer-only hidden">
+      <div class="section-head"><p class="eyebrow">Customer Dashboard</p><h2>Your bookings and payments</h2></div>
+      <div id="customerInfoCard" class="info-card"></div><div id="customerBookingsList" class="card-grid"></div>
+    </section>
 
-      <div class="filters">
-        <input id="jobSearch" type="text" placeholder="Search city, area, skill, work..." oninput="renderPublicJobs()" />
-        <select id="jobSkillFilter" onchange="renderPublicJobs()"></select>
-        <button class="btn light" onclick="loadPublicJobs()">Refresh</button>
-      </div>
+    <section id="workerProfile" class="section auth-required worker-only hidden">
+      <div class="section-head"><p class="eyebrow">Worker Profile</p><h2>Create your worker profile</h2></div>
+      <div class="form-card"><form id="workerForm" onsubmit="registerWorker(event)">
+        <label>Worker Photo</label><input id="workerPhoto" type="file" accept="image/*" />
+        <div class="grid-2">
+          <div><label>Worker Name</label><input id="workerName" required /></div>
+          <div><label>Mobile Number</label><input id="workerPhone" required /></div>
+          <div><label>Skill</label><select id="workerSkill" required></select></div>
+          <div><label>Worker Type</label><select id="workerType"><option>Freelancer</option><option>Part-time</option><option>Full-time</option><option>Contract</option></select></div>
+          <div><label>City</label><input id="workerCity" required /></div>
+          <div><label>Availability</label><select id="workerAvailability"><option>Available Now</option><option>Available Today</option><option>Available Tomorrow</option><option>Not Available</option></select></div>
+        </div>
+        <label>About / Experience</label><textarea id="workerAbout" required></textarea>
+        <div class="grid-2"><button class="btn light full" type="button" onclick="saveWorkerCurrentLocation()">📍 Save My Current Location</button><button class="btn primary full">Save Worker Profile</button></div>
+      </form></div>
+    </section>
 
+    <section id="workerJobs" class="section alt auth-required worker-only hidden">
+      <div class="section-head"><p class="eyebrow">Worker Jobs</p><h2>Open jobs for workers</h2></div>
+      <div class="filters"><input id="jobSearch" placeholder="Search city, area, skill, work..." oninput="renderPublicJobs()" /><select id="jobSkillFilter" onchange="renderPublicJobs()"></select><button class="btn light" onclick="loadPublicJobs()">Refresh</button></div>
       <div id="jobsList" class="card-grid"></div>
     </section>
 
-    <!-- DASHBOARD - HIDDEN UNTIL LOGIN -->
-    <section id="dashboard" class="section auth-required hidden">
-      <div class="section-head">
-        <p class="eyebrow">Dashboard</p>
-        <h2>Manage bookings, bids and profile</h2>
-      </div>
-
-      <div id="userInfoCard" class="info-card">
-        <p class="muted">Login to view your dashboard.</p>
-      </div>
-
-      <div class="dash-tabs">
-        <button class="tab active" onclick="setDashboardTab('bookings')">My Bookings</button>
-        <button class="tab" onclick="setDashboardTab('bids')">My Bids</button>
-        <button class="tab" onclick="setDashboardTab('profile')">Worker Profile</button>
-      </div>
-
-      <div id="dashboardContent" class="dashboard-content"></div>
+    <section id="workerEarnings" class="section auth-required worker-only hidden">
+      <div class="section-head"><p class="eyebrow">Worker Earnings</p><h2>Your earnings and payout status</h2></div>
+      <div class="admin-stats"><div><strong id="workerTotalEarned">₹0</strong><span>Total Earned</span></div><div><strong id="workerPendingPayout">₹0</strong><span>Pending Payout</span></div><div><strong id="workerPaidPayout">₹0</strong><span>Paid</span></div><div><strong id="workerTotalJobs">0</strong><span>Jobs</span></div></div>
+      <div id="workerEarningsList" class="dashboard-content"></div>
     </section>
 
-    <!-- TRUST -->
-    <section id="trust" class="section alt">
-      <div class="section-head">
-        <p class="eyebrow">Trust & Safety</p>
-        <h2>Built for safer local hiring</h2>
-      </div>
-
-      <div class="trust-grid">
-        <div class="trust-card"><div class="trust-icon">🛡</div><h3>Verified Profiles</h3><p>Admin can verify worker profiles.</p></div>
-        <div class="trust-card"><div class="trust-icon">🔒</div><h3>Hidden Contact</h3><p>Customer phone and address stay hidden until payment.</p></div>
-        <div class="trust-card"><div class="trust-icon">💳</div><h3>Secure Payment</h3><p>Razorpay payment verification can unlock contact access.</p></div>
-        <div class="trust-card"><div class="trust-icon">⭐</div><h3>Review System</h3><p>Reviews are linked to completed bookings.</p></div>
-      </div>
+    <section id="accounts" class="section alt auth-required hidden">
+      <div class="section-head"><p class="eyebrow">Accounts / UPI</p><h2>Save bank and UPI details</h2></div>
+      <div class="form-card"><form id="accountForm" onsubmit="saveAccountDetails(event)">
+        <div class="grid-2"><div><label>Account Holder Name</label><input id="accountHolder" /></div><div><label>Bank Name</label><input id="bankName" /></div><div><label>Account Number</label><input id="bankAccountNumber" /></div><div><label>IFSC Code</label><input id="ifscCode" /></div><div><label>UPI ID</label><input id="upiId" placeholder="example@upi" /></div><div><label>Preferred Payout Method</label><select id="preferredPayout"><option value="upi">UPI</option><option value="bank">Bank Transfer</option></select></div></div>
+        <button class="btn primary full">Save Account Details</button>
+      </form><div class="qr-box"><h3>Your UPI QR</h3><canvas id="workerUpiQr"></canvas><p class="muted">Marketplace payments are still tracked by RapideService.</p></div></div>
     </section>
 
-    <!-- FAQ -->
-    <section id="faq" class="section">
-      <div class="section-head">
-        <p class="eyebrow">Questions</p>
-        <h2>Frequently asked questions</h2>
-      </div>
-
-      <div class="faq-grid">
-        <details open>
-          <summary>How does RapideService work?</summary>
-          <p>Customers post work, workers send bids, customers accept a bid, payment is verified, contact unlocks and review is given after completion.</p>
-        </details>
-
-        <details>
-          <summary>Is worker contact visible immediately?</summary>
-          <p>No. Customer phone and address are protected until worker is accepted and payment is verified.</p>
-        </details>
-
-        <details>
-          <summary>Can workers join for different skills?</summary>
-          <p>Yes. Workers can register under electrician, plumber, cleaner, driver, tutor, mobile repair and many more skills.</p>
-        </details>
-      </div>
+    <section id="chat" class="section auth-required hidden">
+      <div class="section-head"><p class="eyebrow">Booking Chat</p><h2>Chat with customer or worker</h2></div>
+      <div class="chat-layout"><div class="chat-sidebar"><h3>Active Chats</h3><div id="chatBookingList"></div></div><div class="chat-window"><div id="chatHeader" class="chat-header">Select a booking chat</div><div id="chatMessages" class="chat-messages"></div><form class="chat-form" onsubmit="sendChatMessage(event)"><input id="chatInput" placeholder="Type message..." /><button class="btn primary">Send</button></form><div id="callBox" class="call-box hidden"><button id="callButton" class="btn success">📞 Call</button></div></div></div>
     </section>
 
-    <!-- SUPPORT -->
+    <section id="qrSection" class="section">
+      <div class="section-head"><p class="eyebrow">QR Code</p><h2>Share RapideService with one scan</h2></div>
+      <div class="form-card qr-box"><h3>Website QR Code</h3><canvas id="websiteQr"></canvas><p id="websiteQrText" class="muted"></p><button class="btn primary" onclick="generateWebsiteQr()">Generate QR</button></div>
+    </section>
+
     <section id="support" class="section alt">
-      <div class="section-head">
-        <p class="eyebrow">Support Center</p>
-        <h2>Need help with booking, payment or profile?</h2>
-      </div>
-
-      <div class="form-card premium-form">
-        <form id="supportForm" onsubmit="createSupportTicket(event)">
-          <div class="grid-2">
-            <div>
-              <label>Name</label>
-              <input id="supportName" type="text" placeholder="Your name" required />
-            </div>
-
-            <div>
-              <label>Email / Phone</label>
-              <input id="supportContact" type="text" placeholder="Email or phone" required />
-            </div>
-          </div>
-
-          <label>Issue Type</label>
-          <select id="supportType">
-            <option value="Booking">Booking</option>
-            <option value="Payment">Payment</option>
-            <option value="Worker">Worker</option>
-            <option value="Account">Account</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <label>Message</label>
-          <textarea id="supportMessage" placeholder="Explain your issue" required></textarea>
-
-          <button class="btn primary full" type="submit">Submit Support Ticket</button>
-        </form>
-      </div>
+      <div class="section-head"><p class="eyebrow">Support</p><h2>Need help with booking, payment or profile?</h2></div>
+      <div class="form-card"><form id="supportForm" onsubmit="createSupportTicket(event)"><div class="grid-2"><div><label>Name</label><input id="supportName" required /></div><div><label>Email / Phone</label><input id="supportContact" required /></div></div><label>Issue Type</label><select id="supportType"><option>Booking</option><option>Payment</option><option>Worker</option><option>Account</option><option>Chat</option><option>Map</option><option>Other</option></select><label>Message</label><textarea id="supportMessage" required></textarea><button class="btn primary full">Submit Support Ticket</button></form></div>
     </section>
 
-    <!-- SETTINGS -->
     <section id="settings" class="section hidden">
-      <div class="section-head">
-        <p class="eyebrow">Settings</p>
-        <h2>RapideService settings</h2>
-      </div>
-
-      <div class="form-card premium-form">
-        <label>Country</label>
-        <select id="settingsCountry">
-          <option value="IN">India</option>
-          <option value="US">USA</option>
-          <option value="UK">UK</option>
-          <option value="AE">UAE</option>
-        </select>
-
-        <label>Currency</label>
-        <select id="settingsCurrency">
-          <option value="INR">₹ INR</option>
-          <option value="USD">$ USD</option>
-          <option value="GBP">£ GBP</option>
-          <option value="AED">AED</option>
-        </select>
-
-        <label>Language</label>
-        <select id="settingsLanguage">
-          <option value="en">English</option>
-          <option value="hi">Hindi</option>
-        </select>
-
-        <button class="btn primary full" onclick="saveSettings()">Save Settings</button>
-      </div>
+      <div class="section-head"><p class="eyebrow">Settings</p><h2>RapideService settings</h2></div>
+      <div class="form-card"><label>Country</label><select id="settingsCountry"><option value="IN">India</option><option value="US">USA</option><option value="UK">UK</option><option value="AE">UAE</option></select><label>Currency</label><select id="settingsCurrency"><option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="GBP">£ GBP</option><option value="AED">AED</option></select><label>Language</label><select id="settingsLanguage"><option value="en">English</option><option value="hi">Hindi</option></select><button class="btn primary full" onclick="saveSettings()">Save Settings</button></div>
     </section>
 
-    <!-- ADMIN -->
     <section id="admin" class="section alt hidden">
-      <div class="section-head">
-        <p class="eyebrow">Admin Panel</p>
-        <h2>Manage RapideService</h2>
-      </div>
-
-      <div class="admin-stats">
-        <div><strong id="adminUsers">0</strong><span>Users</span></div>
-        <div><strong id="adminWorkers">0</strong><span>Workers</span></div>
-        <div><strong id="adminBookings">0</strong><span>Bookings</span></div>
-        <div><strong id="adminPayments">0</strong><span>Payments</span></div>
-      </div>
-
-      <div class="dash-tabs">
-        <button class="tab active" onclick="setAdminTab('workers')">Workers</button>
-        <button class="tab" onclick="setAdminTab('bookings')">Bookings</button>
-        <button class="tab" onclick="setAdminTab('support')">Support</button>
-        <button class="tab" onclick="setAdminTab('prices')">Prices</button>
-      </div>
-
+      <div class="section-head"><p class="eyebrow">Admin Panel</p><h2>RapideService Admin</h2></div>
+      <div class="admin-stats"><div><strong id="adminUsers">0</strong><span>Users</span></div><div><strong id="adminWorkers">0</strong><span>Workers</span></div><div><strong id="adminBookings">0</strong><span>Bookings</span></div><div><strong id="adminPayments">0</strong><span>Payments</span></div></div>
+      <div class="dash-tabs"><button class="tab active" onclick="setAdminTab('users')">Users</button><button class="tab" onclick="setAdminTab('workers')">Workers</button><button class="tab" onclick="setAdminTab('bookings')">Bookings</button><button class="tab" onclick="setAdminTab('payments')">Payments</button><button class="tab" onclick="setAdminTab('payouts')">Payouts</button><button class="tab" onclick="setAdminTab('support')">Support</button><button class="tab" onclick="setAdminTab('prices')">Prices</button></div>
       <div id="adminContent" class="dashboard-content"></div>
     </section>
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer">
-    <div class="footer-main">
-      <div>
-        <div class="footer-brand">
-          <span class="logo-badge">RS</span>
-          <h2>RapideService</h2>
-        </div>
-        <p>Hire trusted workers, freelancers and local helpers near you.</p>
-      </div>
-
-      <button class="btn primary" onclick="goToSection('book')">Post Work Now</button>
-    </div>
-
-    <div class="footer-grid">
-      <div><h4>Phone</h4><p>+91 7303041394</p></div>
-      <div><h4>Email</h4><p>support@rapideservice.com</p></div>
-      <div><h4>Domain</h4><p>rapideservice.com</p></div>
-      <div><h4>Business Hours</h4><p>Mon-Sat 9AM-8PM<br />Sunday emergency support</p></div>
-    </div>
-
+    <div class="footer-main"><div><div class="footer-brand"><span class="logo-badge">RS</span><h2>RapideService</h2></div><p>Hire trusted workers, freelancers and local helpers near you.</p></div><button class="btn primary" onclick="goToSection('qrSection')">Show Website QR</button></div>
+    <div class="footer-grid"><div><h4>Phone</h4><p>+91 7303041394</p></div><div><h4>Email</h4><p>support@rapideservice.com</p></div><div><h4>Domain</h4><p>rapideservice.com</p></div><div><h4>Payment Flow</h4><p>Customer pays RapideService. Worker earning is reflected in ledger.</p></div></div>
     <p class="copyright">© <span id="footerYear">2026</span> RapideService. All rights reserved.</p>
   </footer>
 
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        registrations.forEach(function (registration) {
-          registration.unregister();
-        });
+        registrations.forEach(function (registration) { registration.unregister(); });
       });
     }
-
     if ("caches" in window) {
       caches.keys().then(function (keys) {
-        keys.forEach(function (key) {
-          caches.delete(key);
-        });
+        keys.forEach(function (key) { caches.delete(key); });
       });
     }
   </script>
-
- <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function (registrations) {
-      registrations.forEach(function (registration) {
-        registration.unregister();
-      });
-    });
-  }
-
-  if ("caches" in window) {
-    caches.keys().then(function (keys) {
-      keys.forEach(function (key) {
-        caches.delete(key);
-      });
-    });
-  }
-</script>
-
-<script src="script.js?v=rapideservice-marketplace-21"></script>
-</body>
-</html>
+  <script src="script.js?v=final-1"></script>
 </body>
 </html>
