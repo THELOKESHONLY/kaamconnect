@@ -30,7 +30,9 @@ function initFirebaseAdmin() {
 }
 
 function getBody(req) {
-  if (typeof req.body === "object" && req.body !== null) return req.body;
+  if (typeof req.body === "object" && req.body !== null) {
+    return req.body;
+  }
 
   try {
     return JSON.parse(req.body || "{}");
@@ -68,25 +70,31 @@ module.exports = async function handler(req, res) {
     const token = getToken(req);
 
     if (!token) {
-      return sendJson(res, 401, { error: "Login token missing." });
+      return sendJson(res, 401, {
+        error: "Login token missing."
+      });
     }
 
     const decoded = await admin.auth().verifyIdToken(token);
     const userId = decoded.uid;
 
-    const body = getBody(req);
-    const bookingId = body.bookingId;
+    const { bookingId } = getBody(req);
 
     if (!bookingId) {
-      return sendJson(res, 400, { error: "bookingId is required." });
+      return sendJson(res, 400, {
+        error: "bookingId is required."
+      });
     }
 
     const db = admin.firestore();
+
     const bookingRef = db.collection("bookings").doc(bookingId);
     const bookingSnap = await bookingRef.get();
 
     if (!bookingSnap.exists) {
-      return sendJson(res, 404, { error: "Booking not found." });
+      return sendJson(res, 404, {
+        error: "Booking not found."
+      });
     }
 
     const booking = bookingSnap.data();
