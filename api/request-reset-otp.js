@@ -51,12 +51,12 @@ async function sendResendEmail(to, otp) {
       to,
       subject: "RapideService Password Reset OTP",
       html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.6">
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">
           <h2>RapideService Password Reset</h2>
           <p>Your OTP is:</p>
-          <h1 style="letter-spacing:4px">${otp}</h1>
+          <h1 style="letter-spacing:4px;color:#2563eb">${otp}</h1>
           <p>This OTP is valid for 10 minutes.</p>
-          <p>If you did not request this, ignore this email.</p>
+          <p>If you did not request this, you can ignore this email.</p>
         </div>
       `
     })
