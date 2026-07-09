@@ -1,10 +1,14 @@
 {
-  "name": "rapideservice-ultra",
-  "version": "12.0.0",
+  "name": "rapideservice-marketplace",
+  "version": "1.0.0",
   "private": true,
+  "description": "RapideService local worker marketplace",
+  "main": "script.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
   "dependencies": {
     "firebase-admin": "^12.7.0",
-    "razorpay": "^2.9.6",
-    "twilio": "^5.3.0"
+    "razorpay": "^2.9.6"
   }
 }
