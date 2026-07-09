@@ -1754,6 +1754,25 @@ textarea {
   pointer-events: none !important;
 }
 /* Login required section control */
-.auth-required.hidden {
+.auth-required.hidden,
+#book.hidden,
+#worker.hidden,
+#jobs.hidden,
+#dashboard.hidden {
   display: none !important;
+}
+
+.topbar,
+.topbar *,
+button,
+a,
+select,
+input,
+textarea {
+  pointer-events: auto !important;
+}
+
+.overlay.hidden {
+  display: none !important;
+  pointer-events: none !important;
 }
