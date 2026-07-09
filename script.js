@@ -1399,7 +1399,7 @@ async function payForBooking(bookingId) {
 
         if (!verifyRes.ok) throw new Error(verifyData.error || "Payment verification failed.");
 
-        await createEarningAfterPayment(bookingId);
+        //await createEarningAfterPayment(bookingId);//
 
         showToast("Payment verified. Worker earning reflected.");
         await Promise.all([loadCustomerDashboard(), loadWorkerEarnings(), loadAdminPanel()]);
