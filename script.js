@@ -1,8 +1,3 @@
-/* =====================================================
-   RapideService Final Marketplace JS
-   Works on Spark plan: profile images are compressed and saved as small Firestore data URLs.
-===================================================== */
-
 const firebaseConfig = {
   apiKey: "AIzaSyDylEdOuxEpqh7IxEO9cBoV7u9_9cK8DAc",
   authDomain: "kaamconnect-fdf87.firebaseapp.com",
@@ -14,6 +9,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -231,7 +227,6 @@ function distanceKm(lat1, lon1, lat2, lon2) {
   return Number((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1));
 }
 
-/* Photo upload without Firebase Storage */
 function imageFileToDataUrl(file, maxSize = 420, quality = 0.68) {
   return new Promise((resolve) => {
     if (!file) return resolve("");
@@ -441,6 +436,14 @@ async function handleAuth(event) {
       const referral = $("authReferral").value.trim();
       const confirmPassword = $("authConfirmPassword").value;
 
+      if (role === "admin") {
+        const loginId = getEmailLoginId(email);
+
+        if (!ADMIN_EMAILS.includes(email) && !ADMIN_LOGIN_IDS.includes(loginId)) {
+          throw new Error("Admin Portal is only for RapideService admin.");
+        }
+      }
+
       if (!name || !phone) {
         throw new Error("Please enter name and phone.");
       }
@@ -624,6 +627,7 @@ auth.onAuthStateChanged(async (user) => {
 function updateAuthUI() {
   const loggedIn = !!currentUser;
   const role = getUserRole();
+  const admin = isAdminUser();
 
   $("loginBtn")?.classList.toggle("hidden", loggedIn);
   $("signupBtn")?.classList.toggle("hidden", loggedIn);
@@ -638,10 +642,33 @@ function updateAuthUI() {
   });
 
   document.querySelectorAll(".shared-link").forEach((el) => {
-    el.classList.toggle("hidden", !loggedIn || role === "admin");
+    el.classList.toggle("hidden", !loggedIn || admin);
   });
 
-  $("adminSideBtn")?.classList.toggle("hidden", !isAdminUser());
+  document.querySelectorAll(".customer-only").forEach((el) => {
+    el.classList.toggle("hidden", !loggedIn || role !== "customer");
+  });
+
+  document.querySelectorAll(".worker-only").forEach((el) => {
+    el.classList.toggle("hidden", !loggedIn || role !== "worker");
+  });
+
+  $("adminSideBtn")?.classList.toggle("hidden", !admin);
+
+  if (!admin) {
+    $("admin")?.classList.add("hidden");
+  }
+
+  if (role !== "customer") {
+    $("book")?.classList.add("hidden");
+    $("customerDashboard")?.classList.add("hidden");
+  }
+
+  if (role !== "worker") {
+    $("workerProfile")?.classList.add("hidden");
+    $("workerJobs")?.classList.add("hidden");
+    $("workerEarnings")?.classList.add("hidden");
+  }
 }
 
 /* Forgot Password */
@@ -755,7 +782,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   applyDefaultSettings();
   bindSettingEvents();
   calculateMinimumPrice();
-  generateWebsiteQr();
 
   await Promise.all([
     loadMinimumPrices(),
@@ -1001,6 +1027,9 @@ function renderProfilePreview() {
   const img = currentUserProfile?.photoDataUrl || currentUserProfile?.photoUrl || "";
   const name = currentUserProfile?.name || "User";
   const role = getUserRole();
+  const phone = currentUserProfile?.phone || "-";
+  const city = currentUserProfile?.city || "-";
+  const email = currentUser?.email || currentUserProfile?.email || "-";
 
   box.innerHTML = `
     <div class="profile-card-inline">
@@ -1012,8 +1041,9 @@ function renderProfilePreview() {
 
       <div>
         <h3>${escapeHtml(name)}</h3>
-        <p>${escapeHtml(currentUser?.email || "")}</p>
-        <span class="status success">${escapeHtml(role)}</span>
+        <p><strong>1.</strong> Email: ${escapeHtml(email)}</p>
+        <p><strong>2.</strong> Phone: ${escapeHtml(phone)} | City: ${escapeHtml(city)}</p>
+        <p><strong>3.</strong> Account Type: ${escapeHtml(role)}</p>
       </div>
     </div>
   `;
@@ -1944,15 +1974,18 @@ async function loadFeaturedWorkers() {
       return;
     }
 
-    grid.innerHTML = workers.map((w) => renderWorkerPublicCard(w)).join("");
+    grid.innerHTML = workers.map((worker) => {
+      return renderWorkerPublicCard(worker, "", { showVerification: true });
+    }).join("");
   } catch {
     grid.innerHTML = `<div class="empty-state">Could not load worker profiles.</div>`;
   }
 }
 
-function renderWorkerPublicCard(worker, distanceText = "") {
+function renderWorkerPublicCard(worker, distanceText = "", options = {}) {
   const name = worker.workerName || "Worker";
   const img = worker.workerPhotoDataUrl || worker.workerPhotoUrl || "";
+  const showVerification = options.showVerification !== false;
 
   return `
     <article class="worker-public-card">
@@ -1962,9 +1995,13 @@ function renderWorkerPublicCard(worker, distanceText = "") {
           : `<div class="avatar">${escapeHtml(name.charAt(0).toUpperCase())}</div>`
       }
 
-      <span class="status ${worker.verified ? "success" : "pending"}">
-        ${worker.verified ? "Verified" : "Pending Verification"}
-      </span>
+      ${
+        showVerification
+          ? `<span class="status ${worker.verified ? "success" : "pending"}">
+              ${worker.verified ? "Verified" : "Pending Verification"}
+            </span>`
+          : ""
+      }
 
       <h3>${escapeHtml(name)}</h3>
 
@@ -1973,7 +2010,11 @@ function renderWorkerPublicCard(worker, distanceText = "") {
       <p><strong>Type:</strong> ${escapeHtml(worker.workerType || "Freelancer")}</p>
       <p><strong>Availability:</strong> ${escapeHtml(worker.availability || "-")}</p>
 
-      ${distanceText ? `<p><strong>Distance:</strong> ${escapeHtml(distanceText)}</p>` : ""}
+      ${
+        distanceText
+          ? `<p><strong>Distance from you:</strong> ${escapeHtml(distanceText)}</p>`
+          : ""
+      }
 
       <p>
         <span class="rating">★ ${Number(worker.workerRating || 0).toFixed(1)}</span>
@@ -2003,18 +2044,32 @@ async function loadNearbyWorkers(centerLat = null, centerLng = null) {
     }));
 
     if (list) {
-      if (!allNearbyWorkersCache.length) {
-        list.innerHTML = `<div class="empty-state">No workers found yet.</div>`;
+      if (!centerLat || !centerLng) {
+        list.innerHTML = `
+          <div class="empty-state">
+            Click <strong>Use My Current Location</strong> to find nearby workers and see distance in KM.
+          </div>
+        `;
       } else {
-        list.innerHTML = allNearbyWorkersCache.map((worker) => {
-          let distanceText = "";
+        const workersWithDistance = allNearbyWorkersCache
+          .filter((worker) => worker.location?.lat && worker.location?.lng)
+          .map((worker) => ({
+            worker,
+            km: distanceKm(centerLat, centerLng, worker.location.lat, worker.location.lng)
+          }))
+          .sort((a, b) => a.km - b.km);
 
-          if (centerLat && centerLng && worker.location?.lat && worker.location?.lng) {
-            distanceText = `${distanceKm(centerLat, centerLng, worker.location.lat, worker.location.lng)} km away`;
-          }
-
-          return renderWorkerPublicCard(worker, distanceText);
-        }).join("");
+        if (!workersWithDistance.length) {
+          list.innerHTML = `<div class="empty-state">No nearby workers with saved location found.</div>`;
+        } else {
+          list.innerHTML = workersWithDistance.map((item) => {
+            return renderWorkerPublicCard(
+              item.worker,
+              `${item.km} km away`,
+              { showVerification: false }
+            );
+          }).join("");
+        }
       }
     }
 
@@ -2110,7 +2165,7 @@ function useCurrentLocationForMap() {
   );
 }
 
-/* Accounts / QR */
+/* Accounts */
 async function saveAccountDetails(event) {
   event.preventDefault();
 
@@ -2133,8 +2188,6 @@ async function saveAccountDetails(event) {
   await db.collection("workerAccounts").doc(currentUser.uid).set(accountData, { merge: true });
 
   showToast("Account details saved.");
-
-  generateWorkerUpiQr(accountData.upiId);
 }
 
 async function loadAccountDetails() {
@@ -2151,39 +2204,6 @@ async function loadAccountDetails() {
     if ($("ifscCode")) $("ifscCode").value = data.ifscCode || "";
     if ($("upiId")) $("upiId").value = data.upiId || "";
     if ($("preferredPayout")) $("preferredPayout").value = data.preferredPayout || "upi";
-
-    generateWorkerUpiQr(data.upiId || "");
-  }
-}
-
-function generateWorkerUpiQr(upiId) {
-  const canvas = $("workerUpiQr");
-
-  if (!canvas || !window.QRCode || !upiId) return;
-
-  const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=RapideService Worker&cu=INR`;
-
-  QRCode.toCanvas(canvas, upiUrl, {
-    width: 220,
-    margin: 2
-  });
-}
-
-function generateWebsiteQr() {
-  const canvas = $("websiteQr");
-  const textBox = $("websiteQrText");
-
-  if (!canvas || !window.QRCode) return;
-
-  const url = window.location.origin;
-
-  QRCode.toCanvas(canvas, url, {
-    width: 240,
-    margin: 2
-  });
-
-  if (textBox) {
-    textBox.textContent = url;
   }
 }
 
@@ -2988,7 +3008,6 @@ Object.assign(window, {
   useCurrentLocationForMap,
   loadNearbyWorkers,
   saveAccountDetails,
-  generateWebsiteQr,
   openBookingChat,
   sendChatMessage,
   createSupportTicket,
