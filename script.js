@@ -1,12 +1,18 @@
 /* =====================================================
-   RapideService Clean Final JavaScript
-   Fixed:
-   - Login/Signup/Menu/Notification buttons
-   - Skills dropdown
-   - Booking/Worker/Jobs/Dashboard hidden before login
-   - Firebase/Auth/Firestore flow
+   RapideService Marketplace v20
+   Features:
+   - Customer / Worker / Admin role-based app
+   - Profile photo upload
+   - Worker profile
+   - Worker bank / UPI details
+   - Worker earnings ledger
+   - Website QR + UPI QR
+   - Nearby workers map
+   - Booking chat
+   - Payment tracking
 ===================================================== */
 
+/* ---------------- Firebase Config ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyDylEdOuxEpqh7IxEO9cBoV7u9_9cK8DAc",
   authDomain: "kaamconnect-fdf87.firebaseapp.com",
@@ -21,17 +27,27 @@ firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
+/* ---------------- Admin ---------------- */
 const ADMIN_EMAILS = ["lokeshyadav4399@gmail.com"];
 const ADMIN_LOGIN_IDS = ["thelokeshonly"];
 
+/* ---------------- State ---------------- */
 let currentUser = null;
 let currentUserProfile = null;
-let currentAuthMode = "login";
-let currentDashboardTab = "bookings";
-let currentAdminTab = "workers";
+let currentDashboardRole = "guest";
+let currentAdminTab = "users";
+let currentChatBookingId = "";
+let currentChatBookingData = null;
+let chatUnsubscribe = null;
 let allPublicJobsCache = [];
+let allNearbyWorkersCache = [];
+let mapInstance = null;
+let userMapMarker = null;
+let workerMarkers = [];
 
+/* ---------------- Skills ---------------- */
 const SKILLS = [
   "Electrician",
   "Plumber",
@@ -116,6 +132,7 @@ const SERVICE_IMAGES = {
   "Freelancer / General Helper": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80"
 };
 
+/* ---------------- Helpers ---------------- */
 function $(id) {
   return document.getElementById(id);
 }
@@ -138,7 +155,11 @@ function getEmailLoginId(email) {
 }
 
 function makeReferralCode(name = "RS") {
-  const clean = String(name || "RS").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 5);
+  const clean = String(name || "RS")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase()
+    .slice(0, 5);
+
   return `${clean}${Math.floor(10000 + Math.random() * 90000)}`;
 }
 
@@ -150,15 +171,33 @@ function currencySymbol(currency = "INR") {
 }
 
 function getSelectedCurrency() {
-  return $("sideCurrencySelect")?.value || $("settingsCurrency")?.value || currentUserProfile?.currency || "INR";
+  return (
+    $("sideCurrencySelect")?.value ||
+    $("settingsCurrency")?.value ||
+    currentUserProfile?.currency ||
+    currentUserProfile?.settings?.currency ||
+    "INR"
+  );
 }
 
 function getSelectedCountry() {
-  return $("sideCountrySelect")?.value || $("settingsCountry")?.value || currentUserProfile?.country || "IN";
+  return (
+    $("sideCountrySelect")?.value ||
+    $("settingsCountry")?.value ||
+    currentUserProfile?.country ||
+    currentUserProfile?.settings?.country ||
+    "IN"
+  );
 }
 
 function getSelectedLanguage() {
-  return $("sideLanguageSelect")?.value || $("settingsLanguage")?.value || currentUserProfile?.language || "en";
+  return (
+    $("sideLanguageSelect")?.value ||
+    $("settingsLanguage")?.value ||
+    currentUserProfile?.language ||
+    currentUserProfile?.settings?.language ||
+    "en"
+  );
 }
 
 function formatMoney(amount, currency = getSelectedCurrency()) {
@@ -168,7 +207,14 @@ function formatMoney(amount, currency = getSelectedCurrency()) {
 function isAdminUser() {
   const email = String(currentUser?.email || currentUserProfile?.email || "").toLowerCase();
   const loginId = String(currentUserProfile?.loginId || "").toLowerCase();
+
   return ADMIN_EMAILS.includes(email) || ADMIN_LOGIN_IDS.includes(loginId);
+}
+
+function getUserRole() {
+  if (!currentUser) return "guest";
+  if (isAdminUser()) return "admin";
+  return currentUserProfile?.role || "customer";
 }
 
 function showToast(message, type = "success") {
@@ -185,15 +231,15 @@ function showToast(message, type = "success") {
 
   setTimeout(() => {
     toast.classList.add("hidden");
-  }, 3500);
+  }, 3800);
 }
 
-function setButtonLoading(button, loadingText, isLoading) {
+function setButtonLoading(button, text, isLoading) {
   if (!button) return;
 
   if (isLoading) {
     button.dataset.oldText = button.textContent;
-    button.textContent = loadingText;
+    button.textContent = text;
     button.disabled = true;
   } else {
     button.textContent = button.dataset.oldText || button.textContent;
@@ -201,7 +247,24 @@ function setButtonLoading(button, loadingText, isLoading) {
   }
 }
 
-/* UI CONTROLS */
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Number((R * c).toFixed(1));
+}
+
+/* ---------------- Overlay / Navigation ---------------- */
 function openOverlay() {
   $("overlay")?.classList.remove("hidden");
   document.body.classList.add("no-scroll");
@@ -217,6 +280,15 @@ function closeOverlayIfNothingOpen() {
     $("overlay")?.classList.add("hidden");
     document.body.classList.remove("no-scroll");
   }
+}
+
+function closeAllOverlays() {
+  $("sidebar")?.classList.remove("open");
+  $("notificationDrawer")?.classList.remove("open");
+  $("authModal")?.classList.add("hidden");
+  $("forgotModal")?.classList.add("hidden");
+  $("overlay")?.classList.add("hidden");
+  document.body.classList.remove("no-scroll");
 }
 
 function openSidebar() {
@@ -240,69 +312,68 @@ function closeNotificationDrawer() {
   closeOverlayIfNothingOpen();
 }
 
-function closeAllOverlays() {
-  $("sidebar")?.classList.remove("open");
-  $("notificationDrawer")?.classList.remove("open");
-  $("authModal")?.classList.add("hidden");
-  $("forgotModal")?.classList.add("hidden");
-  $("overlay")?.classList.add("hidden");
-  document.body.classList.remove("no-scroll");
-}
-
-function updateProtectedSections() {
-  const loggedIn = !!currentUser;
-
-  ["book", "worker", "jobs", "dashboard"].forEach((id) => {
-    const section = $(id);
-    if (!section) return;
-    section.classList.toggle("hidden", !loggedIn);
-  });
+function isProtectedSection(id) {
+  return [
+    "profile",
+    "book",
+    "customerDashboard",
+    "workerProfile",
+    "workerJobs",
+    "workerEarnings",
+    "accounts",
+    "chat"
+  ].includes(id);
 }
 
 function goToSection(id) {
   closeSidebar();
 
-  const protectedSections = ["book", "worker", "jobs", "dashboard"];
-
-  if (protectedSections.includes(id) && !currentUser) {
+  if (isProtectedSection(id) && !currentUser) {
     showToast("Please login first.", "error");
     openAuthModal("login");
     return;
   }
 
+  if (id === "admin" && !isAdminUser()) {
+    showToast("Admin access required.", "error");
+    return;
+  }
+
   document.querySelectorAll("main section").forEach((section) => {
-    if (section.id === "settings" || section.id === "admin") {
+    if (
+      section.id === "settings" ||
+      section.id === "admin" ||
+      section.classList.contains("auth-required")
+    ) {
       section.classList.add("hidden");
     }
   });
 
+  updateProtectedSections();
+
   const section = $(id);
   if (!section) return;
 
-  if (id === "settings") {
-    section.classList.remove("hidden");
-  }
-
-  if (id === "admin") {
-    if (!isAdminUser()) {
-      showToast("Admin access required.", "error");
-      return;
-    }
-    section.classList.remove("hidden");
-  }
-
+  section.classList.remove("hidden");
   section.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  if (id === "jobs") loadPublicJobs();
-  if (id === "dashboard") loadDashboard();
+  if (id === "nearby") setTimeout(initMap, 300);
+  if (id === "customerDashboard") loadCustomerDashboard();
+  if (id === "workerJobs") loadPublicJobs();
+  if (id === "workerEarnings") loadWorkerEarnings();
+  if (id === "chat") loadChatBookings();
+  if (id === "accounts") loadAccountDetails();
+  if (id === "profile") loadProfileForm();
+  if (id === "workerProfile") loadWorkerProfileForm();
   if (id === "admin") loadAdminPanel();
 }
 
 function openSettingsSection() {
-  goToSection("settings");
+  if ($("settings")) $("settings").classList.remove("hidden");
+  $("settings")?.scrollIntoView({ behavior: "smooth" });
 }
 
-/* AUTH */
+/* ---------------- Auth ---------------- */
 function openAuthModal(mode = "login") {
   setAuthMode(mode);
   $("authModal")?.classList.remove("hidden");
@@ -347,7 +418,7 @@ async function handleAuth(event) {
       const referral = $("authReferral").value.trim();
       const confirmPassword = $("authConfirmPassword").value;
 
-      if (!name || !phone) throw new Error("Please enter name and phone.");
+      if (!name || !phone) throw new Error("Please enter name and phone number.");
       if (password.length < 6) throw new Error("Password must be at least 6 characters.");
       if (password !== confirmPassword) throw new Error("Passwords do not match.");
 
@@ -356,7 +427,7 @@ async function handleAuth(event) {
 
       await user.updateProfile({ displayName: name });
 
-      await db.collection("users").doc(user.uid).set({
+      const userData = {
         uid: user.uid,
         name,
         phone,
@@ -368,6 +439,14 @@ async function handleAuth(event) {
         country: getSelectedCountry(),
         currency: getSelectedCurrency(),
         language: getSelectedLanguage(),
+        city: "",
+        area: "",
+        about: "",
+        photoUrl: "",
+        totalSpent: 0,
+        totalEarned: 0,
+        pendingPayout: 0,
+        paidPayout: 0,
         settings: {
           country: getSelectedCountry(),
           currency: getSelectedCurrency(),
@@ -375,15 +454,24 @@ async function handleAuth(event) {
         },
         createdAt: nowServer(),
         updatedAt: nowServer()
-      }, { merge: true });
+      };
 
-      await createNotification(user.uid, "Welcome to RapideService", "Your account was created successfully.");
+      await db.collection("users").doc(user.uid).set(userData, { merge: true });
+
+      await createNotification(
+        user.uid,
+        "Welcome to RapideService",
+        `Your ${role} account was created successfully.`
+      );
 
       showToast("Account created successfully.");
       closeAuthModal();
 
-      if (role === "worker") goToSection("worker");
-      else goToSection("book");
+      if (role === "worker") {
+        goToSection("workerProfile");
+      } else {
+        goToSection("profile");
+      }
     } else {
       await auth.signInWithEmailAndPassword(email, password);
       showToast("Login successful.");
@@ -424,6 +512,14 @@ async function socialLogin(providerName) {
         country: "IN",
         currency: "INR",
         language: "en",
+        city: "",
+        area: "",
+        about: "",
+        photoUrl: user.photoURL || "",
+        totalSpent: 0,
+        totalEarned: 0,
+        pendingPayout: 0,
+        paidPayout: 0,
         createdAt: nowServer(),
         updatedAt: nowServer()
       }, { merge: true });
@@ -439,6 +535,7 @@ async function socialLogin(providerName) {
 async function logoutUser() {
   await auth.signOut();
   showToast("Logged out successfully.");
+  goToSection("home");
 }
 
 auth.onAuthStateChanged(async (user) => {
@@ -446,13 +543,14 @@ auth.onAuthStateChanged(async (user) => {
 
   if (!user) {
     currentUserProfile = null;
+    currentDashboardRole = "guest";
     updateAuthUI();
-    renderLoggedOutState();
     return;
   }
 
   try {
-    const snap = await db.collection("users").doc(user.uid).get();
+    const userRef = db.collection("users").doc(user.uid);
+    const snap = await userRef.get();
 
     if (snap.exists) {
       currentUserProfile = snap.data();
@@ -468,36 +566,57 @@ auth.onAuthStateChanged(async (user) => {
         country: "IN",
         currency: "INR",
         language: "en",
+        photoUrl: user.photoURL || "",
         createdAt: nowServer(),
         updatedAt: nowServer()
       };
 
-      await db.collection("users").doc(user.uid).set(currentUserProfile, { merge: true });
+      await userRef.set(currentUserProfile, { merge: true });
     }
+
+    currentDashboardRole = getUserRole();
 
     updateAuthUI();
     applyUserSettingsToUI();
+    prefillFormsFromProfile();
 
     await Promise.all([
-      loadDashboard(),
-      loadNotifications(),
-      loadPublicJobs(),
+      loadStats(),
       loadFeaturedWorkers(),
-      loadStats()
+      loadNotifications()
     ]);
+
+    if (currentDashboardRole === "worker") {
+      loadWorkerEarnings();
+    }
+
+    if (currentDashboardRole === "admin") {
+      loadAdminPanel();
+    }
   } catch (error) {
     showToast(error.message || "Profile loading failed.", "error");
   }
 });
 
 function updateAuthUI() {
-  updateProtectedSections();
-
   const loggedIn = !!currentUser;
+  const role = getUserRole();
 
   $("loginBtn")?.classList.toggle("hidden", loggedIn);
   $("signupBtn")?.classList.toggle("hidden", loggedIn);
   $("logoutBtn")?.classList.toggle("hidden", !loggedIn);
+
+  document.querySelectorAll(".customer-link").forEach((el) => {
+    el.classList.toggle("hidden", !loggedIn || role !== "customer");
+  });
+
+  document.querySelectorAll(".worker-link").forEach((el) => {
+    el.classList.toggle("hidden", !loggedIn || role !== "worker");
+  });
+
+  document.querySelectorAll(".shared-link").forEach((el) => {
+    el.classList.toggle("hidden", !loggedIn || role === "admin");
+  });
 
   if (isAdminUser()) {
     $("adminSideBtn")?.classList.remove("hidden");
@@ -505,31 +624,32 @@ function updateAuthUI() {
     $("adminSideBtn")?.classList.add("hidden");
     $("admin")?.classList.add("hidden");
   }
+
+  updateProtectedSections();
 }
 
-function renderLoggedOutState() {
-  if ($("userInfoCard")) {
-    $("userInfoCard").innerHTML = `<p class="muted">Login to view your dashboard.</p>`;
-  }
+function updateProtectedSections() {
+  const loggedIn = !!currentUser;
+  const role = getUserRole();
 
-  if ($("dashboardContent")) {
-    $("dashboardContent").innerHTML = `
-      <div class="empty-state">
-        Please login to view bookings and bids.
-        <br><br>
-        <button class="btn primary" onclick="openAuthModal('login')">Login Now</button>
-      </div>
-    `;
-  }
+  document.querySelectorAll(".auth-required").forEach((section) => {
+    section.classList.toggle("hidden", !loggedIn);
+  });
 
-  if ($("notificationList")) {
-    $("notificationList").innerHTML = `<p class="muted">Login to view notifications.</p>`;
-  }
+  document.querySelectorAll(".customer-only").forEach((section) => {
+    section.classList.toggle("hidden", !loggedIn || role !== "customer");
+  });
 
-  $("notifyDot")?.classList.add("hidden");
+  document.querySelectorAll(".worker-only").forEach((section) => {
+    section.classList.toggle("hidden", !loggedIn || role !== "worker");
+  });
+
+  if (!isAdminUser()) {
+    $("admin")?.classList.add("hidden");
+  }
 }
 
-/* FORGOT PASSWORD */
+/* ---------------- Forgot Password ---------------- */
 function openForgotModal() {
   closeAuthModal();
   $("forgotModal")?.classList.remove("hidden");
@@ -621,7 +741,7 @@ async function verifyResetOtp() {
   }
 }
 
-/* INIT */
+/* ---------------- Init ---------------- */
 document.addEventListener("DOMContentLoaded", async () => {
   if ($("footerYear")) $("footerYear").textContent = new Date().getFullYear();
 
@@ -629,19 +749,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   applyDefaultSettings();
   bindSettingEvents();
   calculateMinimumPrice();
-  updateProtectedSections();
+  generateWebsiteQr();
 
   await Promise.all([
     loadMinimumPrices(),
     loadStats(),
-    loadPublicJobs(),
-    loadFeaturedWorkers()
+    loadFeaturedWorkers(),
+    loadNearbyWorkers()
   ]);
 
   fillSkillDropdowns();
   calculateMinimumPrice();
 });
 
+/* ---------------- Prices / Services ---------------- */
 async function loadMinimumPrices() {
   try {
     const snap = await db.collection("platformSettings").doc("minimumPrices").get();
@@ -658,23 +779,14 @@ async function loadMinimumPrices() {
 }
 
 function fillSkillDropdowns() {
-  const skillOptions = SKILLS.map((skill) => `<option value="${escapeHtml(skill)}">${escapeHtml(skill)}</option>`).join("");
+  const skillOptions = SKILLS.map((skill) => {
+    return `<option value="${escapeHtml(skill)}">${escapeHtml(skill)}</option>`;
+  }).join("");
 
-  if ($("homeServiceSelect")) {
-    $("homeServiceSelect").innerHTML = skillOptions;
-  }
-
-  if ($("bookingSkill")) {
-    $("bookingSkill").innerHTML = `<option value="">Choose service skill</option>${skillOptions}`;
-  }
-
-  if ($("workerSkill")) {
-    $("workerSkill").innerHTML = `<option value="">Choose your skill</option>${skillOptions}`;
-  }
-
-  if ($("jobSkillFilter")) {
-    $("jobSkillFilter").innerHTML = `<option value="">All Skills</option>${skillOptions}`;
-  }
+  if ($("homeServiceSelect")) $("homeServiceSelect").innerHTML = skillOptions;
+  if ($("bookingSkill")) $("bookingSkill").innerHTML = `<option value="">Choose service skill</option>${skillOptions}`;
+  if ($("workerSkill")) $("workerSkill").innerHTML = `<option value="">Choose your skill</option>${skillOptions}`;
+  if ($("jobSkillFilter")) $("jobSkillFilter").innerHTML = `<option value="">All Skills</option>${skillOptions}`;
 
   renderServices();
 }
@@ -690,12 +802,15 @@ function renderServices() {
     return `
       <article class="service-card">
         <div class="service-photo-wrap">
-          <img src="${img}" alt="${escapeHtml(skill)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('image-fallback');" />
+          <img src="${img}" alt="${escapeHtml(skill)}" loading="lazy"
+            onerror="this.style.display='none'; this.parentElement.classList.add('image-fallback');" />
         </div>
+
         <div class="service-body">
           <h3>${escapeHtml(skill)}</h3>
           <p>Find trusted ${escapeHtml(skill.toLowerCase())} workers near your area.</p>
           <span class="price-chip">From ${formatMoney(price)}</span>
+
           <div class="card-actions">
             <button class="btn light" onclick="selectServiceAndBook('${escapeHtml(skill)}')">Book Now</button>
           </div>
@@ -716,6 +831,20 @@ function selectServiceAndBook(skill) {
   }
 
   goToSection("book");
+}
+
+function calculateMinimumPrice() {
+  const skill = $("bookingSkill")?.value || "Electrician";
+  const type = $("bookingType")?.value || "Freelancer";
+  const base = Number(minimumPrices[skill] || DEFAULT_MINIMUM_PRICES[skill] || 200);
+  const multiplier = Number(WORK_TYPE_MULTIPLIER[type] || 1);
+  const amount = Math.round(base * multiplier);
+
+  if ($("minimumPrice")) {
+    $("minimumPrice").value = `${formatMoney(amount)} suggested minimum`;
+  }
+
+  return amount;
 }
 
 async function loadStats() {
@@ -747,11 +876,12 @@ async function loadStats() {
   }
 }
 
-/* SETTINGS */
+/* ---------------- Settings ---------------- */
 function applyDefaultSettings() {
   if ($("sideCountrySelect")) $("sideCountrySelect").value = "IN";
   if ($("sideCurrencySelect")) $("sideCurrencySelect").value = "INR";
   if ($("sideLanguageSelect")) $("sideLanguageSelect").value = "en";
+
   if ($("settingsCountry")) $("settingsCountry").value = "IN";
   if ($("settingsCurrency")) $("settingsCurrency").value = "INR";
   if ($("settingsLanguage")) $("settingsLanguage").value = "en";
@@ -765,13 +895,21 @@ function applyUserSettingsToUI() {
   if ($("sideCountrySelect")) $("sideCountrySelect").value = country;
   if ($("sideCurrencySelect")) $("sideCurrencySelect").value = currency;
   if ($("sideLanguageSelect")) $("sideLanguageSelect").value = language;
+
   if ($("settingsCountry")) $("settingsCountry").value = country;
   if ($("settingsCurrency")) $("settingsCurrency").value = currency;
   if ($("settingsLanguage")) $("settingsLanguage").value = language;
 }
 
 function bindSettingEvents() {
-  ["sideCountrySelect", "sideCurrencySelect", "sideLanguageSelect", "settingsCountry", "settingsCurrency", "settingsLanguage"].forEach((id) => {
+  [
+    "sideCountrySelect",
+    "sideCurrencySelect",
+    "sideLanguageSelect",
+    "settingsCountry",
+    "settingsCurrency",
+    "settingsLanguage"
+  ].forEach((id) => {
     const el = $(id);
     if (!el) return;
 
@@ -820,7 +958,103 @@ async function saveSettings() {
   showToast("Settings saved.");
 }
 
-/* HERO */
+/* ---------------- Profile ---------------- */
+function prefillFormsFromProfile() {
+  if (!currentUserProfile) return;
+
+  if ($("profileName")) $("profileName").value = currentUserProfile.name || "";
+  if ($("profilePhone")) $("profilePhone").value = currentUserProfile.phone || "";
+  if ($("profileCity")) $("profileCity").value = currentUserProfile.city || "";
+  if ($("profileArea")) $("profileArea").value = currentUserProfile.area || "";
+  if ($("profileAbout")) $("profileAbout").value = currentUserProfile.about || "";
+
+  if ($("customerName")) $("customerName").value = currentUserProfile.name || "";
+  if ($("customerPhone")) $("customerPhone").value = currentUserProfile.phone || "";
+  if ($("bookingCity")) $("bookingCity").value = currentUserProfile.city || "";
+  if ($("bookingArea")) $("bookingArea").value = currentUserProfile.area || "";
+}
+
+function loadProfileForm() {
+  prefillFormsFromProfile();
+  renderProfilePreview();
+}
+
+function renderProfilePreview() {
+  const box = $("profilePreview");
+  if (!box) return;
+
+  const img = currentUserProfile?.photoUrl;
+  const name = currentUserProfile?.name || "User";
+  const role = getUserRole();
+
+  box.innerHTML = `
+    <div class="profile-card-inline">
+      ${img ? `<img src="${img}" alt="Profile" />` : `<div class="avatar">${escapeHtml(name.charAt(0).toUpperCase())}</div>`}
+      <div>
+        <h3>${escapeHtml(name)}</h3>
+        <p>${escapeHtml(currentUser?.email || "")}</p>
+        <span class="status success">${escapeHtml(role)}</span>
+      </div>
+    </div>
+  `;
+}
+
+async function uploadFile(file, path) {
+  if (!file) return "";
+
+  const ref = storage.ref(path);
+  await ref.put(file);
+  return ref.getDownloadURL();
+}
+
+async function saveUserProfile(event) {
+  event.preventDefault();
+
+  if (!currentUser) {
+    showToast("Please login first.", "error");
+    return;
+  }
+
+  const file = $("profilePhoto")?.files?.[0] || null;
+  let photoUrl = currentUserProfile?.photoUrl || "";
+
+  try {
+    if (file) {
+      photoUrl = await uploadFile(file, `profilePhotos/${currentUser.uid}/${Date.now()}_${file.name}`);
+    }
+  } catch {
+    showToast("Photo upload failed. Profile saved without new photo.", "warning");
+  }
+
+  const profileData = {
+    name: $("profileName")?.value.trim() || "",
+    phone: $("profilePhone")?.value.trim() || "",
+    city: $("profileCity")?.value.trim() || "",
+    area: $("profileArea")?.value.trim() || "",
+    about: $("profileAbout")?.value.trim() || "",
+    photoUrl,
+    updatedAt: nowServer()
+  };
+
+  await db.collection("users").doc(currentUser.uid).set(profileData, { merge: true });
+
+  currentUserProfile = {
+    ...currentUserProfile,
+    ...profileData
+  };
+
+  await currentUser.updateProfile({
+    displayName: profileData.name || currentUser.displayName,
+    photoURL: photoUrl || currentUser.photoURL
+  });
+
+  prefillFormsFromProfile();
+  renderProfilePreview();
+
+  showToast("Profile saved successfully.");
+}
+
+/* ---------------- Hero ---------------- */
 function heroFindWorkers() {
   const service = $("homeServiceSelect")?.value || "";
   const city = $("homeCityInput")?.value.trim() || "";
@@ -837,27 +1071,18 @@ function heroFindWorkers() {
   goToSection("book");
 }
 
-function calculateMinimumPrice() {
-  const skill = $("bookingSkill")?.value || "Electrician";
-  const type = $("bookingType")?.value || "Freelancer";
-  const base = Number(minimumPrices[skill] || DEFAULT_MINIMUM_PRICES[skill] || 200);
-  const multiplier = Number(WORK_TYPE_MULTIPLIER[type] || 1);
-  const amount = Math.round(base * multiplier);
-
-  if ($("minimumPrice")) {
-    $("minimumPrice").value = `${formatMoney(amount)} suggested minimum`;
-  }
-
-  return amount;
-}
-
-/* BOOKING */
+/* ---------------- Booking ---------------- */
 async function createBooking(event) {
   event.preventDefault();
 
   if (!currentUser) {
     showToast("Please login first.", "error");
     openAuthModal("login");
+    return;
+  }
+
+  if (getUserRole() !== "customer") {
+    showToast("Only customers can post work.", "error");
     return;
   }
 
@@ -888,6 +1113,7 @@ async function createBooking(event) {
       customerName: name,
       customerPhone: phone,
       customerEmail: currentUser.email || "",
+      customerPhotoUrl: currentUserProfile?.photoUrl || "",
       skill,
       workType: type,
       city,
@@ -907,6 +1133,7 @@ async function createBooking(event) {
       assignedWorkerId: "",
       assignedWorkerName: "",
       workerCanSeeContact: false,
+      chatOpen: false,
       reviewGiven: false,
       createdAt: nowServer(),
       updatedAt: nowServer()
@@ -934,18 +1161,426 @@ async function createBooking(event) {
     await createNotification(currentUser.uid, "Work posted", `Your ${skill} work was posted successfully.`);
 
     $("bookingForm").reset();
+    prefillFormsFromProfile();
     fillSkillDropdowns();
     calculateMinimumPrice();
 
     showToast("Work posted successfully.");
-    await Promise.all([loadPublicJobs(), loadDashboard(), loadStats()]);
-    goToSection("dashboard");
+    await Promise.all([loadPublicJobs(), loadCustomerDashboard(), loadStats()]);
+    goToSection("customerDashboard");
   } catch (error) {
     showToast(error.message || "Booking failed.", "error");
   }
 }
 
-/* WORKER */
+async function loadCustomerDashboard() {
+  const info = $("customerInfoCard");
+  const list = $("customerBookingsList");
+
+  if (!currentUser || !info || !list) return;
+
+  info.innerHTML = `
+    <h3>${escapeHtml(currentUserProfile?.name || "Customer")}</h3>
+    <p><strong>Email:</strong> ${escapeHtml(currentUser.email || "")}</p>
+    <p><strong>Phone:</strong> ${escapeHtml(currentUserProfile?.phone || "-")}</p>
+    <p><strong>City:</strong> ${escapeHtml(currentUserProfile?.city || "-")}</p>
+  `;
+
+  list.innerHTML = `<div class="empty-state">Loading your bookings...</div>`;
+
+  try {
+    const snap = await db.collection("bookings")
+      .where("customerId", "==", currentUser.uid)
+      .limit(50)
+      .get();
+
+    const bookings = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+    if (!bookings.length) {
+      list.innerHTML = `
+        <div class="empty-state">
+          No bookings yet.
+          <br><br>
+          <button class="btn primary" onclick="goToSection('book')">Post Work</button>
+        </div>
+      `;
+      return;
+    }
+
+    const cards = [];
+
+    for (const booking of bookings) {
+      const bidsSnap = await db.collection("bids")
+        .where("bookingId", "==", booking.id)
+        .limit(20)
+        .get();
+
+      const bids = bidsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      cards.push(renderCustomerBookingCard(booking, bids));
+    }
+
+    list.innerHTML = cards.join("");
+  } catch (error) {
+    list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function timelineRow(label, done) {
+  return `
+    <div class="timeline-item">
+      <span class="timeline-dot ${done ? "done" : ""}"></span>
+      <span>${escapeHtml(label)}</span>
+    </div>
+  `;
+}
+
+function renderCustomerBookingCard(booking, bids = []) {
+  const accepted = booking.acceptedBid || null;
+
+  const bidsHtml = bids.length ? bids.map((bid) => `
+    <div class="bid-box">
+      <strong>${escapeHtml(bid.workerName)}</strong>
+      <p>${escapeHtml(bid.workerSkill)} • ${escapeHtml(bid.workerCity)}</p>
+      <p><strong>Bid:</strong> ${formatMoney(bid.bidAmount, booking.currency)}</p>
+      <p>${escapeHtml(bid.message)}</p>
+      <p><span class="status ${bid.status === "accepted" ? "success" : "pending"}">${escapeHtml(bid.status)}</span></p>
+      ${booking.bookingStatus === "open" ? `<button class="btn success" onclick="acceptBid('${booking.id}', '${bid.id}')">Accept Bid</button>` : ""}
+    </div>
+  `).join("") : `<p class="muted">No bids yet.</p>`;
+
+  return `
+    <article class="data-card">
+      <span class="status ${booking.bookingStatus === "open" ? "open" : "pending"}">${escapeHtml(booking.bookingStatus)}</span>
+      <h3>${escapeHtml(booking.skill)} - ${escapeHtml(booking.workType)}</h3>
+      <p><strong>City:</strong> ${escapeHtml(booking.city)}, ${escapeHtml(booking.area)}</p>
+      <p><strong>Budget:</strong> ${formatMoney(booking.budget, booking.currency)}</p>
+      <p>${escapeHtml(booking.details)}</p>
+
+      <div class="timeline">
+        ${timelineRow("Posted", true)}
+        ${timelineRow("Worker accepted", !!accepted)}
+        ${timelineRow("Payment verified", booking.paymentStatus === "paid")}
+        ${timelineRow("Chat unlocked", !!booking.chatOpen)}
+        ${timelineRow("Completed", booking.bookingStatus === "completed")}
+      </div>
+
+      ${accepted ? `
+        <div class="bid-box">
+          <strong>Accepted Worker: ${escapeHtml(accepted.workerName)}</strong>
+          <p>Final Amount: ${formatMoney(accepted.bidAmount, booking.currency)}</p>
+
+          ${booking.paymentStatus !== "paid" ? `<button class="btn primary" onclick="payForBooking('${booking.id}')">Pay Now</button>` : `<span class="status success">Payment Paid</span>`}
+
+          <button class="btn light" onclick="openBookingChat('${booking.id}')">💬 Chat</button>
+
+          ${booking.workerCanSeeContact ? `<a class="btn success" href="tel:${escapeHtml(accepted.workerPhone || "")}">📞 Call Worker</a>` : ""}
+
+          ${booking.bookingStatus !== "completed" ? `<button class="btn success" onclick="markBookingComplete('${booking.id}')">Mark Completed</button>` : ""}
+
+          ${booking.bookingStatus === "completed" && !booking.reviewGiven ? `<button class="btn primary" onclick="reviewWorker('${booking.id}', '${accepted.workerUserId}')">Give Review</button>` : ""}
+        </div>
+      ` : `
+        <h4>Worker Bids</h4>
+        ${bidsHtml}
+      `}
+    </article>
+  `;
+}
+
+async function acceptBid(bookingId, bidId) {
+  try {
+    const bidSnap = await db.collection("bids").doc(bidId).get();
+    if (!bidSnap.exists) return;
+
+    const bid = bidSnap.data();
+
+    await db.collection("bookings").doc(bookingId).set({
+      acceptedBid: {
+        bidId,
+        workerUserId: bid.workerUserId,
+        workerName: bid.workerName,
+        workerPhone: bid.workerPhone || "",
+        workerSkill: bid.workerSkill,
+        bidAmount: bid.bidAmount,
+        message: bid.message
+      },
+      assignedWorkerId: bid.workerUserId,
+      assignedWorkerName: bid.workerName,
+      bookingStatus: "accepted",
+      biddingOpen: false,
+      chatOpen: true,
+      jobProgress: "accepted",
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await db.collection("publicJobs").doc(bookingId).set({
+      biddingOpen: false,
+      bookingStatus: "accepted",
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await db.collection("bids").doc(bidId).set({
+      status: "accepted",
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await db.collection("chats").doc(bookingId).set({
+      bookingId,
+      customerId: bid.customerId,
+      workerUserId: bid.workerUserId,
+      active: true,
+      createdAt: nowServer(),
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await createNotification(bid.workerUserId, "Bid accepted", "Your bid was accepted. Chat is now open.");
+
+    showToast("Bid accepted. Chat is now open.");
+    await Promise.all([loadCustomerDashboard(), loadPublicJobs()]);
+  } catch (error) {
+    showToast(error.message || "Accept bid failed.", "error");
+  }
+}
+
+async function payForBooking(bookingId) {
+  if (!currentUser) return;
+
+  try {
+    const token = await currentUser.getIdToken();
+
+    const orderRes = await fetch("/api/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ bookingId })
+    });
+
+    const orderData = await orderRes.json();
+
+    if (!orderRes.ok) throw new Error(orderData.error || "Payment order failed.");
+
+    const options = {
+      key: orderData.keyId,
+      amount: orderData.amount,
+      currency: orderData.currency || "INR",
+      name: "RapideService",
+      description: "Service booking payment",
+      order_id: orderData.orderId,
+      handler: async function (response) {
+        const verifyRes = await fetch("/api/verify-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            bookingId,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
+          })
+        });
+
+        const verifyData = await verifyRes.json();
+
+        if (!verifyRes.ok) throw new Error(verifyData.error || "Payment verification failed.");
+
+        await createEarningAfterPayment(bookingId);
+
+        showToast("Payment verified. Worker earning reflected.");
+        await Promise.all([loadCustomerDashboard(), loadWorkerEarnings(), loadAdminPanel()]);
+      },
+      prefill: {
+        name: currentUserProfile?.name || "",
+        email: currentUser.email || "",
+        contact: currentUserProfile?.phone || ""
+      },
+      theme: { color: "#2563eb" }
+    };
+
+    const razorpay = new Razorpay(options);
+    razorpay.open();
+  } catch (error) {
+    showToast(error.message || "Payment failed.", "error");
+  }
+}
+
+async function createEarningAfterPayment(bookingId) {
+  try {
+    const bookingSnap = await db.collection("bookings").doc(bookingId).get();
+    if (!bookingSnap.exists) return;
+
+    const booking = bookingSnap.data();
+    const workerId = booking.assignedWorkerId || booking.acceptedBid?.workerUserId;
+
+    if (!workerId) return;
+
+    const grossAmount = Number(booking.acceptedBid?.bidAmount || booking.budget || 0);
+    const commission = Math.round(grossAmount * 0.10);
+    const workerAmount = grossAmount - commission;
+
+    await db.collection("earnings").doc(bookingId).set({
+      bookingId,
+      customerId: booking.customerId,
+      workerUserId: workerId,
+      grossAmount,
+      platformCommission: commission,
+      workerAmount,
+      payoutStatus: "pending",
+      currency: "INR",
+      createdAt: nowServer(),
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await db.collection("users").doc(workerId).set({
+      totalEarned: firebase.firestore.FieldValue.increment(workerAmount),
+      pendingPayout: firebase.firestore.FieldValue.increment(workerAmount),
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await createNotification(workerId, "Payment received", `₹${workerAmount} has been added to your pending earnings.`);
+  } catch {
+    // earning can also be handled by backend API later
+  }
+}
+
+async function markBookingComplete(bookingId) {
+  try {
+    const snap = await db.collection("bookings").doc(bookingId).get();
+    if (!snap.exists) return;
+
+    const booking = snap.data();
+
+    await db.collection("bookings").doc(bookingId).set({
+      bookingStatus: "completed",
+      jobProgress: "completed",
+      chatOpen: false,
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await db.collection("chats").doc(bookingId).set({
+      active: false,
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    if (booking.assignedWorkerId) {
+      await db.collection("workers").doc(booking.assignedWorkerId).set({
+        totalJobs: firebase.firestore.FieldValue.increment(1),
+        updatedAt: nowServer()
+      }, { merge: true });
+
+      await db.collection("workerPublic").doc(booking.assignedWorkerId).set({
+        totalJobs: firebase.firestore.FieldValue.increment(1),
+        updatedAt: nowServer()
+      }, { merge: true });
+    }
+
+    showToast("Booking marked completed. Chat closed.");
+    await Promise.all([loadCustomerDashboard(), loadChatBookings()]);
+  } catch (error) {
+    showToast(error.message || "Completion failed.", "error");
+  }
+}
+
+async function reviewWorker(bookingId, workerUserId) {
+  const ratingValue = prompt("Give rating 1 to 5:");
+  if (!ratingValue) return;
+
+  const rating = Number(ratingValue);
+
+  if (!rating || rating < 1 || rating > 5) {
+    showToast("Rating must be between 1 and 5.", "error");
+    return;
+  }
+
+  const reviewText = prompt("Write review:", "Good service.");
+  if (reviewText === null) return;
+
+  try {
+    await db.collection("reviews").add({
+      bookingId,
+      workerUserId,
+      customerId: currentUser.uid,
+      customerName: currentUserProfile?.name || "Customer",
+      rating,
+      reviewText,
+      createdAt: nowServer()
+    });
+
+    await db.collection("bookings").doc(bookingId).set({
+      reviewGiven: true,
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await recalculateWorkerRating(workerUserId);
+
+    showToast("Review submitted.");
+    await Promise.all([loadCustomerDashboard(), loadFeaturedWorkers(), loadStats()]);
+  } catch (error) {
+    showToast(error.message || "Review failed.", "error");
+  }
+}
+
+async function recalculateWorkerRating(workerUserId) {
+  const snap = await db.collection("reviews")
+    .where("workerUserId", "==", workerUserId)
+    .limit(200)
+    .get();
+
+  let total = 0;
+
+  snap.forEach((doc) => {
+    total += Number(doc.data().rating || 0);
+  });
+
+  const count = snap.size;
+  const avg = count ? Number((total / count).toFixed(1)) : 0;
+
+  await db.collection("workers").doc(workerUserId).set({
+    workerRating: avg,
+    totalReviews: count,
+    updatedAt: nowServer()
+  }, { merge: true });
+
+  await db.collection("workerPublic").doc(workerUserId).set({
+    workerRating: avg,
+    totalReviews: count,
+    updatedAt: nowServer()
+  }, { merge: true });
+}
+
+/* ---------------- Worker Profile ---------------- */
+async function loadWorkerProfileForm() {
+  if (!currentUser) return;
+
+  const snap = await db.collection("workers").doc(currentUser.uid).get();
+
+  if (snap.exists) {
+    const worker = snap.data();
+
+    if ($("workerName")) $("workerName").value = worker.workerName || "";
+    if ($("workerPhone")) $("workerPhone").value = worker.workerPhone || "";
+    if ($("workerSkill")) $("workerSkill").value = worker.workerSkill || "";
+    if ($("workerType")) $("workerType").value = worker.workerType || "Freelancer";
+    if ($("workerCity")) $("workerCity").value = worker.workerCity || "";
+    if ($("workerAvailability")) $("workerAvailability").value = worker.availability || "Available Now";
+    if ($("workerAbout")) $("workerAbout").value = worker.workerAbout || "";
+  } else {
+    if ($("workerName")) $("workerName").value = currentUserProfile?.name || "";
+    if ($("workerPhone")) $("workerPhone").value = currentUserProfile?.phone || "";
+    if ($("workerCity")) $("workerCity").value = currentUserProfile?.city || "";
+  }
+}
+
 async function registerWorker(event) {
   event.preventDefault();
 
@@ -962,6 +1597,7 @@ async function registerWorker(event) {
   const workerCity = $("workerCity").value.trim();
   const availability = $("workerAvailability").value;
   const workerAbout = $("workerAbout").value.trim();
+  const file = $("workerPhoto")?.files?.[0] || null;
 
   if (!workerSkill) {
     showToast("Please select worker skill.", "error");
@@ -977,6 +1613,16 @@ async function registerWorker(event) {
     const existingSnap = await db.collection("workers").doc(currentUser.uid).get();
     const existing = existingSnap.exists ? existingSnap.data() : {};
 
+    let workerPhotoUrl = existing.workerPhotoUrl || currentUserProfile?.photoUrl || "";
+
+    try {
+      if (file) {
+        workerPhotoUrl = await uploadFile(file, `workerPhotos/${currentUser.uid}/${Date.now()}_${file.name}`);
+      }
+    } catch {
+      showToast("Worker photo upload failed. Profile saved without new photo.", "warning");
+    }
+
     const privateData = {
       uid: currentUser.uid,
       workerName,
@@ -987,6 +1633,7 @@ async function registerWorker(event) {
       workerCity,
       workerCityLower: workerCity.toLowerCase(),
       workerCountry: getSelectedCountry(),
+      workerPhotoUrl,
       availability,
       available: availability !== "Not Available",
       verified: !!existing.verified,
@@ -994,6 +1641,7 @@ async function registerWorker(event) {
       workerRating: Number(existing.workerRating || 0),
       totalReviews: Number(existing.totalReviews || 0),
       totalJobs: Number(existing.totalJobs || 0),
+      location: existing.location || null,
       createdAt: existing.createdAt || nowServer(),
       updatedAt: nowServer()
     };
@@ -1007,6 +1655,7 @@ async function registerWorker(event) {
       workerCity,
       workerCityLower: workerCity.toLowerCase(),
       workerCountry: getSelectedCountry(),
+      workerPhotoUrl,
       availability,
       available: availability !== "Not Available",
       verified: privateData.verified,
@@ -1014,6 +1663,7 @@ async function registerWorker(event) {
       workerRating: privateData.workerRating,
       totalReviews: privateData.totalReviews,
       totalJobs: privateData.totalJobs,
+      location: privateData.location,
       createdAt: privateData.createdAt,
       updatedAt: nowServer()
     };
@@ -1025,6 +1675,7 @@ async function registerWorker(event) {
       role: "worker",
       phone: workerPhone,
       city: workerCity,
+      photoUrl: workerPhotoUrl || currentUserProfile?.photoUrl || "",
       updatedAt: nowServer()
     }, { merge: true });
 
@@ -1032,75 +1683,62 @@ async function registerWorker(event) {
       ...currentUserProfile,
       role: "worker",
       phone: workerPhone,
-      city: workerCity
+      city: workerCity,
+      photoUrl: workerPhotoUrl || currentUserProfile?.photoUrl || ""
     };
 
-    await createNotification(currentUser.uid, "Worker profile saved", "Your worker profile is now visible.");
-
     showToast("Worker profile saved successfully.");
-    await Promise.all([loadDashboard(), loadFeaturedWorkers(), loadStats()]);
+
+    updateAuthUI();
+    await Promise.all([loadFeaturedWorkers(), loadStats(), loadNearbyWorkers()]);
   } catch (error) {
     showToast(error.message || "Worker registration failed.", "error");
   }
 }
 
-/* FEATURED WORKERS */
-async function loadFeaturedWorkers() {
-  const grid = $("featuredWorkersGrid");
-  if (!grid) return;
-
-  try {
-    const snap = await db.collection("workerPublic").limit(6).get();
-
-    const workers = snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    if (!workers.length) {
-      grid.innerHTML = `
-        <div class="empty-state">
-          Worker profiles will appear here after workers register.
-          <br><br>
-          <button class="btn primary" onclick="goToSection('worker')">Register as Worker</button>
-        </div>
-      `;
-      return;
-    }
-
-    grid.innerHTML = workers.map(renderWorkerPublicCard).join("");
-  } catch (error) {
-    grid.innerHTML = `<div class="empty-state">Could not load worker profiles.</div>`;
+async function saveWorkerCurrentLocation() {
+  if (!currentUser) {
+    showToast("Please login first.", "error");
+    return;
   }
+
+  if (!navigator.geolocation) {
+    showToast("Location is not supported by your browser.", "error");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const location = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      updatedAt: Date.now()
+    };
+
+    await db.collection("workers").doc(currentUser.uid).set({
+      location,
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    await db.collection("workerPublic").doc(currentUser.uid).set({
+      location,
+      updatedAt: nowServer()
+    }, { merge: true });
+
+    showToast("Worker location saved.");
+    await loadNearbyWorkers();
+  }, () => {
+    showToast("Location permission denied.", "error");
+  });
 }
 
-function renderWorkerPublicCard(worker) {
-  const firstLetter = String(worker.workerName || "R").charAt(0).toUpperCase();
-
-  return `
-    <article class="worker-public-card">
-      <div class="avatar">${escapeHtml(firstLetter)}</div>
-      <span class="status ${worker.verified ? "success" : "pending"}">${worker.verified ? "Verified" : "Pending Verification"}</span>
-      <h3>${escapeHtml(worker.workerName || "Worker")}</h3>
-      <p><strong>Skill:</strong> ${escapeHtml(worker.workerSkill || "-")}</p>
-      <p><strong>City:</strong> ${escapeHtml(worker.workerCity || "-")}</p>
-      <p><strong>Type:</strong> ${escapeHtml(worker.workerType || "Freelancer")}</p>
-      <p><strong>Availability:</strong> ${escapeHtml(worker.availability || "-")}</p>
-      <p><span class="rating">★ ${Number(worker.workerRating || 0).toFixed(1)}</span> (${worker.totalReviews || 0} reviews)</p>
-      <p>${escapeHtml(worker.workerAbout || "Trusted RapideService worker.")}</p>
-      <div class="card-actions">
-        <button class="btn primary" onclick="selectServiceAndBook('${escapeHtml(worker.workerSkill || "Freelancer / General Helper")}')">Book Similar</button>
-      </div>
-    </article>
-  `;
-}
-
-/* JOBS AND BIDS */
+/* ---------------- Worker Jobs / Bids ---------------- */
 async function loadPublicJobs() {
   const list = $("jobsList");
   if (!list) return;
 
   try {
+    list.innerHTML = `<div class="empty-state">Loading jobs...</div>`;
+
     const snap = await db.collection("publicJobs")
       .where("biddingOpen", "==", true)
       .limit(50)
@@ -1113,7 +1751,7 @@ async function loadPublicJobs() {
 
     renderPublicJobs();
   } catch (error) {
-    list.innerHTML = `<div class="empty-state">Login may be required to view jobs.</div>`;
+    list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   }
 }
 
@@ -1138,13 +1776,7 @@ function renderPublicJobs() {
   jobs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
   if (!jobs.length) {
-    list.innerHTML = `
-      <div class="empty-state">
-        No open jobs found.
-        <br><br>
-        <button class="btn primary" onclick="goToSection('book')">Post First Work</button>
-      </div>
-    `;
+    list.innerHTML = `<div class="empty-state">No open jobs found.</div>`;
     return;
   }
 
@@ -1170,11 +1802,16 @@ async function openBidPrompt(bookingId) {
     return;
   }
 
+  if (getUserRole() !== "worker") {
+    showToast("Only workers can bid on jobs.", "error");
+    return;
+  }
+
   const workerSnap = await db.collection("workers").doc(currentUser.uid).get();
 
   if (!workerSnap.exists) {
-    showToast("Please register as worker first.", "error");
-    goToSection("worker");
+    showToast("Please create worker profile first.", "error");
+    goToSection("workerProfile");
     return;
   }
 
@@ -1228,6 +1865,7 @@ async function sendBid(bookingId, bidAmount, message) {
       customerId: booking.customerId,
       workerUserId: currentUser.uid,
       workerName: worker.workerName,
+      workerPhone: worker.workerPhone,
       workerSkill: worker.workerSkill,
       workerType: worker.workerType,
       workerCity: worker.workerCity,
@@ -1240,463 +1878,486 @@ async function sendBid(bookingId, bidAmount, message) {
       updatedAt: nowServer()
     });
 
-    await createNotification(booking.customerId, "New worker bid", `${worker.workerName} sent a bid of ${formatMoney(bidAmount, booking.currency)}.`);
+    await createNotification(
+      booking.customerId,
+      "New worker bid",
+      `${worker.workerName} sent a bid of ${formatMoney(bidAmount, booking.currency)}.`
+    );
 
     showToast("Bid sent successfully.");
-    await loadDashboard();
   } catch (error) {
     showToast(error.message || "Bid failed.", "error");
   }
 }
 
-/* DASHBOARD */
-function setDashboardTab(tab) {
-  currentDashboardTab = tab;
-
-  document.querySelectorAll("#dashboard .dash-tabs .tab").forEach((btn) => {
-    btn.classList.remove("active");
-  });
-
-  const buttons = document.querySelectorAll("#dashboard .dash-tabs .tab");
-
-  if (tab === "bookings") buttons[0]?.classList.add("active");
-  if (tab === "bids") buttons[1]?.classList.add("active");
-  if (tab === "profile") buttons[2]?.classList.add("active");
-
-  loadDashboard();
-}
-
-async function loadDashboard() {
-  if (!currentUser) return;
-
-  if ($("userInfoCard")) {
-    $("userInfoCard").innerHTML = `
-      <h3>${escapeHtml(currentUserProfile?.name || currentUser.displayName || "User")}</h3>
-      <p><strong>Email:</strong> ${escapeHtml(currentUser.email || "")}</p>
-      <p><strong>Role:</strong> ${escapeHtml(currentUserProfile?.role || "customer")}</p>
-      <p><strong>Referral Code:</strong> ${escapeHtml(currentUserProfile?.referralCode || "-")}</p>
-    `;
-  }
-
-  if (currentDashboardTab === "bookings") await loadMyBookings();
-  if (currentDashboardTab === "bids") await loadMyBids();
-  if (currentDashboardTab === "profile") await loadMyWorkerProfile();
-}
-
-async function loadMyBookings() {
-  const content = $("dashboardContent");
-  if (!content) return;
-
-  content.innerHTML = `<div class="empty-state">Loading bookings...</div>`;
+/* ---------------- Featured Workers / Nearby Workers ---------------- */
+async function loadFeaturedWorkers() {
+  const grid = $("featuredWorkersGrid");
+  if (!grid) return;
 
   try {
-    const snap = await db.collection("bookings")
-      .where("customerId", "==", currentUser.uid)
-      .limit(50)
+    const snap = await db.collection("workerPublic")
+      .limit(6)
       .get();
 
-    const bookings = snap.docs.map((doc) => ({
+    const workers = snap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
-    })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    }));
 
-    if (!bookings.length) {
-      content.innerHTML = `<div class="empty-state">No bookings yet.<br><br><button class="btn primary" onclick="goToSection('book')">Post Work</button></div>`;
+    if (!workers.length) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          Worker profiles will appear here after workers register.
+        </div>
+      `;
       return;
     }
 
-    const cards = [];
-
-    for (const booking of bookings) {
-      const bidsSnap = await db.collection("bids")
-        .where("bookingId", "==", booking.id)
-        .limit(20)
-        .get();
-
-      const bids = bidsSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      cards.push(renderBookingCard(booking, bids));
-    }
-
-    content.innerHTML = `<div class="card-grid">${cards.join("")}</div>`;
-  } catch (error) {
-    content.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    grid.innerHTML = workers.map(renderWorkerPublicCard).join("");
+  } catch {
+    grid.innerHTML = `<div class="empty-state">Could not load worker profiles.</div>`;
   }
 }
 
-function renderBookingCard(booking, bids = []) {
-  const accepted = booking.acceptedBid || null;
-
-  const bidsHtml = bids.length ? bids.map((bid) => `
-    <div class="bid-box">
-      <strong>${escapeHtml(bid.workerName)}</strong>
-      <p>${escapeHtml(bid.workerSkill)} • ${escapeHtml(bid.workerCity)}</p>
-      <p><strong>Bid:</strong> ${formatMoney(bid.bidAmount, booking.currency)}</p>
-      <p>${escapeHtml(bid.message)}</p>
-      <p><span class="status ${bid.status === "accepted" ? "success" : "pending"}">${escapeHtml(bid.status)}</span></p>
-      ${booking.bookingStatus === "open" ? `<button class="btn success" onclick="acceptBid('${booking.id}', '${bid.id}')">Accept Bid</button>` : ""}
-    </div>
-  `).join("") : `<p class="muted">No bids yet.</p>`;
+function renderWorkerPublicCard(worker, distanceText = "") {
+  const firstLetter = String(worker.workerName || "R").charAt(0).toUpperCase();
+  const img = worker.workerPhotoUrl;
 
   return `
-    <article class="data-card">
-      <span class="status ${booking.bookingStatus === "open" ? "open" : "pending"}">${escapeHtml(booking.bookingStatus)}</span>
-      <h3>${escapeHtml(booking.skill)} - ${escapeHtml(booking.workType)}</h3>
-      <p><strong>City:</strong> ${escapeHtml(booking.city)}, ${escapeHtml(booking.area)}</p>
-      <p><strong>Budget:</strong> ${formatMoney(booking.budget, booking.currency)}</p>
-      <p>${escapeHtml(booking.details)}</p>
+    <article class="worker-public-card">
+      ${img ? `<img class="worker-card-img" src="${img}" alt="${escapeHtml(worker.workerName)}" />` : `<div class="avatar">${escapeHtml(firstLetter)}</div>`}
 
-      <div class="timeline">
-        ${timelineRow("Posted", true)}
-        ${timelineRow("Worker accepted", !!accepted)}
-        ${timelineRow("Payment verified", booking.paymentStatus === "paid")}
-        ${timelineRow("Contact unlocked", !!booking.workerCanSeeContact)}
-        ${timelineRow("Completed", booking.bookingStatus === "completed")}
+      <span class="status ${worker.verified ? "success" : "pending"}">
+        ${worker.verified ? "Verified" : "Pending Verification"}
+      </span>
+
+      <h3>${escapeHtml(worker.workerName || "Worker")}</h3>
+      <p><strong>Skill:</strong> ${escapeHtml(worker.workerSkill || "-")}</p>
+      <p><strong>City:</strong> ${escapeHtml(worker.workerCity || "-")}</p>
+      <p><strong>Type:</strong> ${escapeHtml(worker.workerType || "Freelancer")}</p>
+      <p><strong>Availability:</strong> ${escapeHtml(worker.availability || "-")}</p>
+      ${distanceText ? `<p><strong>Distance:</strong> ${escapeHtml(distanceText)}</p>` : ""}
+      <p><span class="rating">★ ${Number(worker.workerRating || 0).toFixed(1)}</span> (${worker.totalReviews || 0} reviews)</p>
+      <p>${escapeHtml(worker.workerAbout || "Trusted RapideService worker.")}</p>
+
+      <div class="card-actions">
+        <button class="btn primary" onclick="selectServiceAndBook('${escapeHtml(worker.workerSkill || "Freelancer / General Helper")}')">Book Similar</button>
       </div>
-
-      ${accepted ? `
-        <div class="bid-box">
-          <strong>Accepted Worker: ${escapeHtml(accepted.workerName)}</strong>
-          <p>Final Amount: ${formatMoney(accepted.bidAmount, booking.currency)}</p>
-
-          ${booking.paymentStatus !== "paid" ? `<button class="btn primary" onclick="payForBooking('${booking.id}')">Pay Now</button>` : `<span class="status success">Payment Paid</span>`}
-
-          ${booking.bookingStatus !== "completed" ? `<button class="btn success" onclick="markBookingComplete('${booking.id}')">Mark Completed</button>` : ""}
-
-          ${booking.bookingStatus === "completed" && !booking.reviewGiven ? `<button class="btn primary" onclick="reviewWorker('${booking.id}', '${accepted.workerUserId}')">Give Review</button>` : ""}
-        </div>
-      ` : `
-        <h4>Worker Bids</h4>
-        ${bidsHtml}
-      `}
     </article>
   `;
 }
 
-function timelineRow(label, done) {
-  return `
-    <div class="timeline-item">
-      <span class="timeline-dot ${done ? "done" : ""}"></span>
-      <span>${escapeHtml(label)}</span>
-    </div>
-  `;
-}
-
-async function acceptBid(bookingId, bidId) {
-  try {
-    const bidSnap = await db.collection("bids").doc(bidId).get();
-    if (!bidSnap.exists) return;
-
-    const bid = bidSnap.data();
-
-    await db.collection("bookings").doc(bookingId).set({
-      acceptedBid: {
-        bidId,
-        workerUserId: bid.workerUserId,
-        workerName: bid.workerName,
-        workerSkill: bid.workerSkill,
-        bidAmount: bid.bidAmount,
-        message: bid.message
-      },
-      assignedWorkerId: bid.workerUserId,
-      assignedWorkerName: bid.workerName,
-      bookingStatus: "accepted",
-      biddingOpen: false,
-      jobProgress: "accepted",
-      updatedAt: nowServer()
-    }, { merge: true });
-
-    await db.collection("publicJobs").doc(bookingId).set({
-      biddingOpen: false,
-      bookingStatus: "accepted",
-      updatedAt: nowServer()
-    }, { merge: true });
-
-    await db.collection("bids").doc(bidId).set({
-      status: "accepted",
-      updatedAt: nowServer()
-    }, { merge: true });
-
-    await createNotification(bid.workerUserId, "Bid accepted", "Your bid was accepted.");
-
-    showToast("Bid accepted.");
-    await Promise.all([loadDashboard(), loadPublicJobs()]);
-  } catch (error) {
-    showToast(error.message || "Accept bid failed.", "error");
-  }
-}
-
-async function payForBooking(bookingId) {
-  if (!currentUser) return;
+async function loadNearbyWorkers(centerLat = null, centerLng = null) {
+  const list = $("nearbyWorkersList");
 
   try {
-    const token = await currentUser.getIdToken();
+    const snap = await db.collection("workerPublic")
+      .limit(100)
+      .get();
 
-    const orderRes = await fetch("/api/create-order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ bookingId })
-    });
+    allNearbyWorkersCache = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
-    const orderData = await orderRes.json();
+    if (list) {
+      if (!allNearbyWorkersCache.length) {
+        list.innerHTML = `<div class="empty-state">No workers found yet.</div>`;
+      } else {
+        list.innerHTML = allNearbyWorkersCache.map((worker) => {
+          let distanceText = "";
 
-    if (!orderRes.ok) throw new Error(orderData.error || "Payment order failed.");
+          if (centerLat && centerLng && worker.location?.lat && worker.location?.lng) {
+            distanceText = `${distanceKm(centerLat, centerLng, worker.location.lat, worker.location.lng)} km away`;
+          }
 
-    const options = {
-      key: orderData.keyId,
-      amount: orderData.amount,
-      currency: orderData.currency || "INR",
-      name: "RapideService",
-      description: "Service booking payment",
-      order_id: orderData.orderId,
-      handler: async function (response) {
-        const verifyRes = await fetch("/api/verify-payment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            bookingId,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature
-          })
-        });
-
-        const verifyData = await verifyRes.json();
-
-        if (!verifyRes.ok) throw new Error(verifyData.error || "Payment verification failed.");
-
-        showToast("Payment verified. Contact unlocked.");
-        await loadDashboard();
-      },
-      prefill: {
-        name: currentUserProfile?.name || "",
-        email: currentUser.email || "",
-        contact: currentUserProfile?.phone || ""
-      },
-      theme: { color: "#2563eb" }
-    };
-
-    const razorpay = new Razorpay(options);
-    razorpay.open();
-  } catch (error) {
-    showToast(error.message || "Payment failed.", "error");
-  }
-}
-
-async function markBookingComplete(bookingId) {
-  try {
-    const snap = await db.collection("bookings").doc(bookingId).get();
-    if (!snap.exists) return;
-
-    const booking = snap.data();
-
-    await db.collection("bookings").doc(bookingId).set({
-      bookingStatus: "completed",
-      jobProgress: "completed",
-      updatedAt: nowServer()
-    }, { merge: true });
-
-    if (booking.assignedWorkerId) {
-      await db.collection("workers").doc(booking.assignedWorkerId).set({
-        totalJobs: firebase.firestore.FieldValue.increment(1),
-        updatedAt: nowServer()
-      }, { merge: true });
-
-      await db.collection("workerPublic").doc(booking.assignedWorkerId).set({
-        totalJobs: firebase.firestore.FieldValue.increment(1),
-        updatedAt: nowServer()
-      }, { merge: true });
+          return renderWorkerPublicCard(worker, distanceText);
+        }).join("");
+      }
     }
 
-    showToast("Booking marked completed.");
-    await loadDashboard();
-  } catch (error) {
-    showToast(error.message || "Completion failed.", "error");
+    renderWorkersOnMap();
+  } catch {
+    if (list) list.innerHTML = `<div class="empty-state">Could not load nearby workers.</div>`;
   }
 }
 
-async function reviewWorker(bookingId, workerUserId) {
-  const ratingValue = prompt("Give rating 1 to 5:");
-  if (!ratingValue) return;
+/* ---------------- Map ---------------- */
+function initMap() {
+  if (!$("map")) return;
 
-  const rating = Number(ratingValue);
-
-  if (!rating || rating < 1 || rating > 5) {
-    showToast("Rating must be between 1 and 5.", "error");
+  if (!window.L) {
+    showToast("Map library not loaded.", "error");
     return;
   }
 
-  const reviewText = prompt("Write review:", "Good service.");
-  if (reviewText === null) return;
+  if (mapInstance) {
+    setTimeout(() => mapInstance.invalidateSize(), 200);
+    renderWorkersOnMap();
+    return;
+  }
 
-  try {
-    await db.collection("reviews").add({
-      bookingId,
-      workerUserId,
-      customerId: currentUser.uid,
-      customerName: currentUserProfile?.name || "Customer",
-      rating,
-      reviewText,
-      createdAt: nowServer()
-    });
+  mapInstance = L.map("map").setView([28.6139, 77.2090], 11);
 
-    await db.collection("bookings").doc(bookingId).set({
-      reviewGiven: true,
-      updatedAt: nowServer()
-    }, { merge: true });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "© OpenStreetMap"
+  }).addTo(mapInstance);
 
-    await recalculateWorkerRating(workerUserId);
+  renderWorkersOnMap();
+}
 
-    showToast("Review submitted.");
-    await Promise.all([loadDashboard(), loadFeaturedWorkers(), loadStats()]);
-  } catch (error) {
-    showToast(error.message || "Review failed.", "error");
+function renderWorkersOnMap() {
+  if (!mapInstance || !window.L) return;
+
+  workerMarkers.forEach((marker) => marker.remove());
+  workerMarkers = [];
+
+  allNearbyWorkersCache.forEach((worker) => {
+    if (!worker.location?.lat || !worker.location?.lng) return;
+
+    const marker = L.marker([worker.location.lat, worker.location.lng])
+      .addTo(mapInstance)
+      .bindPopup(`
+        <strong>${escapeHtml(worker.workerName || "Worker")}</strong><br>
+        ${escapeHtml(worker.workerSkill || "")}<br>
+        ${escapeHtml(worker.workerCity || "")}
+      `);
+
+    workerMarkers.push(marker);
+  });
+}
+
+function useCurrentLocationForMap() {
+  if (!navigator.geolocation) {
+    showToast("Location is not supported.", "error");
+    return;
+  }
+
+  initMap();
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+
+    if (mapInstance) {
+      mapInstance.setView([lat, lng], 13);
+
+      if (userMapMarker) userMapMarker.remove();
+
+      userMapMarker = L.marker([lat, lng])
+        .addTo(mapInstance)
+        .bindPopup("You are here")
+        .openPopup();
+    }
+
+    await loadNearbyWorkers(lat, lng);
+  }, () => {
+    showToast("Location permission denied.", "error");
+  });
+}
+
+/* ---------------- Accounts / UPI ---------------- */
+async function saveAccountDetails(event) {
+  event.preventDefault();
+
+  if (!currentUser) {
+    showToast("Please login first.", "error");
+    return;
+  }
+
+  const accountData = {
+    uid: currentUser.uid,
+    accountHolder: $("accountHolder")?.value.trim() || "",
+    bankName: $("bankName")?.value.trim() || "",
+    bankAccountNumber: $("bankAccountNumber")?.value.trim() || "",
+    ifscCode: $("ifscCode")?.value.trim() || "",
+    upiId: $("upiId")?.value.trim() || "",
+    preferredPayout: $("preferredPayout")?.value || "upi",
+    updatedAt: nowServer()
+  };
+
+  await db.collection("workerAccounts").doc(currentUser.uid).set(accountData, { merge: true });
+
+  showToast("Account details saved.");
+  generateWorkerUpiQr(accountData.upiId);
+}
+
+async function loadAccountDetails() {
+  if (!currentUser) return;
+
+  const snap = await db.collection("workerAccounts").doc(currentUser.uid).get();
+
+  if (snap.exists) {
+    const data = snap.data();
+
+    if ($("accountHolder")) $("accountHolder").value = data.accountHolder || "";
+    if ($("bankName")) $("bankName").value = data.bankName || "";
+    if ($("bankAccountNumber")) $("bankAccountNumber").value = data.bankAccountNumber || "";
+    if ($("ifscCode")) $("ifscCode").value = data.ifscCode || "";
+    if ($("upiId")) $("upiId").value = data.upiId || "";
+    if ($("preferredPayout")) $("preferredPayout").value = data.preferredPayout || "upi";
+
+    generateWorkerUpiQr(data.upiId || "");
   }
 }
 
-async function recalculateWorkerRating(workerUserId) {
-  const snap = await db.collection("reviews")
-    .where("workerUserId", "==", workerUserId)
-    .limit(200)
-    .get();
+function generateWorkerUpiQr(upiId) {
+  const canvas = $("workerUpiQr");
 
-  let total = 0;
+  if (!canvas || !window.QRCode || !upiId) return;
 
-  snap.forEach((doc) => {
-    total += Number(doc.data().rating || 0);
+  const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=RapideService Worker&cu=INR`;
+
+  QRCode.toCanvas(canvas, upiUrl, {
+    width: 220,
+    margin: 2
+  });
+}
+
+/* ---------------- Website QR ---------------- */
+function generateWebsiteQr() {
+  const canvas = $("websiteQr");
+  const textBox = $("websiteQrText");
+
+  if (!canvas || !window.QRCode) return;
+
+  const url = window.location.origin;
+
+  QRCode.toCanvas(canvas, url, {
+    width: 240,
+    margin: 2
   });
 
-  const count = snap.size;
-  const avg = count ? Number((total / count).toFixed(1)) : 0;
-
-  await db.collection("workers").doc(workerUserId).set({
-    workerRating: avg,
-    totalReviews: count,
-    updatedAt: nowServer()
-  }, { merge: true });
-
-  await db.collection("workerPublic").doc(workerUserId).set({
-    workerRating: avg,
-    totalReviews: count,
-    updatedAt: nowServer()
-  }, { merge: true });
+  if (textBox) textBox.textContent = url;
 }
 
-async function loadMyBids() {
-  const content = $("dashboardContent");
-  if (!content) return;
+/* ---------------- Worker Earnings ---------------- */
+async function loadWorkerEarnings() {
+  if (!currentUser) return;
 
-  content.innerHTML = `<div class="empty-state">Loading bids...</div>`;
+  const list = $("workerEarningsList");
 
   try {
-    const snap = await db.collection("bids")
+    const snap = await db.collection("earnings")
       .where("workerUserId", "==", currentUser.uid)
-      .limit(50)
+      .limit(100)
       .get();
 
-    const bids = snap.docs.map((doc) => ({
+    const earnings = snap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
-    })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    }));
 
-    if (!bids.length) {
-      content.innerHTML = `<div class="empty-state">No bids sent yet.<br><br><button class="btn primary" onclick="goToSection('jobs')">View Open Jobs</button></div>`;
+    let total = 0;
+    let pending = 0;
+    let paid = 0;
+
+    earnings.forEach((item) => {
+      const amount = Number(item.workerAmount || 0);
+      total += amount;
+
+      if (item.payoutStatus === "paid") paid += amount;
+      else pending += amount;
+    });
+
+    if ($("workerTotalEarned")) $("workerTotalEarned").textContent = formatMoney(total);
+    if ($("workerPendingPayout")) $("workerPendingPayout").textContent = formatMoney(pending);
+    if ($("workerPaidPayout")) $("workerPaidPayout").textContent = formatMoney(paid);
+
+    const workerSnap = await db.collection("workers").doc(currentUser.uid).get();
+    if ($("workerTotalJobs")) $("workerTotalJobs").textContent = workerSnap.data()?.totalJobs || 0;
+
+    if (!list) return;
+
+    if (!earnings.length) {
+      list.innerHTML = `<div class="empty-state">No earnings yet.</div>`;
       return;
     }
 
-    const cards = [];
-
-    for (const bid of bids) {
-      let bookingHtml = "";
-
-      try {
-        const bookingSnap = await db.collection("bookings").doc(bid.bookingId).get();
-
-        if (bookingSnap.exists) {
-          const booking = bookingSnap.data();
-
-          if (bid.status === "accepted" && booking.workerCanSeeContact && booking.paymentStatus === "paid") {
-            bookingHtml = `
-              <div class="bid-box">
-                <strong>Customer Contact Unlocked</strong>
-                <p><strong>Name:</strong> ${escapeHtml(booking.customerName)}</p>
-                <p><strong>Phone:</strong> ${escapeHtml(booking.customerPhone)}</p>
-                <p><strong>Address:</strong> ${escapeHtml(booking.address)}</p>
-              </div>
-            `;
-          }
-        }
-      } catch {
-        bookingHtml = "";
-      }
-
-      cards.push(`
-        <article class="data-card">
-          <span class="status ${bid.status === "accepted" ? "success" : "pending"}">${escapeHtml(bid.status)}</span>
-          <h3>${escapeHtml(bid.workerSkill)}</h3>
-          <p><strong>Bid Amount:</strong> ${formatMoney(bid.bidAmount)}</p>
-          <p>${escapeHtml(bid.message)}</p>
-          ${bookingHtml}
-        </article>
-      `);
-    }
-
-    content.innerHTML = `<div class="card-grid">${cards.join("")}</div>`;
-  } catch (error) {
-    content.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
-  }
-}
-
-async function loadMyWorkerProfile() {
-  const content = $("dashboardContent");
-  if (!content) return;
-
-  content.innerHTML = `<div class="empty-state">Loading worker profile...</div>`;
-
-  try {
-    const snap = await db.collection("workers").doc(currentUser.uid).get();
-
-    if (!snap.exists) {
-      content.innerHTML = `<div class="empty-state">You have not registered as worker yet.<br><br><button class="btn primary" onclick="goToSection('worker')">Register Worker Profile</button></div>`;
-      return;
-    }
-
-    const worker = snap.data();
-
-    content.innerHTML = `
-      <div class="worker-profile-card">
-        <div class="avatar">${escapeHtml((worker.workerName || "R").charAt(0).toUpperCase())}</div>
-        <h3>${escapeHtml(worker.workerName)}</h3>
-        <p><strong>Skill:</strong> ${escapeHtml(worker.workerSkill)}</p>
-        <p><strong>Type:</strong> ${escapeHtml(worker.workerType)}</p>
-        <p><strong>City:</strong> ${escapeHtml(worker.workerCity)}</p>
-        <p><strong>Phone:</strong> ${escapeHtml(worker.workerPhone)}</p>
-        <p><strong>Availability:</strong> ${escapeHtml(worker.availability)}</p>
-        <p><strong>Verification:</strong> <span class="status ${worker.verified ? "success" : "pending"}">${worker.verified ? "Verified" : "Pending"}</span></p>
-        <p><strong>Rating:</strong> <span class="rating">★ ${Number(worker.workerRating || 0).toFixed(1)}</span> (${worker.totalReviews || 0} reviews)</p>
-        <p>${escapeHtml(worker.workerAbout)}</p>
-
-        <div class="card-actions">
-          <button class="btn primary" onclick="goToSection('worker')">Update Profile</button>
-          <button class="btn light" onclick="goToSection('jobs')">View Open Jobs</button>
-        </div>
+    list.innerHTML = `
+      <div class="card-grid">
+        ${earnings.map((item) => `
+          <article class="data-card">
+            <span class="status ${item.payoutStatus === "paid" ? "success" : "pending"}">${escapeHtml(item.payoutStatus || "pending")}</span>
+            <h3>${formatMoney(item.workerAmount)}</h3>
+            <p><strong>Booking:</strong> ${escapeHtml(item.bookingId)}</p>
+            <p><strong>Gross:</strong> ${formatMoney(item.grossAmount)}</p>
+            <p><strong>Platform Commission:</strong> ${formatMoney(item.platformCommission)}</p>
+          </article>
+        `).join("")}
       </div>
     `;
   } catch (error) {
-    content.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    if (list) list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   }
 }
 
-/* SUPPORT */
+/* ---------------- Chat ---------------- */
+async function loadChatBookings() {
+  const list = $("chatBookingList");
+
+  if (!currentUser || !list) return;
+
+  list.innerHTML = `<div class="empty-state">Loading chats...</div>`;
+
+  try {
+    let snap;
+
+    if (getUserRole() === "worker") {
+      snap = await db.collection("bookings")
+        .where("assignedWorkerId", "==", currentUser.uid)
+        .limit(50)
+        .get();
+    } else {
+      snap = await db.collection("bookings")
+        .where("customerId", "==", currentUser.uid)
+        .limit(50)
+        .get();
+    }
+
+    const bookings = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    })).filter((b) => b.acceptedBid);
+
+    if (!bookings.length) {
+      list.innerHTML = `<p class="muted">No active chats yet.</p>`;
+      return;
+    }
+
+    list.innerHTML = bookings.map((booking) => `
+      <button class="chat-booking-btn" onclick="openBookingChat('${booking.id}')">
+        <strong>${escapeHtml(booking.skill)}</strong>
+        <span>${escapeHtml(booking.bookingStatus)}</span>
+      </button>
+    `).join("");
+  } catch (error) {
+    list.innerHTML = `<p class="muted">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function openBookingChat(bookingId) {
+  goToSection("chat");
+
+  currentChatBookingId = bookingId;
+
+  const bookingSnap = await db.collection("bookings").doc(bookingId).get();
+
+  if (!bookingSnap.exists) {
+    showToast("Booking not found.", "error");
+    return;
+  }
+
+  currentChatBookingData = {
+    id: bookingId,
+    ...bookingSnap.data()
+  };
+
+  if ($("chatHeader")) {
+    $("chatHeader").innerHTML = `
+      <strong>${escapeHtml(currentChatBookingData.skill)}</strong>
+      <span>${escapeHtml(currentChatBookingData.bookingStatus)}</span>
+    `;
+  }
+
+  const canCall =
+    currentChatBookingData.paymentStatus === "paid" &&
+    currentChatBookingData.workerCanSeeContact &&
+    currentChatBookingData.bookingStatus !== "completed";
+
+  $("callBox")?.classList.toggle("hidden", !canCall);
+
+  if ($("callButton")) {
+    const phone = getUserRole() === "worker"
+      ? currentChatBookingData.customerPhone
+      : currentChatBookingData.acceptedBid?.workerPhone || "";
+
+    $("callButton").onclick = () => {
+      if (phone) window.location.href = `tel:${phone}`;
+      else showToast("Phone number not available.", "error");
+    };
+  }
+
+  if (chatUnsubscribe) chatUnsubscribe();
+
+  chatUnsubscribe = db.collection("chats")
+    .doc(bookingId)
+    .collection("messages")
+    .orderBy("createdAt", "asc")
+    .limit(100)
+    .onSnapshot((snap) => {
+      const messages = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      renderChatMessages(messages);
+    });
+}
+
+function renderChatMessages(messages) {
+  const box = $("chatMessages");
+  if (!box) return;
+
+  if (!messages.length) {
+    box.innerHTML = `<p class="muted">No messages yet. Start the conversation.</p>`;
+    return;
+  }
+
+  box.innerHTML = messages.map((msg) => {
+    const mine = msg.senderId === currentUser?.uid;
+
+    return `
+      <div class="message ${mine ? "mine" : "theirs"}">
+        <strong>${escapeHtml(msg.senderName || "User")}</strong>
+        <p>${escapeHtml(msg.text)}</p>
+      </div>
+    `;
+  }).join("");
+
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendChatMessage(event) {
+  event.preventDefault();
+
+  if (!currentUser || !currentChatBookingId) {
+    showToast("Select a chat first.", "error");
+    return;
+  }
+
+  if (currentChatBookingData?.bookingStatus === "completed") {
+    showToast("Chat is closed after work completion.", "error");
+    return;
+  }
+
+  const input = $("chatInput");
+  const text = input?.value.trim() || "";
+
+  if (!text) return;
+
+  await db.collection("chats")
+    .doc(currentChatBookingId)
+    .collection("messages")
+    .add({
+      bookingId: currentChatBookingId,
+      senderId: currentUser.uid,
+      senderName: currentUserProfile?.name || currentUser.email || "User",
+      text,
+      createdAt: nowServer()
+    });
+
+  await db.collection("chats").doc(currentChatBookingId).set({
+    updatedAt: nowServer(),
+    lastMessage: text
+  }, { merge: true });
+
+  input.value = "";
+}
+
+/* ---------------- Support ---------------- */
 async function createSupportTicket(event) {
   event.preventDefault();
 
@@ -1710,27 +2371,23 @@ async function createSupportTicket(event) {
     return;
   }
 
-  try {
-    await db.collection("supportTickets").add({
-      userId: currentUser?.uid || "",
-      name,
-      contact,
-      type,
-      message,
-      status: "open",
-      adminReply: "",
-      createdAt: nowServer(),
-      updatedAt: nowServer()
-    });
+  await db.collection("supportTickets").add({
+    userId: currentUser?.uid || "",
+    name,
+    contact,
+    type,
+    message,
+    status: "open",
+    adminReply: "",
+    createdAt: nowServer(),
+    updatedAt: nowServer()
+  });
 
-    $("supportForm").reset();
-    showToast("Support ticket submitted.");
-  } catch (error) {
-    showToast(error.message || "Support ticket failed.", "error");
-  }
+  $("supportForm").reset();
+  showToast("Support ticket submitted.");
 }
 
-/* NOTIFICATIONS */
+/* ---------------- Notifications ---------------- */
 async function createNotification(toUserId, title, message) {
   if (!toUserId) return;
 
@@ -1769,9 +2426,8 @@ async function loadNotifications() {
       ...doc.data()
     })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
-    const unreadCount = notifications.filter((n) => !n.read).length;
-
-    $("notifyDot")?.classList.toggle("hidden", unreadCount === 0);
+    const unread = notifications.filter((n) => !n.read).length;
+    $("notifyDot")?.classList.toggle("hidden", unread === 0);
 
     if (!notifications.length) {
       list.innerHTML = `<p class="muted">No notifications yet.</p>`;
@@ -1789,7 +2445,7 @@ async function loadNotifications() {
   }
 }
 
-/* ADMIN */
+/* ---------------- Admin ---------------- */
 function setAdminTab(tab) {
   currentAdminTab = tab;
 
@@ -1797,12 +2453,11 @@ function setAdminTab(tab) {
     btn.classList.remove("active");
   });
 
+  const tabs = ["users", "workers", "bookings", "payments", "payouts", "support", "prices"];
+  const index = tabs.indexOf(tab);
   const buttons = document.querySelectorAll("#admin .dash-tabs .tab");
 
-  if (tab === "workers") buttons[0]?.classList.add("active");
-  if (tab === "bookings") buttons[1]?.classList.add("active");
-  if (tab === "support") buttons[2]?.classList.add("active");
-  if (tab === "prices") buttons[3]?.classList.add("active");
+  if (buttons[index]) buttons[index].classList.add("active");
 
   loadAdminPanel();
 }
@@ -1812,8 +2467,11 @@ async function loadAdminPanel() {
 
   await loadAdminStats();
 
-  if (currentAdminTab === "workers") await loadAdminWorkers();
+  if (currentAdminTab === "users") await loadAdminUsers();
+  else if (currentAdminTab === "workers") await loadAdminWorkers();
   else if (currentAdminTab === "bookings") await loadAdminBookings();
+  else if (currentAdminTab === "payments") await loadAdminPayments();
+  else if (currentAdminTab === "payouts") await loadAdminPayouts();
   else if (currentAdminTab === "support") await loadAdminSupport();
   else renderAdminPrices();
 }
@@ -1836,11 +2494,37 @@ async function loadAdminStats() {
   }
 }
 
-async function loadAdminWorkers() {
+async function loadAdminUsers() {
   const content = $("adminContent");
   if (!content) return;
 
-  content.innerHTML = `<div class="empty-state">Loading workers...</div>`;
+  const snap = await db.collection("users").limit(100).get();
+
+  const users = snap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+
+  content.innerHTML = `
+    <div class="card-grid">
+      ${users.map((user) => `
+        <article class="data-card">
+          <span class="status">${escapeHtml(user.role || "customer")}</span>
+          <h3>${escapeHtml(user.name || "User")}</h3>
+          <p><strong>Email:</strong> ${escapeHtml(user.email || "-")}</p>
+          <p><strong>Phone:</strong> ${escapeHtml(user.phone || "-")}</p>
+          <p><strong>City:</strong> ${escapeHtml(user.city || "-")}</p>
+          <p><strong>Total Earned:</strong> ${formatMoney(user.totalEarned || 0)}</p>
+          <p><strong>Pending Payout:</strong> ${formatMoney(user.pendingPayout || 0)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+async function loadAdminWorkers() {
+  const content = $("adminContent");
+  if (!content) return;
 
   const snap = await db.collection("workers").limit(100).get();
 
@@ -1890,10 +2574,10 @@ async function adminVerifyWorker(workerId, verified) {
     updatedAt: nowServer()
   }, { merge: true });
 
-  await createNotification(workerId, "Worker verification updated", verified ? "Your worker profile is verified." : "Your worker verification was removed.");
+  await createNotification(workerId, "Worker verification updated", verified ? "Your worker profile is verified." : "Your verification was removed.");
 
   showToast(verified ? "Worker verified." : "Worker unverified.");
-  await Promise.all([loadAdminPanel(), loadFeaturedWorkers()]);
+  await Promise.all([loadAdminPanel(), loadFeaturedWorkers(), loadNearbyWorkers()]);
 }
 
 async function loadAdminBookings() {
@@ -1907,27 +2591,107 @@ async function loadAdminBookings() {
     ...doc.data()
   }));
 
-  if (!bookings.length) {
-    content.innerHTML = `<div class="empty-state">No bookings found.</div>`;
+  content.innerHTML = `
+    <div class="card-grid">
+      ${bookings.map((booking) => `
+        <article class="data-card">
+          <span class="status">${escapeHtml(booking.bookingStatus || "-")}</span>
+          <h3>${escapeHtml(booking.skill || "-")}</h3>
+          <p><strong>Customer:</strong> ${escapeHtml(booking.customerName || "-")}</p>
+          <p><strong>Worker:</strong> ${escapeHtml(booking.assignedWorkerName || "-")}</p>
+          <p><strong>Budget:</strong> ${formatMoney(booking.budget || 0)}</p>
+          <p><strong>Payment:</strong> ${escapeHtml(booking.paymentStatus || "-")}</p>
+          <p>${escapeHtml(booking.details || "")}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+async function loadAdminPayments() {
+  const content = $("adminContent");
+  if (!content) return;
+
+  const snap = await db.collection("payments").limit(100).get();
+
+  const payments = snap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+
+  if (!payments.length) {
+    content.innerHTML = `<div class="empty-state">No payments found.</div>`;
     return;
   }
 
   content.innerHTML = `
     <div class="card-grid">
-      ${bookings.map((booking) => `
+      ${payments.map((p) => `
         <article class="data-card">
-          <span class="status">${escapeHtml(booking.bookingStatus)}</span>
-          <h3>${escapeHtml(booking.skill)} - ${escapeHtml(booking.workType)}</h3>
-          <p><strong>Customer:</strong> ${escapeHtml(booking.customerName)}</p>
-          <p><strong>Phone:</strong> ${escapeHtml(booking.customerPhone)}</p>
-          <p><strong>City:</strong> ${escapeHtml(booking.city)}</p>
-          <p><strong>Budget:</strong> ${formatMoney(booking.budget, booking.currency)}</p>
-          <p><strong>Payment:</strong> ${escapeHtml(booking.paymentStatus)}</p>
-          <p>${escapeHtml(booking.details)}</p>
+          <span class="status ${p.status === "paid" ? "success" : "pending"}">${escapeHtml(p.status || "created")}</span>
+          <h3>${formatMoney(p.amount || 0, p.currency || "INR")}</h3>
+          <p><strong>Booking:</strong> ${escapeHtml(p.bookingId || "-")}</p>
+          <p><strong>Order:</strong> ${escapeHtml(p.razorpayOrderId || p.id)}</p>
+          <p><strong>Worker:</strong> ${escapeHtml(p.workerUserId || "-")}</p>
         </article>
       `).join("")}
     </div>
   `;
+}
+
+async function loadAdminPayouts() {
+  const content = $("adminContent");
+  if (!content) return;
+
+  const snap = await db.collection("earnings").limit(100).get();
+
+  const earnings = snap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+
+  if (!earnings.length) {
+    content.innerHTML = `<div class="empty-state">No payout ledger found.</div>`;
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="card-grid">
+      ${earnings.map((e) => `
+        <article class="data-card">
+          <span class="status ${e.payoutStatus === "paid" ? "success" : "pending"}">${escapeHtml(e.payoutStatus || "pending")}</span>
+          <h3>${formatMoney(e.workerAmount || 0)}</h3>
+          <p><strong>Worker:</strong> ${escapeHtml(e.workerUserId || "-")}</p>
+          <p><strong>Booking:</strong> ${escapeHtml(e.bookingId || "-")}</p>
+          <p><strong>Gross:</strong> ${formatMoney(e.grossAmount || 0)}</p>
+          <p><strong>Commission:</strong> ${formatMoney(e.platformCommission || 0)}</p>
+
+          ${e.payoutStatus !== "paid" ? `<button class="btn success" onclick="adminMarkPayoutPaid('${e.id}', '${e.workerUserId}', ${Number(e.workerAmount || 0)})">Mark Paid</button>` : ""}
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+async function adminMarkPayoutPaid(earningId, workerUserId, amount) {
+  if (!isAdminUser()) return;
+
+  await db.collection("earnings").doc(earningId).set({
+    payoutStatus: "paid",
+    paidAt: nowServer(),
+    updatedAt: nowServer()
+  }, { merge: true });
+
+  await db.collection("users").doc(workerUserId).set({
+    pendingPayout: firebase.firestore.FieldValue.increment(-amount),
+    paidPayout: firebase.firestore.FieldValue.increment(amount),
+    updatedAt: nowServer()
+  }, { merge: true });
+
+  await createNotification(workerUserId, "Payout marked paid", `${formatMoney(amount)} payout marked as paid by admin.`);
+
+  showToast("Payout marked as paid.");
+  await loadAdminPayouts();
 }
 
 async function loadAdminSupport() {
@@ -1985,7 +2749,7 @@ async function adminReplyTicket(ticketId) {
   }
 
   showToast("Reply saved.");
-  await loadAdminPanel();
+  await loadAdminSupport();
 }
 
 async function adminCloseTicket(ticketId) {
@@ -1995,7 +2759,7 @@ async function adminCloseTicket(ticketId) {
   }, { merge: true });
 
   showToast("Ticket closed.");
-  await loadAdminPanel();
+  await loadAdminSupport();
 }
 
 function skillInputId(skill) {
@@ -2052,12 +2816,12 @@ async function adminSavePrices() {
   showToast("Minimum prices saved.");
 }
 
-/* GLOBAL */
+/* ---------------- Global Exports ---------------- */
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
+window.closeAllOverlays = closeAllOverlays;
 window.toggleNotificationDrawer = toggleNotificationDrawer;
 window.closeNotificationDrawer = closeNotificationDrawer;
-window.closeAllOverlays = closeAllOverlays;
 
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
@@ -2081,23 +2845,34 @@ window.heroFindWorkers = heroFindWorkers;
 window.selectServiceAndBook = selectServiceAndBook;
 window.calculateMinimumPrice = calculateMinimumPrice;
 
-window.createBooking = createBooking;
+window.saveUserProfile = saveUserProfile;
 window.registerWorker = registerWorker;
+window.saveWorkerCurrentLocation = saveWorkerCurrentLocation;
 
-window.loadPublicJobs = loadPublicJobs;
-window.renderPublicJobs = renderPublicJobs;
-window.openBidPrompt = openBidPrompt;
-
-window.setDashboardTab = setDashboardTab;
+window.createBooking = createBooking;
 window.acceptBid = acceptBid;
 window.payForBooking = payForBooking;
 window.markBookingComplete = markBookingComplete;
 window.reviewWorker = reviewWorker;
 
+window.loadPublicJobs = loadPublicJobs;
+window.renderPublicJobs = renderPublicJobs;
+window.openBidPrompt = openBidPrompt;
+
+window.useCurrentLocationForMap = useCurrentLocationForMap;
+window.loadNearbyWorkers = loadNearbyWorkers;
+
+window.saveAccountDetails = saveAccountDetails;
+window.generateWebsiteQr = generateWebsiteQr;
+
+window.openBookingChat = openBookingChat;
+window.sendChatMessage = sendChatMessage;
+
 window.createSupportTicket = createSupportTicket;
 
 window.setAdminTab = setAdminTab;
 window.adminVerifyWorker = adminVerifyWorker;
+window.adminMarkPayoutPaid = adminMarkPayoutPaid;
 window.adminReplyTicket = adminReplyTicket;
 window.adminCloseTicket = adminCloseTicket;
 window.adminSavePrices = adminSavePrices;
