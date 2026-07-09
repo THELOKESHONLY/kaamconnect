@@ -3018,3 +3018,471 @@ Object.assign(window, {
   adminCloseTicket,
   adminSavePrices
 });
+/* ===== RAPIDESERVICE PORTAL FIX PATCH 3 ===== */
+
+(function () {
+  function clean(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function notificationTarget(title = "", message = "") {
+    const text = `${title} ${message}`.toLowerCase();
+
+    if (text.includes("support") || text.includes("query") || text.includes("problem")) {
+      return isAdminUser() ? "admin" : "support";
+    }
+
+    if (text.includes("payment") || text.includes("paid") || text.includes("booking")) {
+      return getUserRole() === "worker" ? "workerEarnings" : "customerDashboard";
+    }
+
+    if (text.includes("earning") || text.includes("payout")) {
+      return "workerEarnings";
+    }
+
+    if (text.includes("bid") || text.includes("job") || text.includes("work")) {
+      return getUserRole() === "worker" ? "workerJobs" : "customerDashboard";
+    }
+
+    if (text.includes("chat")) {
+      return "chat";
+    }
+
+    return getUserRole() === "worker" ? "workerJobs" : "customerDashboard";
+  }
+
+  window.openNotificationTarget = async function (notificationId, sectionId) {
+    try {
+      if (notificationId && currentUser) {
+        await db.collection("notifications").doc(notificationId).set({
+          read: true,
+          updatedAt: nowServer()
+        }, { merge: true });
+      }
+    } catch {}
+
+    closeNotificationDrawer();
+
+    if (sectionId === "admin") {
+      goToSection("admin");
+      setTimeout(function () {
+        setAdminTab("support");
+      }, 300);
+      return;
+    }
+
+    goToSection(sectionId || "customerDashboard");
+    setTimeout(loadNotifications, 500);
+  };
+
+  window.loadNotifications = async function () {
+    const list = $("notificationList");
+
+    if (!list) return;
+
+    if (!currentUser) {
+      list.innerHTML = `<p class="muted">Login to view notifications.</p>`;
+      $("notifyDot")?.classList.add("hidden");
+      return;
+    }
+
+    try {
+      const snap = await db.collection("notifications")
+        .where("toUserId", "==", currentUser.uid)
+        .limit(30)
+        .get();
+
+      const notifications = snap.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+      const unread = notifications.filter((item) => !item.read).length;
+      $("notifyDot")?.classList.toggle("hidden", unread === 0);
+
+      if (!notifications.length) {
+        list.innerHTML = `<p class="muted">No notifications yet.</p>`;
+        return;
+      }
+
+      list.innerHTML = notifications.map((item) => {
+        const target = item.targetSection || notificationTarget(item.title, item.message);
+
+        return `
+          <button
+            class="notification-item"
+            style="width:100%;text-align:left;cursor:pointer;border:none;"
+            onclick="openNotificationTarget('${item.id}', '${target}')"
+          >
+            <strong>${clean(item.title)}</strong>
+            <p>${clean(item.message)}</p>
+            <small>${item.read ? "Opened" : "Click to open"}</small>
+          </button>
+        `;
+      }).join("");
+    } catch (error) {
+      list.innerHTML = `<p class="muted">${clean(error.message)}</p>`;
+    }
+  };
+
+  try {
+    loadNotifications = window.loadNotifications;
+  } catch {}
+
+  window.createNotification = async function (toUserId, title, message, targetSection = "") {
+    if (!toUserId) return;
+
+    try {
+      await db.collection("notifications").add({
+        toUserId,
+        title,
+        message,
+        targetSection: targetSection || notificationTarget(title, message),
+        read: false,
+        createdAt: nowServer()
+      });
+    } catch {}
+  };
+
+  try {
+    createNotification = window.createNotification;
+  } catch {}
+
+  function makeAdminPortalClean() {
+    if (!currentUser || !isAdminUser()) return;
+
+    document.querySelectorAll(".desktop-nav a").forEach((link) => {
+      link.classList.add("hidden");
+    });
+
+    if (!document.getElementById("adminOnlyTopLink")) {
+      const nav = document.querySelector(".desktop-nav");
+
+      if (nav) {
+        nav.insertAdjacentHTML(
+          "beforeend",
+          `<a id="adminOnlyTopLink" href="javascript:void(0)" onclick="goToSection('admin')">Admin Panel</a>`
+        );
+      }
+    }
+
+    document.querySelectorAll(".side-nav button").forEach((btn) => {
+      btn.classList.add("hidden");
+    });
+
+    $("adminSideBtn")?.classList.remove("hidden");
+
+    if (!document.getElementById("adminWorkBox")) {
+      const sidebar = document.querySelector(".side-nav");
+
+      if (sidebar) {
+        sidebar.insertAdjacentHTML(
+          "afterend",
+          `
+          <div id="adminWorkBox" class="side-settings-card">
+            <h4>Admin Work</h4>
+            <button class="btn light full" onclick="goToSection('admin'); setAdminTab('support')">Solve Queries</button>
+            <button class="btn light full" onclick="goToSection('admin'); setAdminTab('users')">Customers / Users</button>
+            <button class="btn light full" onclick="goToSection('admin'); setAdminTab('workers')">Workers</button>
+            <button class="btn light full" onclick="goToSection('admin'); setAdminTab('bookings')">Bookings</button>
+            <button class="btn light full" onclick="goToSection('admin'); setAdminTab('payments')">Payments</button>
+            <button class="btn light full" onclick="goToSection('admin'); setAdminTab('payouts')">Payouts</button>
+          </div>
+          `
+        );
+      }
+    }
+
+    [
+      "services",
+      "nearby",
+      "howItWorks",
+      "featuredWorkers",
+      "profile",
+      "book",
+      "customerDashboard",
+      "workerProfile",
+      "workerJobs",
+      "workerEarnings",
+      "accounts",
+      "chat",
+      "support",
+      "settings"
+    ].forEach((id) => {
+      $(id)?.classList.add("hidden");
+    });
+
+    $("admin")?.classList.remove("hidden");
+
+    if (!document.getElementById("adminPurposeBox")) {
+      const head = $("admin")?.querySelector(".section-head");
+
+      if (head) {
+        head.insertAdjacentHTML(
+          "afterend",
+          `
+          <div id="adminPurposeBox" class="info-card">
+            <h3>Admin Portal Purpose</h3>
+            <p><strong>1.</strong> Admin helps customers and workers.</p>
+            <p><strong>2.</strong> Admin solves support queries, booking problems, payment issues and worker payout problems.</p>
+            <p><strong>3.</strong> Admin portal is not for browsing services like customer or worker.</p>
+          </div>
+          `
+        );
+      }
+    }
+  }
+
+  function makeNormalPortalMenu() {
+    if (isAdminUser()) return;
+
+    document.getElementById("adminOnlyTopLink")?.remove();
+    document.getElementById("adminWorkBox")?.remove();
+
+    document.querySelectorAll(".desktop-nav a").forEach((link) => {
+      link.classList.remove("hidden");
+    });
+  }
+
+  function addWorkerEarnBox() {
+    if (!currentUser || getUserRole() !== "worker") return;
+
+    const workerJobs = $("workerJobs");
+    if (!workerJobs) return;
+
+    if (!document.getElementById("workerEarnBox")) {
+      const head = workerJobs.querySelector(".section-head");
+
+      if (head) {
+        head.insertAdjacentHTML(
+          "afterend",
+          `
+          <div id="workerEarnBox" class="info-card">
+            <h3>Worker Earning Status</h3>
+            <p id="workerEarnText">Checking status...</p>
+
+            <div class="grid-2">
+              <button class="btn success full" onclick="setWorkerEarnStatus(true)">🟢 Earn ON</button>
+              <button class="btn danger full" onclick="setWorkerEarnStatus(false)">🔴 Earn OFF</button>
+            </div>
+
+            <p class="muted">Earn ON means worker can receive jobs and send bids. Earn OFF means worker is not available for new jobs.</p>
+          </div>
+          `
+        );
+      }
+    }
+
+    loadWorkerEarnStatus();
+  }
+
+  window.loadWorkerEarnStatus = async function () {
+    if (!currentUser || getUserRole() !== "worker") return;
+
+    try {
+      const snap = await db.collection("workers").doc(currentUser.uid).get();
+
+      if (!snap.exists) return;
+
+      const worker = snap.data();
+      const available = worker.available !== false;
+
+      const text = $("workerEarnText");
+
+      if (text) {
+        text.innerHTML = available
+          ? `<span class="status success">Earn ON</span> You can receive work requests and send bids.`
+          : `<span class="status pending">Earn OFF</span> You are not receiving new work now.`;
+      }
+    } catch {}
+  };
+
+  window.setWorkerEarnStatus = async function (available) {
+    if (!currentUser || getUserRole() !== "worker") {
+      showToast("Only workers can change earning status.", "error");
+      return;
+    }
+
+    const availability = available ? "Available Now" : "Not Available";
+
+    try {
+      await db.collection("workers").doc(currentUser.uid).set({
+        available,
+        availability,
+        updatedAt: nowServer()
+      }, { merge: true });
+
+      await db.collection("workerPublic").doc(currentUser.uid).set({
+        available,
+        availability,
+        updatedAt: nowServer()
+      }, { merge: true });
+
+      showToast(available ? "Earn ON. You can receive jobs." : "Earn OFF. You are not available now.");
+
+      await loadWorkerEarnStatus();
+      await loadNearbyWorkers();
+    } catch (error) {
+      showToast(error.message || "Status update failed.", "error");
+    }
+  };
+
+  const oldOpenBidPrompt = window.openBidPrompt;
+
+  window.openBidPrompt = async function (bookingId) {
+    if (!currentUser) {
+      openAuthModal("login");
+      return;
+    }
+
+    if (getUserRole() !== "worker") {
+      showToast("Only workers can bid on jobs.", "error");
+      return;
+    }
+
+    const workerSnap = await db.collection("workers").doc(currentUser.uid).get();
+
+    if (!workerSnap.exists) {
+      showToast("Please save worker profile first.", "error");
+      goToSection("workerProfile");
+      return;
+    }
+
+    const worker = workerSnap.data();
+
+    if (worker.available === false || worker.availability === "Not Available") {
+      showToast("Earn is OFF. Turn ON to send bid.", "error");
+      goToSection("workerJobs");
+      addWorkerEarnBox();
+      return;
+    }
+
+    return oldOpenBidPrompt(bookingId);
+  };
+
+  try {
+    openBidPrompt = window.openBidPrompt;
+  } catch {}
+
+  window.goToRoleHome = async function () {
+    if (!currentUser) {
+      goToSection("home");
+      return;
+    }
+
+    if (isAdminUser()) {
+      goToSection("admin");
+      setTimeout(function () {
+        makeAdminPortalClean();
+        setAdminTab("support");
+      }, 300);
+      return;
+    }
+
+    if (getUserRole() === "worker") {
+      const snap = await db.collection("workers").doc(currentUser.uid).get();
+
+      if (snap.exists) {
+        goToSection("workerJobs");
+        setTimeout(addWorkerEarnBox, 500);
+      } else {
+        goToSection("workerProfile");
+      }
+
+      return;
+    }
+
+    goToSection("customerDashboard");
+  };
+
+  try {
+    goToRoleHome = window.goToRoleHome;
+  } catch {}
+
+  const oldGoToSection = window.goToSection;
+
+  window.goToSection = function (id) {
+    if (isAdminUser() && id !== "admin") {
+      oldGoToSection("admin");
+      setTimeout(function () {
+        makeAdminPortalClean();
+        setAdminTab("support");
+      }, 300);
+      return;
+    }
+
+    oldGoToSection(id);
+
+    setTimeout(function () {
+      if (isAdminUser()) {
+        makeAdminPortalClean();
+      } else {
+        makeNormalPortalMenu();
+      }
+
+      if (id === "workerJobs" && getUserRole() === "worker") {
+        addWorkerEarnBox();
+      }
+    }, 300);
+  };
+
+  try {
+    goToSection = window.goToSection;
+  } catch {}
+
+  const oldUpdateAuthUI = window.updateAuthUI;
+
+  window.updateAuthUI = function () {
+    if (oldUpdateAuthUI) oldUpdateAuthUI();
+
+    setTimeout(function () {
+      if (isAdminUser()) {
+        makeAdminPortalClean();
+      } else {
+        makeNormalPortalMenu();
+      }
+
+      if (getUserRole() === "worker") {
+        addWorkerEarnBox();
+      }
+    }, 400);
+  };
+
+  try {
+    updateAuthUI = window.updateAuthUI;
+  } catch {}
+
+  const oldLoadPublicJobs = window.loadPublicJobs;
+
+  window.loadPublicJobs = async function () {
+    if (oldLoadPublicJobs) {
+      await oldLoadPublicJobs();
+    }
+
+    if (getUserRole() === "worker") {
+      addWorkerEarnBox();
+    }
+  };
+
+  try {
+    loadPublicJobs = window.loadPublicJobs;
+  } catch {}
+
+  setTimeout(function () {
+    if (!currentUser) return;
+
+    updateAuthUI();
+
+    if (isAdminUser()) {
+      makeAdminPortalClean();
+    }
+
+    if (getUserRole() === "worker") {
+      addWorkerEarnBox();
+    }
+  }, 1200);
+})();
