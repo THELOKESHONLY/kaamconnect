@@ -1753,3 +1753,7 @@ textarea {
   display: none !important;
   pointer-events: none !important;
 }
+/* Login required section control */
+.auth-required.hidden {
+  display: none !important;
+}
