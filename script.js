@@ -2477,3 +2477,173 @@ window.adminVerifyWorker = adminVerifyWorker;
 window.adminReplyTicket = adminReplyTicket;
 window.adminCloseTicket = adminCloseTicket;
 window.adminSavePrices = adminSavePrices;
+
+/* =====================================================
+   RapideService Final Emergency Fix
+   Fixes buttons, skills dropdown and login protected pages
+===================================================== */
+
+(function () {
+  const skills = [
+    "Electrician",
+    "Plumber",
+    "Cleaner",
+    "Tutor",
+    "Cook",
+    "Painter",
+    "AC Repair",
+    "Carpenter",
+    "Driver",
+    "Gardener",
+    "Security Guard",
+    "House Helper",
+    "Maid",
+    "Mechanic",
+    "Mobile Repair",
+    "Computer Repair",
+    "Photographer",
+    "Makeup Artist",
+    "Nurse / Caretaker",
+    "Delivery Boy",
+    "Event Helper",
+    "Freelancer / General Helper"
+  ];
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function fillSelect(id, firstText) {
+    const select = byId(id);
+    if (!select) return;
+
+    select.innerHTML =
+      `<option value="">${firstText}</option>` +
+      skills.map(skill => `<option value="${skill}">${skill}</option>`).join("");
+  }
+
+  function fillAllSkills() {
+    fillSelect("bookingSkill", "Choose service skill");
+    fillSelect("workerSkill", "Choose your skill");
+
+    const jobFilter = byId("jobSkillFilter");
+    if (jobFilter) {
+      jobFilter.innerHTML =
+        `<option value="">All Skills</option>` +
+        skills.map(skill => `<option value="${skill}">${skill}</option>`).join("");
+    }
+
+    if (typeof calculateMinimumPrice === "function") {
+      calculateMinimumPrice();
+    }
+  }
+
+  function isLoggedInNow() {
+    try {
+      return firebase.auth().currentUser !== null;
+    } catch {
+      return false;
+    }
+  }
+
+  function updateProtectedPages() {
+    const loggedIn = isLoggedInNow();
+
+    ["book", "worker", "jobs", "dashboard"].forEach(id => {
+      const section = byId(id);
+      if (!section) return;
+      section.classList.toggle("hidden", !loggedIn);
+    });
+  }
+
+  window.openSidebar = function () {
+    byId("sidebar")?.classList.add("open");
+    byId("overlay")?.classList.remove("hidden");
+    document.body.classList.add("no-scroll");
+  };
+
+  window.closeSidebar = function () {
+    byId("sidebar")?.classList.remove("open");
+    byId("overlay")?.classList.add("hidden");
+    document.body.classList.remove("no-scroll");
+  };
+
+  window.openAuthModal = function (mode = "login") {
+    byId("authModal")?.classList.remove("hidden");
+    byId("overlay")?.classList.remove("hidden");
+    document.body.classList.add("no-scroll");
+
+    if (typeof setAuthMode === "function") {
+      setAuthMode(mode);
+    }
+  };
+
+  window.closeAuthModal = function () {
+    byId("authModal")?.classList.add("hidden");
+    byId("overlay")?.classList.add("hidden");
+    document.body.classList.remove("no-scroll");
+  };
+
+  window.toggleNotificationDrawer = function () {
+    byId("notificationDrawer")?.classList.toggle("open");
+    byId("overlay")?.classList.remove("hidden");
+    document.body.classList.add("no-scroll");
+  };
+
+  window.closeNotificationDrawer = function () {
+    byId("notificationDrawer")?.classList.remove("open");
+    byId("overlay")?.classList.add("hidden");
+    document.body.classList.remove("no-scroll");
+  };
+
+  window.closeAllOverlays = function () {
+    byId("sidebar")?.classList.remove("open");
+    byId("notificationDrawer")?.classList.remove("open");
+    byId("authModal")?.classList.add("hidden");
+    byId("forgotModal")?.classList.add("hidden");
+    byId("overlay")?.classList.add("hidden");
+    document.body.classList.remove("no-scroll");
+  };
+
+  const oldGoToSection = window.goToSection;
+
+  window.goToSection = function (id) {
+    const protectedSections = ["book", "worker", "jobs", "dashboard"];
+
+    if (protectedSections.includes(id) && !isLoggedInNow()) {
+      if (typeof showToast === "function") {
+        showToast("Please login first.", "error");
+      }
+
+      window.openAuthModal("login");
+      return;
+    }
+
+    if (typeof oldGoToSection === "function") {
+      oldGoToSection(id);
+      return;
+    }
+
+    const section = byId(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", function () {
+    fillAllSkills();
+    updateProtectedPages();
+
+    setTimeout(fillAllSkills, 500);
+    setTimeout(updateProtectedPages, 800);
+  });
+
+  try {
+    firebase.auth().onAuthStateChanged(function () {
+      fillAllSkills();
+      updateProtectedPages();
+    });
+  } catch {
+    // Firebase not ready
+  }
+})();
