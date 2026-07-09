@@ -1002,11 +1002,16 @@ function renderProfilePreview() {
 async function uploadFile(file, path) {
   if (!file) return "";
 
-  const ref = storage.ref(path);
-  await ref.put(file);
-  return ref.getDownloadURL();
+  try {
+    const ref = storage.ref(path);
+    await ref.put(file);
+    return await ref.getDownloadURL();
+  } catch (error) {
+    console.warn("Firebase Storage not enabled:", error);
+    showToast("Photo upload is not active yet. Enable Firebase Storage first.", "warning");
+    return "";
+  }
 }
-
 async function saveUserProfile(event) {
   event.preventDefault();
 
