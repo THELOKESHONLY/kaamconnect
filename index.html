@@ -4,17 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>RapideService - Hire Trusted Workers Near You</title>
+  <title>RapideService - Hire Trusted Workers, Freelancers and Helpers Near You</title>
 
   <meta
     name="description"
-    content="RapideService helps customers hire trusted local workers, freelancers and helpers with bidding, verified profiles, secure payments, reviews and support."
+    content="RapideService is a local service marketplace where customers post work, workers send bids, payments are secured, contacts are protected, and reviews build trust."
   />
 
+  <meta name="keywords" content="RapideService, hire workers, local services, electricians, plumbers, cleaners, freelancers, worker marketplace, service booking" />
+  <meta name="author" content="RapideService" />
   <meta name="theme-color" content="#0f172a" />
+
+  <meta property="og:title" content="RapideService - Hire Trusted Workers Near You" />
+  <meta property="og:description" content="Post work, compare bids, hire verified workers, pay securely and give reviews." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://rapideservice.com" />
+  <meta property="og:image" content="/icon-512.png" />
+
   <link rel="manifest" href="manifest.json" />
-  
- <link rel="stylesheet" href="style.css?v=rapideservice-final-11" />
+  <link rel="icon" href="/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css?v=rapideservice-ultra-12" />
 
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
@@ -24,7 +37,6 @@
 
 <body>
   <div id="toast" class="toast hidden"></div>
-
   <div id="overlay" class="overlay hidden" onclick="closeAllOverlays()"></div>
 
   <!-- Sidebar -->
@@ -34,7 +46,7 @@
         <span class="logo-badge">RS</span>
         <div>
           <h3>RapideService</h3>
-          <p>Hire trusted workers near you</p>
+          <p>Trusted local service marketplace</p>
         </div>
       </div>
       <button class="icon-btn" onclick="closeSidebar()">✕</button>
@@ -43,10 +55,12 @@
     <nav class="side-nav">
       <button onclick="goToSection('home')">🏠 Home</button>
       <button onclick="goToSection('services')">🛠 Services</button>
+      <button onclick="goToSection('howItWorks')">⚡ How It Works</button>
       <button onclick="goToSection('book')">📌 Post Work</button>
       <button onclick="goToSection('worker')">👷 Join as Worker</button>
       <button onclick="goToSection('jobs')">💼 Open Jobs</button>
       <button onclick="goToSection('dashboard')">📊 Dashboard</button>
+      <button onclick="goToSection('trust')">🛡 Trust & Safety</button>
       <button onclick="goToSection('support')">🎧 Support</button>
       <button onclick="openSettingsSection()">⚙ Settings</button>
       <button id="adminSideBtn" class="hidden" onclick="goToSection('admin')">🔐 Admin Panel</button>
@@ -77,14 +91,17 @@
         <option value="hi">Hindi</option>
       </select>
 
-      <button class="btn primary full" onclick="saveSideSettings()">Apply</button>
+      <button class="btn primary full" onclick="saveSideSettings()">Apply Settings</button>
     </div>
   </aside>
 
   <!-- Notification Drawer -->
   <aside id="notificationDrawer" class="notification-drawer">
     <div class="drawer-head">
-      <h3>Notifications</h3>
+      <div>
+        <p class="drawer-kicker">RapideService</p>
+        <h3>Notifications</h3>
+      </div>
       <button class="icon-btn" onclick="closeNotificationDrawer()">✕</button>
     </div>
     <div id="notificationList" class="notification-list">
@@ -105,9 +122,10 @@
 
     <nav class="desktop-nav">
       <a href="#services">Services</a>
+      <a href="#howItWorks">How it works</a>
       <a href="#book">Post Work</a>
       <a href="#worker">Workers</a>
-      <a href="#jobs">Open Jobs</a>
+      <a href="#jobs">Jobs</a>
       <a href="#support">Support</a>
     </nav>
 
@@ -136,7 +154,7 @@
 
       <div class="tabs">
         <button id="loginTab" class="tab active" onclick="setAuthMode('login')">Login</button>
-        <button id="signupTab" class="tab" onclick="setAuthMode('signup')">Sign Up</button>
+        <button id="signupTab" class="tab" onclick="setAuthMode('signup')">Create Account</button>
       </div>
 
       <form id="authForm" onsubmit="handleAuth(event)">
@@ -147,7 +165,7 @@
           <label>Mobile Number</label>
           <input id="authPhone" type="tel" placeholder="Enter mobile number" />
 
-          <label>Role</label>
+          <label>Account Type</label>
           <select id="authRole">
             <option value="customer">Customer</option>
             <option value="worker">Worker</option>
@@ -181,7 +199,7 @@
     </div>
   </div>
 
-  <!-- Forgot Modal -->
+  <!-- Forgot Password Modal -->
   <div id="forgotModal" class="modal hidden">
     <div class="modal-card auth-card">
       <div class="modal-head">
@@ -192,7 +210,7 @@
         <button class="icon-btn" onclick="closeForgotModal()">✕</button>
       </div>
 
-      <p class="muted">Select email or phone. After OTP is sent, password reset form will open.</p>
+      <p class="muted">Choose email or phone. OTP will be sent to your verified account contact.</p>
 
       <label>Reset Using</label>
       <select id="resetMethod" onchange="changeResetMethod()">
@@ -221,21 +239,23 @@
   </div>
 
   <main>
-    <!-- Premium Hero -->
-    <section id="home" class="hero premium-hero">
-      <div class="hero-content premium-hero-content">
-        <div class="badge premium-badge">⚡ Fast Local Service Marketplace</div>
+    <!-- Hero -->
+    <section id="home" class="hero ultra-hero">
+      <div class="hero-content">
+        <div class="hero-badge-row">
+          <span class="badge premium-badge">⚡ Fast Local Service Marketplace</span>
+          <span class="badge ghost-badge">🛡 Secure Hiring Flow</span>
+        </div>
 
         <h1>
-          Book trusted
-          <span class="gradient-text">workers</span>,
-          freelancers and helpers near you.
+          Hire trusted
+          <span class="gradient-text">workers</span>
+          near you in minutes.
         </h1>
 
         <p>
-          RapideService helps customers hire verified electricians, plumbers,
-          cleaners, drivers, tutors, freelancers and local service experts with
-          bidding, secure payments, reviews and trusted profiles.
+          Post your work, compare worker bids, accept the best profile, pay securely,
+          unlock contact details and review the service after completion.
         </p>
 
         <div class="hero-search-box">
@@ -251,6 +271,11 @@
               <option value="AC Repair">AC Repair</option>
               <option value="Carpenter">Carpenter</option>
               <option value="Driver">Driver</option>
+              <option value="Gardener">Gardener</option>
+              <option value="Security Guard">Security Guard</option>
+              <option value="Mechanic">Mechanic</option>
+              <option value="Mobile Repair">Mobile Repair</option>
+              <option value="Computer Repair">Computer Repair</option>
               <option value="Freelancer / General Helper">Freelancer / General Helper</option>
             </select>
           </div>
@@ -260,23 +285,22 @@
             <input id="homeCityInput" type="text" placeholder="Enter city" />
           </div>
 
-          <button class="btn primary hero-search-btn" onclick="heroFindWorkers()">
-            Find Workers
-          </button>
+          <button class="btn primary hero-search-btn" onclick="heroFindWorkers()">Find Workers</button>
         </div>
 
-        <div class="hero-actions premium-actions">
+        <div class="hero-actions">
           <button class="btn primary big" onclick="goToSection('book')">Post Work Now</button>
           <button class="btn outline big" onclick="goToSection('worker')">Join as Worker</button>
         </div>
 
         <div class="trust-mini-row">
           <span>✅ Verified profiles</span>
-          <span>🔒 Contact hidden until accepted</span>
+          <span>🔒 Contact hidden until payment</span>
           <span>⭐ Ratings & reviews</span>
+          <span>💳 Razorpay-ready payments</span>
         </div>
 
-        <div id="liveStats" class="stats-row premium-stats hidden">
+        <div id="liveStats" class="stats-row hidden">
           <div>
             <strong id="statWorkers">0</strong>
             <span>Workers</span>
@@ -307,36 +331,41 @@
         </div>
       </div>
 
-      <div class="premium-hero-visual">
+      <div class="hero-visual">
         <div class="phone-mockup">
           <div class="phone-top"></div>
+
+          <div class="phone-screen-title">
+            <span>RapideService</span>
+            <strong>Live Hiring</strong>
+          </div>
 
           <div class="app-card verified-worker-card">
             <div class="app-avatar">RS</div>
             <div>
-              <h4>Verified Worker</h4>
-              <p>Electrician • 4.8 ★</p>
+              <h4>Verified Electrician</h4>
+              <p>4.8 ★ • Available today</p>
             </div>
             <span class="verified-pill">Verified</span>
           </div>
 
           <div class="app-card bid-card">
-            <small>New Bid Received</small>
+            <small>Best Worker Bid</small>
             <h3>₹450</h3>
-            <p>Available today in your city</p>
+            <p>Can reach your area in 35 minutes</p>
           </div>
 
           <div class="app-card payment-card">
             <span>🔐</span>
             <div>
-              <h4>Secure Payment</h4>
-              <p>Contact unlocks after payment</p>
+              <h4>Contact Protected</h4>
+              <p>Unlocks after payment verification</p>
             </div>
           </div>
 
           <div class="app-steps">
             <div><b>1</b> Post Work</div>
-            <div><b>2</b> Get Bids</div>
+            <div><b>2</b> Compare Bids</div>
             <div><b>3</b> Pay Securely</div>
             <div><b>4</b> Review Worker</div>
           </div>
@@ -358,39 +387,82 @@
     <section class="trust-bar">
       <div>
         <strong>Verified Workers</strong>
-        <span>Admin verification support</span>
+        <span>Admin verification for better trust</span>
       </div>
       <div>
-        <strong>Bidding System</strong>
-        <span>Customers compare worker prices</span>
+        <strong>Smart Bidding</strong>
+        <span>Workers send price and message</span>
       </div>
       <div>
-        <strong>Secure Payment</strong>
+        <strong>Secure Payments</strong>
         <span>Contact unlocks after payment</span>
       </div>
       <div>
-        <strong>Reviews</strong>
-        <span>Ratings build worker trust</span>
+        <strong>Real Reviews</strong>
+        <span>After booking completion</span>
       </div>
     </section>
 
     <!-- Services -->
     <section id="services" class="section">
       <div class="section-head">
-        <p class="eyebrow">Services</p>
-        <h2>Popular services on RapideService</h2>
-        <p>Choose a skill and post your work. Workers can send bids with price and message.</p>
+        <p class="eyebrow">Popular Services</p>
+        <h2>Everything you need, one trusted platform</h2>
+        <p>Choose a service, post your work and receive bids from nearby workers.</p>
       </div>
 
       <div id="serviceGrid" class="service-grid"></div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="howItWorks" class="section alt">
+      <div class="section-head">
+        <p class="eyebrow">How It Works</p>
+        <h2>A clear marketplace flow for customers and workers</h2>
+        <p>RapideService is not just a contact list. It is a complete hiring system.</p>
+      </div>
+
+      <div class="flow-grid">
+        <div class="flow-card">
+          <span>01</span>
+          <h3>Post Work</h3>
+          <p>Customer posts service, city, budget and work details.</p>
+        </div>
+        <div class="flow-card">
+          <span>02</span>
+          <h3>Get Bids</h3>
+          <p>Workers send price, timing and message for the job.</p>
+        </div>
+        <div class="flow-card">
+          <span>03</span>
+          <h3>Accept Worker</h3>
+          <p>Customer compares bids and accepts the best worker.</p>
+        </div>
+        <div class="flow-card">
+          <span>04</span>
+          <h3>Pay & Unlock</h3>
+          <p>After payment verification, customer contact unlocks for worker.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Workers -->
+    <section id="featuredWorkers" class="section">
+      <div class="section-head">
+        <p class="eyebrow">Worker Profiles</p>
+        <h2>Featured verified workers</h2>
+        <p>Public worker cards show skills, city, rating and verification status.</p>
+      </div>
+
+      <div id="featuredWorkersGrid" class="card-grid"></div>
     </section>
 
     <!-- Booking -->
     <section id="book" class="section alt">
       <div class="section-head">
         <p class="eyebrow">Post Work</p>
-        <h2>Post your work and get worker bids</h2>
-        <p>Your phone and full address stay hidden until worker is accepted and payment is verified.</p>
+        <h2>Post your work and receive worker bids</h2>
+        <p>Your mobile number and full address remain protected until payment is verified.</p>
       </div>
 
       <div class="form-card premium-form">
@@ -443,12 +515,12 @@
           </div>
 
           <label>Full Address</label>
-          <textarea id="bookingAddress" placeholder="Full address hidden until worker accepted/payment verified" required></textarea>
+          <textarea id="bookingAddress" placeholder="Full address stays hidden until payment is verified" required></textarea>
 
           <label>Work Details</label>
-          <textarea id="bookingDetails" placeholder="Explain your work requirement" required></textarea>
+          <textarea id="bookingDetails" placeholder="Explain your work requirement clearly" required></textarea>
 
-          <button class="btn primary full" type="submit">Post Work</button>
+          <button class="btn primary full" type="submit">Post Work & Get Bids</button>
         </form>
       </div>
     </section>
@@ -456,9 +528,9 @@
     <!-- Worker Registration -->
     <section id="worker" class="section">
       <div class="section-head">
-        <p class="eyebrow">Worker</p>
-        <h2>Join RapideService as a worker</h2>
-        <p>Create your public worker profile and receive work bids from customers.</p>
+        <p class="eyebrow">Worker Registration</p>
+        <h2>Join RapideService and start receiving work</h2>
+        <p>Create a professional worker profile with skill, city, availability and experience.</p>
       </div>
 
       <div class="form-card premium-form">
@@ -506,24 +578,24 @@
           </div>
 
           <label>About / Experience</label>
-          <textarea id="workerAbout" placeholder="Tell customers about your experience" required></textarea>
+          <textarea id="workerAbout" placeholder="Tell customers about your experience, tools, timing and quality" required></textarea>
 
           <button class="btn primary full" type="submit">Save Worker Profile</button>
         </form>
       </div>
     </section>
 
-    <!-- Open Jobs -->
+    <!-- Jobs -->
     <section id="jobs" class="section alt">
       <div class="section-head">
-        <p class="eyebrow">Worker Jobs</p>
-        <h2>Open jobs for workers</h2>
-        <p>Workers can view public jobs and send bids.</p>
+        <p class="eyebrow">Open Jobs</p>
+        <h2>Jobs available for workers</h2>
+        <p>Workers can search public jobs and send bids.</p>
       </div>
 
       <div class="filters">
-        <input id="jobSearch" type="text" placeholder="Search city, skill, work..." oninput="loadPublicJobs()" />
-        <select id="jobSkillFilter" onchange="loadPublicJobs()">
+        <input id="jobSearch" type="text" placeholder="Search city, area, skill, work..." oninput="renderPublicJobs()" />
+        <select id="jobSkillFilter" onchange="renderPublicJobs()">
           <option value="">All Skills</option>
         </select>
         <button class="btn light" onclick="loadPublicJobs()">Refresh</button>
@@ -536,8 +608,8 @@
     <section id="dashboard" class="section">
       <div class="section-head">
         <p class="eyebrow">Dashboard</p>
-        <h2>Manage your account</h2>
-        <p>Track bookings, bids, payments, reviews and worker profile.</p>
+        <h2>Manage bookings, bids and profile</h2>
+        <p>Track your customer bookings, worker bids, payment status and reviews.</p>
       </div>
 
       <div id="userInfoCard" class="info-card">
@@ -553,44 +625,74 @@
       <div id="dashboardContent" class="dashboard-content"></div>
     </section>
 
-    <!-- Trust & Safety -->
+    <!-- Trust -->
     <section id="trust" class="section alt">
       <div class="section-head">
         <p class="eyebrow">Trust & Safety</p>
-        <h2>Built for safe local hiring</h2>
-        <p>RapideService is designed with hidden contact, verified profiles, payment flow and reviews.</p>
+        <h2>Built for safer local hiring</h2>
+        <p>RapideService protects customers and workers with smart marketplace rules.</p>
       </div>
 
       <div class="trust-grid">
         <div class="trust-card">
           <div class="trust-icon">🛡</div>
           <h3>Verified Profiles</h3>
-          <p>Workers can be verified by admin for better customer trust.</p>
+          <p>Admin can verify worker profiles for stronger trust.</p>
         </div>
         <div class="trust-card">
           <div class="trust-icon">🔒</div>
           <h3>Hidden Contact</h3>
-          <p>Phone and address stay hidden until accepted/payment verified.</p>
+          <p>Customer phone and address stay hidden until payment is verified.</p>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon">💳</div>
+          <h3>Secure Payment</h3>
+          <p>Razorpay payment verification can unlock worker contact access.</p>
         </div>
         <div class="trust-card">
           <div class="trust-icon">⭐</div>
-          <h3>Reviews</h3>
-          <p>Customers can review workers after service completion.</p>
-        </div>
-        <div class="trust-card">
-          <div class="trust-icon">🎧</div>
-          <h3>Support</h3>
-          <p>Report issues and contact RapideService support anytime.</p>
+          <h3>Review System</h3>
+          <p>Reviews are linked to completed bookings, not random phone numbers.</p>
         </div>
       </div>
     </section>
 
-    <!-- Support -->
-    <section id="support" class="section">
+    <!-- FAQ -->
+    <section id="faq" class="section">
       <div class="section-head">
-        <p class="eyebrow">Help</p>
-        <h2>Support Center</h2>
-        <p>Need help with booking, payment, worker profile or account?</p>
+        <p class="eyebrow">Questions</p>
+        <h2>Frequently asked questions</h2>
+      </div>
+
+      <div class="faq-grid">
+        <details open>
+          <summary>How does RapideService work?</summary>
+          <p>Customers post work, workers send bids, customers accept a bid, payment is verified, contact unlocks and review is given after completion.</p>
+        </details>
+
+        <details>
+          <summary>Is worker contact visible immediately?</summary>
+          <p>No. Customer contact and full address are protected until worker is accepted and payment verification is completed.</p>
+        </details>
+
+        <details>
+          <summary>Can workers join for different skills?</summary>
+          <p>Yes. Workers can register under skills like electrician, plumber, cleaner, driver, tutor, mobile repair, freelancer and more.</p>
+        </details>
+
+        <details>
+          <summary>Is mobile app available?</summary>
+          <p>The website is mobile-friendly. Android and iOS apps can be launched after website testing and domain setup.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Support -->
+    <section id="support" class="section alt">
+      <div class="section-head">
+        <p class="eyebrow">Support Center</p>
+        <h2>Need help with booking, payment or profile?</h2>
+        <p>Submit a support ticket and admin can reply from the admin panel.</p>
       </div>
 
       <div class="form-card premium-form">
@@ -600,6 +702,7 @@
               <label>Name</label>
               <input id="supportName" type="text" placeholder="Your name" required />
             </div>
+
             <div>
               <label>Email / Phone</label>
               <input id="supportContact" type="text" placeholder="Email or phone" required />
@@ -623,11 +726,11 @@
       </div>
     </section>
 
-    <!-- Settings Hidden -->
+    <!-- Settings -->
     <section id="settings" class="section hidden">
       <div class="section-head">
         <p class="eyebrow">Settings</p>
-        <h2>RapideService Settings</h2>
+        <h2>RapideService settings</h2>
       </div>
 
       <div class="form-card premium-form">
@@ -660,9 +763,9 @@
     <!-- Admin -->
     <section id="admin" class="section alt hidden">
       <div class="section-head">
-        <p class="eyebrow">Admin</p>
-        <h2>Admin Panel</h2>
-        <p>Only admin can verify workers, manage bookings and check stats.</p>
+        <p class="eyebrow">Admin Panel</p>
+        <h2>Manage RapideService</h2>
+        <p>Verify workers, check bookings, reply support tickets and manage prices.</p>
       </div>
 
       <div class="admin-stats">
@@ -697,32 +800,32 @@
     <!-- Policies -->
     <section id="policies" class="section">
       <div class="section-head">
-        <p class="eyebrow">Policies</p>
-        <h2>Terms, Privacy and Safety</h2>
+        <p class="eyebrow">Legal</p>
+        <h2>Privacy, Terms and Refund Policy</h2>
       </div>
 
       <div class="policy-grid">
         <div class="policy-card">
           <h3>Privacy Policy</h3>
-          <p>We collect account, booking and service information to provide marketplace features.</p>
+          <p>RapideService uses account, booking and worker data only to operate marketplace features.</p>
         </div>
         <div class="policy-card">
           <h3>Terms of Service</h3>
-          <p>Customers and workers must use RapideService honestly and safely.</p>
+          <p>Customers and workers must use RapideService honestly, safely and legally.</p>
         </div>
         <div class="policy-card">
           <h3>Refund Policy</h3>
-          <p>Refunds depend on payment status, booking status and service completion.</p>
+          <p>Refunds depend on payment status, service status and support verification.</p>
         </div>
       </div>
     </section>
 
-    <!-- App Coming Soon -->
+    <!-- App -->
     <section id="app" class="app-section">
       <div>
         <p class="eyebrow">Mobile App</p>
-        <h2>RapideService App Coming Soon</h2>
-        <p>Android and iPhone app will launch after website testing is complete.</p>
+        <h2>RapideService app coming soon</h2>
+        <p>Android and iPhone apps can launch after website, domain, payment and OTP testing.</p>
       </div>
 
       <div class="app-buttons">
@@ -734,9 +837,16 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <div>
-      <h2>RapideService Support</h2>
-      <p>Hire trusted workers, freelancers and local helpers near you.</p>
+    <div class="footer-main">
+      <div>
+        <div class="footer-brand">
+          <span class="logo-badge">RS</span>
+          <h2>RapideService</h2>
+        </div>
+        <p>Hire trusted workers, freelancers and local helpers near you.</p>
+      </div>
+
+      <button class="btn primary" onclick="goToSection('book')">Post Work Now</button>
     </div>
 
     <div class="footer-grid">
@@ -749,36 +859,37 @@
         <p>support@rapideservice.com</p>
       </div>
       <div>
-        <h4>Location</h4>
-        <p>India</p>
+        <h4>Domain</h4>
+        <p>rapideservice.com</p>
       </div>
       <div>
         <h4>Business Hours</h4>
-        <p>Mon-Sat 9AM-8PM<br />Sunday emergency only</p>
+        <p>Mon-Sat 9AM-8PM<br />Sunday emergency support</p>
       </div>
     </div>
 
-    <p class="copyright">© 2026 RapideService. All rights reserved.</p>
+    <p class="copyright">© <span id="footerYear">2026</span> RapideService. All rights reserved.</p>
   </footer>
 
+  <!-- Old cache cleaner -->
   <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function (registrations) {
-      registrations.forEach(function (registration) {
-        registration.unregister();
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        registrations.forEach(function (registration) {
+          registration.unregister();
+        });
       });
-    });
-  }
+    }
 
-  if ("caches" in window) {
-    caches.keys().then(function (keys) {
-      keys.forEach(function (key) {
-        caches.delete(key);
+    if ("caches" in window) {
+      caches.keys().then(function (keys) {
+        keys.forEach(function (key) {
+          caches.delete(key);
+        });
       });
-    });
-  }
-</script>
+    }
+  </script>
 
-  <script src="script.js?v=rapideservice-final-11"></script>
+  <script src="script.js?v=rapideservice-ultra-12"></script>
 </body>
 </html>
