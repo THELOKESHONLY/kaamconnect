@@ -37,6 +37,7 @@ const ADMIN_LOGIN_IDS = ["thelokeshonly"];
 let currentUser = null;
 let currentUserProfile = null;
 let currentDashboardRole = "guest";
+let currentAuthMode = "login";
 let currentAdminTab = "users";
 let currentChatBookingId = "";
 let currentChatBookingData = null;
@@ -400,6 +401,21 @@ function setAuthMode(mode = "login") {
   if ($("authPhone")) $("authPhone").required = mode === "signup";
   if ($("authConfirmPassword")) $("authConfirmPassword").required = mode === "signup";
 }
+function goToRoleHome() {
+  const role = getUserRole();
+
+  if (isAdminUser()) {
+    goToSection("admin");
+    return;
+  }
+
+  if (role === "worker") {
+    goToSection("workerProfile");
+    return;
+  }
+
+  goToSection("customerDashboard");
+}
 
 async function handleAuth(event) {
   event.preventDefault();
@@ -473,10 +489,13 @@ async function handleAuth(event) {
         goToSection("profile");
       }
     } else {
-      await auth.signInWithEmailAndPassword(email, password);
-      showToast("Login successful.");
-      closeAuthModal();
-    }
+  window.__afterLoginRedirect = true;
+
+  await auth.signInWithEmailAndPassword(email, password);
+
+  showToast("Login successful.");
+  closeAuthModal();
+}
   } catch (error) {
     showToast(error.message || "Authentication failed.", "error");
   } finally {
@@ -585,6 +604,14 @@ auth.onAuthStateChanged(async (user) => {
       loadFeaturedWorkers(),
       loadNotifications()
     ]);
+
+     if (window.__afterLoginRedirect) {
+  window.__afterLoginRedirect = false;
+
+  setTimeout(() => {
+    goToRoleHome();
+  }, 300);
+}
 
     if (currentDashboardRole === "worker") {
       loadWorkerEarnings();
