@@ -890,6 +890,49 @@
     }
   </script>
 
-  <script src="script.js?v=rapideservice-ultra-12"></script>
+  /* Emergency global button fix */
+  
+window.openSidebar = window.openSidebar || function () {
+  document.getElementById("sidebar")?.classList.add("open");
+  document.getElementById("overlay")?.classList.remove("hidden");
+};
+
+window.closeSidebar = window.closeSidebar || function () {
+  document.getElementById("sidebar")?.classList.remove("open");
+  document.getElementById("overlay")?.classList.add("hidden");
+};
+
+window.openAuthModal = window.openAuthModal || function (mode) {
+  document.getElementById("authModal")?.classList.remove("hidden");
+  document.getElementById("overlay")?.classList.remove("hidden");
+
+  if (typeof setAuthMode === "function") {
+    setAuthMode(mode || "login");
+  }
+};
+
+window.closeAuthModal = window.closeAuthModal || function () {
+  document.getElementById("authModal")?.classList.add("hidden");
+  document.getElementById("overlay")?.classList.add("hidden");
+};
+
+window.toggleNotificationDrawer = window.toggleNotificationDrawer || function () {
+  document.getElementById("notificationDrawer")?.classList.toggle("open");
+  document.getElementById("overlay")?.classList.remove("hidden");
+};
+
+window.closeNotificationDrawer = window.closeNotificationDrawer || function () {
+  document.getElementById("notificationDrawer")?.classList.remove("open");
+  document.getElementById("overlay")?.classList.add("hidden");
+};
+
+window.closeAllOverlays = window.closeAllOverlays || function () {
+  document.getElementById("sidebar")?.classList.remove("open");
+  document.getElementById("notificationDrawer")?.classList.remove("open");
+  document.getElementById("authModal")?.classList.add("hidden");
+  document.getElementById("forgotModal")?.classList.add("hidden");
+  document.getElementById("overlay")?.classList.add("hidden");
+};
+    <script src="script.js?v=rapideservice-ultra-12"></script>
 </body>
 </html>
