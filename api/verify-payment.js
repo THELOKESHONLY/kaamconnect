@@ -30,7 +30,9 @@ function initFirebaseAdmin() {
 }
 
 function getBody(req) {
-  if (typeof req.body === "object" && req.body !== null) return req.body;
+  if (typeof req.body === "object" && req.body !== null) {
+    return req.body;
+  }
 
   try {
     return JSON.parse(req.body || "{}");
@@ -88,7 +90,9 @@ module.exports = async function handler(req, res) {
     const token = getToken(req);
 
     if (!token) {
-      return sendJson(res, 401, { error: "Login token missing." });
+      return sendJson(res, 401, {
+        error: "Login token missing."
+      });
     }
 
     const decoded = await admin.auth().verifyIdToken(token);
@@ -150,10 +154,7 @@ module.exports = async function handler(req, res) {
       }
 
       workerUserId = booking.acceptedBid.workerUserId;
-
-      grossAmount = Number(
-        booking.acceptedBid.bidAmount || booking.budget || 0
-      );
+      grossAmount = Number(booking.acceptedBid.bidAmount || booking.budget || 0);
 
       if (!grossAmount || grossAmount <= 0) {
         throw new Error("Invalid booking amount.");
