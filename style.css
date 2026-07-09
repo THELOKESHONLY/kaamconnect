@@ -1776,3 +1776,485 @@ textarea {
   display: none !important;
   pointer-events: none !important;
 }
+
+/* =====================================================
+   RapideService Marketplace v20 Extra Styles
+   Profile + Map + Chat + QR + Accounts + Role UI
+===================================================== */
+
+/* Role based hiding */
+.auth-required.hidden,
+.customer-only.hidden,
+.worker-only.hidden,
+.customer-link.hidden,
+.worker-link.hidden,
+.shared-link.hidden,
+#profile.hidden,
+#book.hidden,
+#customerDashboard.hidden,
+#workerProfile.hidden,
+#workerJobs.hidden,
+#workerEarnings.hidden,
+#accounts.hidden,
+#chat.hidden,
+#admin.hidden,
+#settings.hidden {
+  display: none !important;
+}
+
+/* Click fix */
+.topbar,
+.topbar *,
+button,
+a,
+select,
+input,
+textarea {
+  pointer-events: auto !important;
+}
+
+.overlay.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Profile preview */
+.profile-preview {
+  margin-bottom: 22px;
+}
+
+.profile-card-inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 35%),
+    #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+}
+
+.profile-card-inline img {
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  object-fit: cover;
+  border: 3px solid #eff6ff;
+}
+
+.profile-card-inline .avatar,
+.avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.32), transparent 28%),
+    linear-gradient(135deg, #0f172a, #2563eb);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 950;
+  font-size: 28px;
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.25);
+}
+
+.profile-card-inline h3 {
+  margin: 0 0 5px;
+  font-size: 22px;
+}
+
+.profile-card-inline p {
+  margin: 0 0 8px;
+  color: #64748b;
+}
+
+/* Worker public cards */
+.worker-public-card {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 35%),
+    #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.07);
+  transition: 0.22s ease;
+}
+
+.worker-public-card:hover {
+  transform: translateY(-4px);
+  border-color: #bfdbfe;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.12);
+}
+
+.worker-card-img {
+  width: 82px;
+  height: 82px;
+  border-radius: 26px;
+  object-fit: cover;
+  border: 3px solid #eff6ff;
+  margin-bottom: 14px;
+}
+
+.worker-public-card h3 {
+  margin: 12px 0 8px;
+  font-size: 22px;
+}
+
+.worker-public-card p {
+  color: #64748b;
+  line-height: 1.58;
+}
+
+.rating {
+  color: #f59e0b;
+  font-weight: 950;
+}
+
+/* Map */
+.map-actions {
+  max-width: 1120px;
+  margin: 0 auto 18px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.map-box {
+  max-width: 1120px;
+  height: 520px;
+  margin: 0 auto 28px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.12);
+  background: #e2e8f0;
+}
+
+.leaflet-container {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.leaflet-popup-content {
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* QR */
+.qr-box {
+  text-align: center;
+}
+
+.qr-box canvas {
+  margin: 18px auto;
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+}
+
+#websiteQrText {
+  font-weight: 900;
+  color: #2563eb;
+  word-break: break-all;
+}
+
+/* Accounts */
+#accountForm input,
+#accountForm select {
+  font-weight: 700;
+}
+
+.price-row {
+  display: grid;
+  grid-template-columns: 1fr 150px auto;
+  gap: 12px;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.price-row strong {
+  color: #0f172a;
+}
+
+/* Chat layout */
+.chat-layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+}
+
+.chat-sidebar,
+.chat-window {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 26px;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.chat-sidebar {
+  padding: 18px;
+}
+
+.chat-sidebar h3 {
+  margin: 0 0 14px;
+}
+
+.chat-booking-btn {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px;
+  text-align: left;
+  margin-bottom: 10px;
+  transition: 0.2s ease;
+}
+
+.chat-booking-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.chat-booking-btn strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.chat-booking-btn span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.chat-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 35%),
+    #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 950;
+}
+
+.chat-header span {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.chat-messages {
+  height: 430px;
+  overflow-y: auto;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.05), transparent 28%),
+    #f8fafc;
+}
+
+.message {
+  max-width: 72%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.message strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+  opacity: 0.85;
+}
+
+.message p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.message.mine {
+  margin-left: auto;
+  background: #2563eb;
+  color: #ffffff;
+  border-bottom-right-radius: 6px;
+}
+
+.message.theirs {
+  margin-right: auto;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 6px;
+}
+
+.chat-form {
+  padding: 14px;
+  border-top: 1px solid #e2e8f0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  background: #ffffff;
+}
+
+.chat-form input {
+  margin: 0;
+}
+
+.call-box {
+  padding: 0 14px 14px;
+  background: #ffffff;
+}
+
+/* Earnings cards */
+#workerEarningsList .data-card h3 {
+  font-size: 28px;
+  color: #2563eb;
+}
+
+/* Dashboard / booking cards */
+.data-card {
+  overflow-wrap: anywhere;
+}
+
+.bid-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.timeline {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.timeline-dot.done {
+  background: #16a34a;
+}
+
+/* Status badges */
+.status.open {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.status.success {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.status.pending {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.status.danger {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* File inputs */
+input[type="file"] {
+  background: #f8fafc;
+  border: 1px dashed #bfdbfe;
+  cursor: pointer;
+}
+
+/* Better role nav */
+.desktop-nav .customer-link,
+.desktop-nav .worker-link,
+.desktop-nav .shared-link {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+/* Mobile responsive */
+@media (max-width: 980px) {
+  .chat-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-messages {
+    height: 360px;
+  }
+
+  .map-box {
+    height: 420px;
+  }
+
+  .price-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-card-inline {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .message {
+    max-width: 88%;
+  }
+
+  .chat-form {
+    grid-template-columns: 1fr;
+  }
+
+  .map-box {
+    height: 360px;
+    border-radius: 20px;
+  }
+
+  .map-actions {
+    display: grid;
+  }
+
+  .map-actions .btn {
+    width: 100%;
+  }
+
+  .qr-box canvas {
+    width: 210px !important;
+    height: 210px !important;
+  }
+}
+
+
+
+
