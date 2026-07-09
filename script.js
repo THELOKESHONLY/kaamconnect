@@ -1,18 +1,8 @@
 /* =====================================================
-   RapideService Marketplace v20
-   Features:
-   - Customer / Worker / Admin role-based app
-   - Profile photo upload
-   - Worker profile
-   - Worker bank / UPI details
-   - Worker earnings ledger
-   - Website QR + UPI QR
-   - Nearby workers map
-   - Booking chat
-   - Payment tracking
+   RapideService Final Marketplace JS
+   Works on Spark plan: profile images are compressed and saved as small Firestore data URLs.
 ===================================================== */
 
-/* ---------------- Firebase Config ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyDylEdOuxEpqh7IxEO9cBoV7u9_9cK8DAc",
   authDomain: "kaamconnect-fdf87.firebaseapp.com",
@@ -24,19 +14,14 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
 
-/* ---------------- Admin ---------------- */
 const ADMIN_EMAILS = ["lokeshyadav4399@gmail.com"];
 const ADMIN_LOGIN_IDS = ["thelokeshonly"];
 
-/* ---------------- State ---------------- */
 let currentUser = null;
 let currentUserProfile = null;
-let currentDashboardRole = "guest";
 let currentAuthMode = "login";
 let currentAdminTab = "users";
 let currentChatBookingId = "";
@@ -48,7 +33,6 @@ let mapInstance = null;
 let userMapMarker = null;
 let workerMarkers = [];
 
-/* ---------------- Skills ---------------- */
 const SKILLS = [
   "Electrician",
   "Plumber",
@@ -133,7 +117,6 @@ const SERVICE_IMAGES = {
   "Freelancer / General Helper": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80"
 };
 
-/* ---------------- Helpers ---------------- */
 function $(id) {
   return document.getElementById(id);
 }
@@ -172,33 +155,15 @@ function currencySymbol(currency = "INR") {
 }
 
 function getSelectedCurrency() {
-  return (
-    $("sideCurrencySelect")?.value ||
-    $("settingsCurrency")?.value ||
-    currentUserProfile?.currency ||
-    currentUserProfile?.settings?.currency ||
-    "INR"
-  );
+  return $("sideCurrencySelect")?.value || $("settingsCurrency")?.value || currentUserProfile?.currency || "INR";
 }
 
 function getSelectedCountry() {
-  return (
-    $("sideCountrySelect")?.value ||
-    $("settingsCountry")?.value ||
-    currentUserProfile?.country ||
-    currentUserProfile?.settings?.country ||
-    "IN"
-  );
+  return $("sideCountrySelect")?.value || $("settingsCountry")?.value || currentUserProfile?.country || "IN";
 }
 
 function getSelectedLanguage() {
-  return (
-    $("sideLanguageSelect")?.value ||
-    $("settingsLanguage")?.value ||
-    currentUserProfile?.language ||
-    currentUserProfile?.settings?.language ||
-    "en"
-  );
+  return $("sideLanguageSelect")?.value || $("settingsLanguage")?.value || currentUserProfile?.language || "en";
 }
 
 function formatMoney(amount, currency = getSelectedCurrency()) {
@@ -209,7 +174,11 @@ function isAdminUser() {
   const email = String(currentUser?.email || currentUserProfile?.email || "").toLowerCase();
   const loginId = String(currentUserProfile?.loginId || "").toLowerCase();
 
-  return ADMIN_EMAILS.includes(email) || ADMIN_LOGIN_IDS.includes(loginId);
+  return (
+    ADMIN_EMAILS.includes(email) ||
+    ADMIN_LOGIN_IDS.includes(loginId) ||
+    currentUserProfile?.role === "admin"
+  );
 }
 
 function getUserRole() {
@@ -254,18 +223,52 @@ function distanceKm(lat1, lon1, lat2, lon2) {
   const dLon = (lon2 - lon1) * Math.PI / 180;
 
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1 * Math.PI / 180) *
     Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+    Math.sin(dLon / 2) ** 2;
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return Number((R * c).toFixed(1));
+  return Number((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1));
 }
 
-/* ---------------- Overlay / Navigation ---------------- */
+/* Photo upload without Firebase Storage */
+function imageFileToDataUrl(file, maxSize = 420, quality = 0.68) {
+  return new Promise((resolve) => {
+    if (!file) return resolve("");
+
+    if (!file.type.startsWith("image/")) {
+      showToast("Please select an image file.", "error");
+      return resolve("");
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const img = new Image();
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+
+        canvas.width = Math.round(img.width * ratio);
+        canvas.height = Math.round(img.height * ratio);
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+
+      img.onerror = () => resolve("");
+      img.src = reader.result;
+    };
+
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
+
+/* UI */
 function openOverlay() {
   $("overlay")?.classList.remove("hidden");
   document.body.classList.add("no-scroll");
@@ -283,15 +286,6 @@ function closeOverlayIfNothingOpen() {
   }
 }
 
-function closeAllOverlays() {
-  $("sidebar")?.classList.remove("open");
-  $("notificationDrawer")?.classList.remove("open");
-  $("authModal")?.classList.add("hidden");
-  $("forgotModal")?.classList.add("hidden");
-  $("overlay")?.classList.add("hidden");
-  document.body.classList.remove("no-scroll");
-}
-
 function openSidebar() {
   $("sidebar")?.classList.add("open");
   openOverlay();
@@ -300,6 +294,15 @@ function openSidebar() {
 function closeSidebar() {
   $("sidebar")?.classList.remove("open");
   closeOverlayIfNothingOpen();
+}
+
+function closeAllOverlays() {
+  $("sidebar")?.classList.remove("open");
+  $("notificationDrawer")?.classList.remove("open");
+  $("authModal")?.classList.add("hidden");
+  $("forgotModal")?.classList.add("hidden");
+  $("overlay")?.classList.add("hidden");
+  document.body.classList.remove("no-scroll");
 }
 
 function toggleNotificationDrawer() {
@@ -311,6 +314,11 @@ function toggleNotificationDrawer() {
 function closeNotificationDrawer() {
   $("notificationDrawer")?.classList.remove("open");
   closeOverlayIfNothingOpen();
+}
+
+function openSettingsSection() {
+  $("settings")?.classList.remove("hidden");
+  $("settings")?.scrollIntoView({ behavior: "smooth" });
 }
 
 function isProtectedSection(id) {
@@ -340,17 +348,17 @@ function goToSection(id) {
     return;
   }
 
-  document.querySelectorAll("main section").forEach((section) => {
-    if (
-      section.id === "settings" ||
-      section.id === "admin" ||
-      section.classList.contains("auth-required")
-    ) {
-      section.classList.add("hidden");
-    }
-  });
+  const role = getUserRole();
 
-  updateProtectedSections();
+  if ($(id)?.classList.contains("customer-only") && role !== "customer") {
+    showToast("This section is for customers.", "error");
+    return;
+  }
+
+  if ($(id)?.classList.contains("worker-only") && role !== "worker") {
+    showToast("This section is for workers.", "error");
+    return;
+  }
 
   const section = $(id);
   if (!section) return;
@@ -358,23 +366,18 @@ function goToSection(id) {
   section.classList.remove("hidden");
   section.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  if (id === "nearby") setTimeout(initMap, 300);
+  if (id === "nearby") setTimeout(initMap, 250);
   if (id === "customerDashboard") loadCustomerDashboard();
+  if (id === "workerProfile") loadWorkerProfileForm();
   if (id === "workerJobs") loadPublicJobs();
   if (id === "workerEarnings") loadWorkerEarnings();
-  if (id === "chat") loadChatBookings();
-  if (id === "accounts") loadAccountDetails();
   if (id === "profile") loadProfileForm();
-  if (id === "workerProfile") loadWorkerProfileForm();
+  if (id === "accounts") loadAccountDetails();
+  if (id === "chat") loadChatBookings();
   if (id === "admin") loadAdminPanel();
 }
 
-function openSettingsSection() {
-  if ($("settings")) $("settings").classList.remove("hidden");
-  $("settings")?.scrollIntoView({ behavior: "smooth" });
-}
-
-/* ---------------- Auth ---------------- */
+/* Auth */
 function openAuthModal(mode = "login") {
   setAuthMode(mode);
   $("authModal")?.classList.remove("hidden");
@@ -389,8 +392,13 @@ function closeAuthModal() {
 function setAuthMode(mode = "login") {
   currentAuthMode = mode;
 
-  if ($("authTitle")) $("authTitle").textContent = mode === "signup" ? "Create Account" : "Login";
-  if ($("authSubmitBtn")) $("authSubmitBtn").textContent = mode === "signup" ? "Create Account" : "Login";
+  if ($("authTitle")) {
+    $("authTitle").textContent = mode === "signup" ? "Create Account" : "Login";
+  }
+
+  if ($("authSubmitBtn")) {
+    $("authSubmitBtn").textContent = mode === "signup" ? "Create Account" : "Login";
+  }
 
   $("loginTab")?.classList.toggle("active", mode === "login");
   $("signupTab")?.classList.toggle("active", mode === "signup");
@@ -401,15 +409,14 @@ function setAuthMode(mode = "login") {
   if ($("authPhone")) $("authPhone").required = mode === "signup";
   if ($("authConfirmPassword")) $("authConfirmPassword").required = mode === "signup";
 }
-function goToRoleHome() {
-  const role = getUserRole();
 
+function goToRoleHome() {
   if (isAdminUser()) {
     goToSection("admin");
     return;
   }
 
-  if (role === "worker") {
+  if (getUserRole() === "worker") {
     goToSection("workerProfile");
     return;
   }
@@ -434,16 +441,24 @@ async function handleAuth(event) {
       const referral = $("authReferral").value.trim();
       const confirmPassword = $("authConfirmPassword").value;
 
-      if (!name || !phone) throw new Error("Please enter name and phone number.");
-      if (password.length < 6) throw new Error("Password must be at least 6 characters.");
-      if (password !== confirmPassword) throw new Error("Passwords do not match.");
+      if (!name || !phone) {
+        throw new Error("Please enter name and phone.");
+      }
+
+      if (password.length < 6) {
+        throw new Error("Password must be at least 6 characters.");
+      }
+
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match.");
+      }
 
       const cred = await auth.createUserWithEmailAndPassword(email, password);
       const user = cred.user;
 
       await user.updateProfile({ displayName: name });
 
-      const userData = {
+      await db.collection("users").doc(user.uid).set({
         uid: user.uid,
         name,
         phone,
@@ -458,21 +473,14 @@ async function handleAuth(event) {
         city: "",
         area: "",
         about: "",
-        photoUrl: "",
+        photoDataUrl: "",
         totalSpent: 0,
         totalEarned: 0,
         pendingPayout: 0,
         paidPayout: 0,
-        settings: {
-          country: getSelectedCountry(),
-          currency: getSelectedCurrency(),
-          language: getSelectedLanguage()
-        },
         createdAt: nowServer(),
         updatedAt: nowServer()
-      };
-
-      await db.collection("users").doc(user.uid).set(userData, { merge: true });
+      }, { merge: true });
 
       await createNotification(
         user.uid,
@@ -480,22 +488,18 @@ async function handleAuth(event) {
         `Your ${role} account was created successfully.`
       );
 
+      window.__afterLoginRedirect = true;
+
       showToast("Account created successfully.");
       closeAuthModal();
-
-      if (role === "worker") {
-        goToSection("workerProfile");
-      } else {
-        goToSection("profile");
-      }
     } else {
-  window.__afterLoginRedirect = true;
+      window.__afterLoginRedirect = true;
 
-  await auth.signInWithEmailAndPassword(email, password);
+      await auth.signInWithEmailAndPassword(email, password);
 
-  showToast("Login successful.");
-  closeAuthModal();
-}
+      showToast("Login successful.");
+      closeAuthModal();
+    }
   } catch (error) {
     showToast(error.message || "Authentication failed.", "error");
   } finally {
@@ -534,7 +538,7 @@ async function socialLogin(providerName) {
         city: "",
         area: "",
         about: "",
-        photoUrl: user.photoURL || "",
+        photoDataUrl: "",
         totalSpent: 0,
         totalEarned: 0,
         pendingPayout: 0,
@@ -543,6 +547,8 @@ async function socialLogin(providerName) {
         updatedAt: nowServer()
       }, { merge: true });
     }
+
+    window.__afterLoginRedirect = true;
 
     showToast("Login successful.");
     closeAuthModal();
@@ -553,6 +559,7 @@ async function socialLogin(providerName) {
 
 async function logoutUser() {
   await auth.signOut();
+
   showToast("Logged out successfully.");
   goToSection("home");
 }
@@ -562,14 +569,13 @@ auth.onAuthStateChanged(async (user) => {
 
   if (!user) {
     currentUserProfile = null;
-    currentDashboardRole = "guest";
     updateAuthUI();
     return;
   }
 
   try {
-    const userRef = db.collection("users").doc(user.uid);
-    const snap = await userRef.get();
+    const ref = db.collection("users").doc(user.uid);
+    const snap = await ref.get();
 
     if (snap.exists) {
       currentUserProfile = snap.data();
@@ -581,19 +587,16 @@ auth.onAuthStateChanged(async (user) => {
         role: "customer",
         loginId: getEmailLoginId(user.email),
         email: user.email || "",
-        referralCode: makeReferralCode(user.displayName || "RS"),
         country: "IN",
         currency: "INR",
         language: "en",
-        photoUrl: user.photoURL || "",
+        photoDataUrl: "",
         createdAt: nowServer(),
         updatedAt: nowServer()
       };
 
-      await userRef.set(currentUserProfile, { merge: true });
+      await ref.set(currentUserProfile, { merge: true });
     }
-
-    currentDashboardRole = getUserRole();
 
     updateAuthUI();
     applyUserSettingsToUI();
@@ -602,23 +605,16 @@ auth.onAuthStateChanged(async (user) => {
     await Promise.all([
       loadStats(),
       loadFeaturedWorkers(),
-      loadNotifications()
+      loadNotifications(),
+      loadNearbyWorkers()
     ]);
 
-     if (window.__afterLoginRedirect) {
-  window.__afterLoginRedirect = false;
+    if (window.__afterLoginRedirect) {
+      window.__afterLoginRedirect = false;
 
-  setTimeout(() => {
-    goToRoleHome();
-  }, 300);
-}
-
-    if (currentDashboardRole === "worker") {
-      loadWorkerEarnings();
-    }
-
-    if (currentDashboardRole === "admin") {
-      loadAdminPanel();
+      setTimeout(() => {
+        goToRoleHome();
+      }, 250);
     }
   } catch (error) {
     showToast(error.message || "Profile loading failed.", "error");
@@ -645,38 +641,10 @@ function updateAuthUI() {
     el.classList.toggle("hidden", !loggedIn || role === "admin");
   });
 
-  if (isAdminUser()) {
-    $("adminSideBtn")?.classList.remove("hidden");
-  } else {
-    $("adminSideBtn")?.classList.add("hidden");
-    $("admin")?.classList.add("hidden");
-  }
-
-  updateProtectedSections();
+  $("adminSideBtn")?.classList.toggle("hidden", !isAdminUser());
 }
 
-function updateProtectedSections() {
-  const loggedIn = !!currentUser;
-  const role = getUserRole();
-
-  document.querySelectorAll(".auth-required").forEach((section) => {
-    section.classList.toggle("hidden", !loggedIn);
-  });
-
-  document.querySelectorAll(".customer-only").forEach((section) => {
-    section.classList.toggle("hidden", !loggedIn || role !== "customer");
-  });
-
-  document.querySelectorAll(".worker-only").forEach((section) => {
-    section.classList.toggle("hidden", !loggedIn || role !== "worker");
-  });
-
-  if (!isAdminUser()) {
-    $("admin")?.classList.add("hidden");
-  }
-}
-
-/* ---------------- Forgot Password ---------------- */
+/* Forgot Password */
 function openForgotModal() {
   closeAuthModal();
   $("forgotModal")?.classList.remove("hidden");
@@ -715,15 +683,20 @@ async function requestResetOtp() {
 
     const res = await fetch("/api/request-reset-otp", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ method, identity })
     });
 
     const data = await res.json();
 
-    if (!res.ok) throw new Error(data.error || "OTP send failed.");
+    if (!res.ok) {
+      throw new Error(data.error || "OTP send failed.");
+    }
 
     $("resetOtpFields")?.classList.remove("hidden");
+
     showToast(data.message || "OTP sent successfully.");
   } catch (error) {
     showToast(error.message || "OTP failed.", "error");
@@ -752,13 +725,17 @@ async function verifyResetOtp() {
   try {
     const res = await fetch("/api/reset-password-otp", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ method, identity, otp, newPassword })
     });
 
     const data = await res.json();
 
-    if (!res.ok) throw new Error(data.error || "Password reset failed.");
+    if (!res.ok) {
+      throw new Error(data.error || "Password reset failed.");
+    }
 
     showToast("Password reset successful.");
     closeForgotModal();
@@ -768,9 +745,11 @@ async function verifyResetOtp() {
   }
 }
 
-/* ---------------- Init ---------------- */
+/* Init */
 document.addEventListener("DOMContentLoaded", async () => {
-  if ($("footerYear")) $("footerYear").textContent = new Date().getFullYear();
+  if ($("footerYear")) {
+    $("footerYear").textContent = new Date().getFullYear();
+  }
 
   fillSkillDropdowns();
   applyDefaultSettings();
@@ -789,7 +768,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   calculateMinimumPrice();
 });
 
-/* ---------------- Prices / Services ---------------- */
+/* Prices / Services */
 async function loadMinimumPrices() {
   try {
     const snap = await db.collection("platformSettings").doc("minimumPrices").get();
@@ -801,7 +780,9 @@ async function loadMinimumPrices() {
       };
     }
   } catch {
-    minimumPrices = { ...DEFAULT_MINIMUM_PRICES };
+    minimumPrices = {
+      ...DEFAULT_MINIMUM_PRICES
+    };
   }
 }
 
@@ -810,10 +791,21 @@ function fillSkillDropdowns() {
     return `<option value="${escapeHtml(skill)}">${escapeHtml(skill)}</option>`;
   }).join("");
 
-  if ($("homeServiceSelect")) $("homeServiceSelect").innerHTML = skillOptions;
-  if ($("bookingSkill")) $("bookingSkill").innerHTML = `<option value="">Choose service skill</option>${skillOptions}`;
-  if ($("workerSkill")) $("workerSkill").innerHTML = `<option value="">Choose your skill</option>${skillOptions}`;
-  if ($("jobSkillFilter")) $("jobSkillFilter").innerHTML = `<option value="">All Skills</option>${skillOptions}`;
+  if ($("homeServiceSelect")) {
+    $("homeServiceSelect").innerHTML = skillOptions;
+  }
+
+  if ($("bookingSkill")) {
+    $("bookingSkill").innerHTML = `<option value="">Choose service skill</option>${skillOptions}`;
+  }
+
+  if ($("workerSkill")) {
+    $("workerSkill").innerHTML = `<option value="">Choose your skill</option>${skillOptions}`;
+  }
+
+  if ($("jobSkillFilter")) {
+    $("jobSkillFilter").innerHTML = `<option value="">All Skills</option>${skillOptions}`;
+  }
 
   renderServices();
 }
@@ -829,8 +821,7 @@ function renderServices() {
     return `
       <article class="service-card">
         <div class="service-photo-wrap">
-          <img src="${img}" alt="${escapeHtml(skill)}" loading="lazy"
-            onerror="this.style.display='none'; this.parentElement.classList.add('image-fallback');" />
+          <img src="${img}" alt="${escapeHtml(skill)}" loading="lazy" />
         </div>
 
         <div class="service-body">
@@ -863,6 +854,7 @@ function selectServiceAndBook(skill) {
 function calculateMinimumPrice() {
   const skill = $("bookingSkill")?.value || "Electrician";
   const type = $("bookingType")?.value || "Freelancer";
+
   const base = Number(minimumPrices[skill] || DEFAULT_MINIMUM_PRICES[skill] || 200);
   const multiplier = Number(WORK_TYPE_MULTIPLIER[type] || 1);
   const amount = Math.round(base * multiplier);
@@ -882,28 +874,17 @@ async function loadStats() {
       db.collection("reviews").limit(1000).get()
     ]);
 
-    const workers = workersSnap.size;
-    const jobs = jobsSnap.size;
-    const reviews = reviewsSnap.size;
+    if ($("statWorkers")) $("statWorkers").textContent = workersSnap.size;
+    if ($("statJobs")) $("statJobs").textContent = jobsSnap.size;
+    if ($("statReviews")) $("statReviews").textContent = reviewsSnap.size;
 
-    if ($("statWorkers")) $("statWorkers").textContent = workers;
-    if ($("statJobs")) $("statJobs").textContent = jobs;
-    if ($("statReviews")) $("statReviews").textContent = reviews;
-
-    if (workers + jobs + reviews > 0) {
-      $("liveStats")?.classList.remove("hidden");
-      $("launchTrustRow")?.classList.add("hidden");
-    } else {
-      $("liveStats")?.classList.add("hidden");
-      $("launchTrustRow")?.classList.remove("hidden");
-    }
+    $("liveStats")?.classList.remove("hidden");
   } catch {
     $("liveStats")?.classList.add("hidden");
-    $("launchTrustRow")?.classList.remove("hidden");
   }
 }
 
-/* ---------------- Settings ---------------- */
+/* Settings */
 function applyDefaultSettings() {
   if ($("sideCountrySelect")) $("sideCountrySelect").value = "IN";
   if ($("sideCurrencySelect")) $("sideCurrencySelect").value = "INR";
@@ -915,9 +896,9 @@ function applyDefaultSettings() {
 }
 
 function applyUserSettingsToUI() {
-  const country = currentUserProfile?.country || currentUserProfile?.settings?.country || "IN";
-  const currency = currentUserProfile?.currency || currentUserProfile?.settings?.currency || "INR";
-  const language = currentUserProfile?.language || currentUserProfile?.settings?.language || "en";
+  const country = currentUserProfile?.country || "IN";
+  const currency = currentUserProfile?.currency || "INR";
+  const language = currentUserProfile?.language || "en";
 
   if ($("sideCountrySelect")) $("sideCountrySelect").value = country;
   if ($("sideCurrencySelect")) $("sideCurrencySelect").value = currency;
@@ -938,6 +919,7 @@ function bindSettingEvents() {
     "settingsLanguage"
   ].forEach((id) => {
     const el = $(id);
+
     if (!el) return;
 
     el.addEventListener("change", () => {
@@ -948,18 +930,26 @@ function bindSettingEvents() {
 }
 
 async function saveSideSettings() {
-  if ($("settingsCountry") && $("sideCountrySelect")) $("settingsCountry").value = $("sideCountrySelect").value;
-  if ($("settingsCurrency") && $("sideCurrencySelect")) $("settingsCurrency").value = $("sideCurrencySelect").value;
-  if ($("settingsLanguage") && $("sideLanguageSelect")) $("settingsLanguage").value = $("sideLanguageSelect").value;
+  if ($("settingsCountry") && $("sideCountrySelect")) {
+    $("settingsCountry").value = $("sideCountrySelect").value;
+  }
+
+  if ($("settingsCurrency") && $("sideCurrencySelect")) {
+    $("settingsCurrency").value = $("sideCurrencySelect").value;
+  }
+
+  if ($("settingsLanguage") && $("sideLanguageSelect")) {
+    $("settingsLanguage").value = $("sideLanguageSelect").value;
+  }
 
   await saveSettings();
   closeSidebar();
 }
 
 async function saveSettings() {
-  const country = $("settingsCountry")?.value || $("sideCountrySelect")?.value || "IN";
-  const currency = $("settingsCurrency")?.value || $("sideCurrencySelect")?.value || "INR";
-  const language = $("settingsLanguage")?.value || $("sideLanguageSelect")?.value || "en";
+  const country = $("settingsCountry")?.value || "IN";
+  const currency = $("settingsCurrency")?.value || "INR";
+  const language = $("settingsLanguage")?.value || "en";
 
   if (!currentUser) {
     showToast("Settings saved on this device.");
@@ -970,7 +960,6 @@ async function saveSettings() {
     country,
     currency,
     language,
-    settings: { country, currency, language },
     updatedAt: nowServer()
   }, { merge: true });
 
@@ -978,14 +967,13 @@ async function saveSettings() {
     ...currentUserProfile,
     country,
     currency,
-    language,
-    settings: { country, currency, language }
+    language
   };
 
   showToast("Settings saved.");
 }
 
-/* ---------------- Profile ---------------- */
+/* Profile */
 function prefillFormsFromProfile() {
   if (!currentUserProfile) return;
 
@@ -1010,13 +998,18 @@ function renderProfilePreview() {
   const box = $("profilePreview");
   if (!box) return;
 
-  const img = currentUserProfile?.photoUrl;
+  const img = currentUserProfile?.photoDataUrl || currentUserProfile?.photoUrl || "";
   const name = currentUserProfile?.name || "User";
   const role = getUserRole();
 
   box.innerHTML = `
     <div class="profile-card-inline">
-      ${img ? `<img src="${img}" alt="Profile" />` : `<div class="avatar">${escapeHtml(name.charAt(0).toUpperCase())}</div>`}
+      ${
+        img
+          ? `<img src="${img}" alt="Profile" />`
+          : `<div class="avatar">${escapeHtml(name.charAt(0).toUpperCase())}</div>`
+      }
+
       <div>
         <h3>${escapeHtml(name)}</h3>
         <p>${escapeHtml(currentUser?.email || "")}</p>
@@ -1026,36 +1019,20 @@ function renderProfilePreview() {
   `;
 }
 
-async function uploadFile(file, path) {
-  if (!file) return "";
-
-  try {
-    const ref = storage.ref(path);
-    await ref.put(file);
-    return await ref.getDownloadURL();
-  } catch (error) {
-    console.warn("Firebase Storage not enabled:", error);
-    showToast("Photo upload is not active yet. Enable Firebase Storage first.", "warning");
-    return "";
-  }
-}
 async function saveUserProfile(event) {
   event.preventDefault();
 
-  if (!currentUser) {
-    showToast("Please login first.", "error");
-    return;
-  }
+  if (!currentUser) return;
 
   const file = $("profilePhoto")?.files?.[0] || null;
-  let photoUrl = currentUserProfile?.photoUrl || "";
+  let photoDataUrl = currentUserProfile?.photoDataUrl || "";
 
-  try {
-    if (file) {
-      photoUrl = await uploadFile(file, `profilePhotos/${currentUser.uid}/${Date.now()}_${file.name}`);
+  if (file) {
+    photoDataUrl = await imageFileToDataUrl(file);
+
+    if (!photoDataUrl) {
+      showToast("Photo was not saved.", "warning");
     }
-  } catch {
-    showToast("Photo upload failed. Profile saved without new photo.", "warning");
   }
 
   const profileData = {
@@ -1064,7 +1041,7 @@ async function saveUserProfile(event) {
     city: $("profileCity")?.value.trim() || "",
     area: $("profileArea")?.value.trim() || "",
     about: $("profileAbout")?.value.trim() || "",
-    photoUrl,
+    photoDataUrl,
     updatedAt: nowServer()
   };
 
@@ -1076,8 +1053,7 @@ async function saveUserProfile(event) {
   };
 
   await currentUser.updateProfile({
-    displayName: profileData.name || currentUser.displayName,
-    photoURL: photoUrl || currentUser.photoURL
+    displayName: profileData.name || currentUser.displayName
   });
 
   prefillFormsFromProfile();
@@ -1086,7 +1062,6 @@ async function saveUserProfile(event) {
   showToast("Profile saved successfully.");
 }
 
-/* ---------------- Hero ---------------- */
 function heroFindWorkers() {
   const service = $("homeServiceSelect")?.value || "";
   const city = $("homeCityInput")?.value.trim() || "";
@@ -1103,12 +1078,11 @@ function heroFindWorkers() {
   goToSection("book");
 }
 
-/* ---------------- Booking ---------------- */
+/* Booking */
 async function createBooking(event) {
   event.preventDefault();
 
   if (!currentUser) {
-    showToast("Please login first.", "error");
     openAuthModal("login");
     return;
   }
@@ -1145,7 +1119,7 @@ async function createBooking(event) {
       customerName: name,
       customerPhone: phone,
       customerEmail: currentUser.email || "",
-      customerPhotoUrl: currentUserProfile?.photoUrl || "",
+      customerPhotoDataUrl: currentUserProfile?.photoDataUrl || "",
       skill,
       workType: type,
       city,
@@ -1190,15 +1164,26 @@ async function createBooking(event) {
       updatedAt: nowServer()
     });
 
-    await createNotification(currentUser.uid, "Work posted", `Your ${skill} work was posted successfully.`);
+    await createNotification(
+      currentUser.uid,
+      "Work posted",
+      `Your ${skill} work was posted successfully.`
+    );
 
     $("bookingForm").reset();
+
     prefillFormsFromProfile();
     fillSkillDropdowns();
     calculateMinimumPrice();
 
     showToast("Work posted successfully.");
-    await Promise.all([loadPublicJobs(), loadCustomerDashboard(), loadStats()]);
+
+    await Promise.all([
+      loadPublicJobs(),
+      loadCustomerDashboard(),
+      loadStats()
+    ]);
+
     goToSection("customerDashboard");
   } catch (error) {
     showToast(error.message || "Booking failed.", "error");
@@ -1226,10 +1211,9 @@ async function loadCustomerDashboard() {
       .limit(50)
       .get();
 
-    const bookings = snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const bookings = snap.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
     if (!bookings.length) {
       list.innerHTML = `
@@ -1276,21 +1260,36 @@ function timelineRow(label, done) {
 function renderCustomerBookingCard(booking, bids = []) {
   const accepted = booking.acceptedBid || null;
 
-  const bidsHtml = bids.length ? bids.map((bid) => `
-    <div class="bid-box">
-      <strong>${escapeHtml(bid.workerName)}</strong>
-      <p>${escapeHtml(bid.workerSkill)} • ${escapeHtml(bid.workerCity)}</p>
-      <p><strong>Bid:</strong> ${formatMoney(bid.bidAmount, booking.currency)}</p>
-      <p>${escapeHtml(bid.message)}</p>
-      <p><span class="status ${bid.status === "accepted" ? "success" : "pending"}">${escapeHtml(bid.status)}</span></p>
-      ${booking.bookingStatus === "open" ? `<button class="btn success" onclick="acceptBid('${booking.id}', '${bid.id}')">Accept Bid</button>` : ""}
-    </div>
-  `).join("") : `<p class="muted">No bids yet.</p>`;
+  const bidsHtml = bids.length
+    ? bids.map((bid) => `
+      <div class="bid-box">
+        <strong>${escapeHtml(bid.workerName)}</strong>
+        <p>${escapeHtml(bid.workerSkill)} • ${escapeHtml(bid.workerCity)}</p>
+        <p><strong>Bid:</strong> ${formatMoney(bid.bidAmount, booking.currency)}</p>
+        <p>${escapeHtml(bid.message)}</p>
+        <p>
+          <span class="status ${bid.status === "accepted" ? "success" : "pending"}">
+            ${escapeHtml(bid.status)}
+          </span>
+        </p>
+
+        ${
+          booking.bookingStatus === "open"
+            ? `<button class="btn success" onclick="acceptBid('${booking.id}', '${bid.id}')">Accept Bid</button>`
+            : ""
+        }
+      </div>
+    `).join("")
+    : `<p class="muted">No bids yet.</p>`;
 
   return `
     <article class="data-card">
-      <span class="status ${booking.bookingStatus === "open" ? "open" : "pending"}">${escapeHtml(booking.bookingStatus)}</span>
+      <span class="status ${booking.bookingStatus === "open" ? "open" : "pending"}">
+        ${escapeHtml(booking.bookingStatus)}
+      </span>
+
       <h3>${escapeHtml(booking.skill)} - ${escapeHtml(booking.workType)}</h3>
+
       <p><strong>City:</strong> ${escapeHtml(booking.city)}, ${escapeHtml(booking.area)}</p>
       <p><strong>Budget:</strong> ${formatMoney(booking.budget, booking.currency)}</p>
       <p>${escapeHtml(booking.details)}</p>
@@ -1303,25 +1302,42 @@ function renderCustomerBookingCard(booking, bids = []) {
         ${timelineRow("Completed", booking.bookingStatus === "completed")}
       </div>
 
-      ${accepted ? `
-        <div class="bid-box">
-          <strong>Accepted Worker: ${escapeHtml(accepted.workerName)}</strong>
-          <p>Final Amount: ${formatMoney(accepted.bidAmount, booking.currency)}</p>
+      ${
+        accepted
+          ? `
+            <div class="bid-box">
+              <strong>Accepted Worker: ${escapeHtml(accepted.workerName)}</strong>
+              <p>Final Amount: ${formatMoney(accepted.bidAmount, booking.currency)}</p>
 
-          ${booking.paymentStatus !== "paid" ? `<button class="btn primary" onclick="payForBooking('${booking.id}')">Pay Now</button>` : `<span class="status success">Payment Paid</span>`}
+              ${
+                booking.paymentStatus !== "paid"
+                  ? `<button class="btn primary" onclick="payForBooking('${booking.id}')">Pay Now</button>`
+                  : `<span class="status success">Payment Paid</span>`
+              }
 
-          <button class="btn light" onclick="openBookingChat('${booking.id}')">💬 Chat</button>
+              <button class="btn light" onclick="openBookingChat('${booking.id}')">💬 Chat</button>
 
-          ${booking.workerCanSeeContact ? `<a class="btn success" href="tel:${escapeHtml(accepted.workerPhone || "")}">📞 Call Worker</a>` : ""}
+              ${
+                booking.workerCanSeeContact
+                  ? `<a class="btn success" href="tel:${escapeHtml(accepted.workerPhone || "")}">📞 Call Worker</a>`
+                  : ""
+              }
 
-          ${booking.bookingStatus !== "completed" ? `<button class="btn success" onclick="markBookingComplete('${booking.id}')">Mark Completed</button>` : ""}
+              ${
+                booking.bookingStatus !== "completed"
+                  ? `<button class="btn success" onclick="markBookingComplete('${booking.id}')">Mark Completed</button>`
+                  : ""
+              }
 
-          ${booking.bookingStatus === "completed" && !booking.reviewGiven ? `<button class="btn primary" onclick="reviewWorker('${booking.id}', '${accepted.workerUserId}')">Give Review</button>` : ""}
-        </div>
-      ` : `
-        <h4>Worker Bids</h4>
-        ${bidsHtml}
-      `}
+              ${
+                booking.bookingStatus === "completed" && !booking.reviewGiven
+                  ? `<button class="btn primary" onclick="reviewWorker('${booking.id}', '${accepted.workerUserId}')">Give Review</button>`
+                  : ""
+              }
+            </div>
+          `
+          : `<h4>Worker Bids</h4>${bidsHtml}`
+      }
     </article>
   `;
 }
@@ -1329,6 +1345,7 @@ function renderCustomerBookingCard(booking, bids = []) {
 async function acceptBid(bookingId, bidId) {
   try {
     const bidSnap = await db.collection("bids").doc(bidId).get();
+
     if (!bidSnap.exists) return;
 
     const bid = bidSnap.data();
@@ -1372,10 +1389,18 @@ async function acceptBid(bookingId, bidId) {
       updatedAt: nowServer()
     }, { merge: true });
 
-    await createNotification(bid.workerUserId, "Bid accepted", "Your bid was accepted. Chat is now open.");
+    await createNotification(
+      bid.workerUserId,
+      "Bid accepted",
+      "Your bid was accepted. Chat is now open."
+    );
 
     showToast("Bid accepted. Chat is now open.");
-    await Promise.all([loadCustomerDashboard(), loadPublicJobs()]);
+
+    await Promise.all([
+      loadCustomerDashboard(),
+      loadPublicJobs()
+    ]);
   } catch (error) {
     showToast(error.message || "Accept bid failed.", "error");
   }
@@ -1398,7 +1423,9 @@ async function payForBooking(bookingId) {
 
     const orderData = await orderRes.json();
 
-    if (!orderRes.ok) throw new Error(orderData.error || "Payment order failed.");
+    if (!orderRes.ok) {
+      throw new Error(orderData.error || "Payment order failed.");
+    }
 
     const options = {
       key: orderData.keyId,
@@ -1407,6 +1434,7 @@ async function payForBooking(bookingId) {
       name: "RapideService",
       description: "Service booking payment",
       order_id: orderData.orderId,
+
       handler: async function (response) {
         const verifyRes = await fetch("/api/verify-payment", {
           method: "POST",
@@ -1424,70 +1452,40 @@ async function payForBooking(bookingId) {
 
         const verifyData = await verifyRes.json();
 
-        if (!verifyRes.ok) throw new Error(verifyData.error || "Payment verification failed.");
-
-        //await createEarningAfterPayment(bookingId);//
+        if (!verifyRes.ok) {
+          throw new Error(verifyData.error || "Payment verification failed.");
+        }
 
         showToast("Payment verified. Worker earning reflected.");
-        await Promise.all([loadCustomerDashboard(), loadWorkerEarnings(), loadAdminPanel()]);
+
+        await Promise.all([
+          loadCustomerDashboard(),
+          loadWorkerEarnings(),
+          loadAdminPanel()
+        ]);
       },
+
       prefill: {
         name: currentUserProfile?.name || "",
         email: currentUser.email || "",
         contact: currentUserProfile?.phone || ""
       },
-      theme: { color: "#2563eb" }
+
+      theme: {
+        color: "#2563eb"
+      }
     };
 
-    const razorpay = new Razorpay(options);
-    razorpay.open();
+    new Razorpay(options).open();
   } catch (error) {
     showToast(error.message || "Payment failed.", "error");
-  }
-}
-
-async function createEarningAfterPayment(bookingId) {
-  try {
-    const bookingSnap = await db.collection("bookings").doc(bookingId).get();
-    if (!bookingSnap.exists) return;
-
-    const booking = bookingSnap.data();
-    const workerId = booking.assignedWorkerId || booking.acceptedBid?.workerUserId;
-
-    if (!workerId) return;
-
-    const grossAmount = Number(booking.acceptedBid?.bidAmount || booking.budget || 0);
-    const commission = Math.round(grossAmount * 0.10);
-    const workerAmount = grossAmount - commission;
-
-    await db.collection("earnings").doc(bookingId).set({
-      bookingId,
-      customerId: booking.customerId,
-      workerUserId: workerId,
-      grossAmount,
-      platformCommission: commission,
-      workerAmount,
-      payoutStatus: "pending",
-      currency: "INR",
-      createdAt: nowServer(),
-      updatedAt: nowServer()
-    }, { merge: true });
-
-    await db.collection("users").doc(workerId).set({
-      totalEarned: firebase.firestore.FieldValue.increment(workerAmount),
-      pendingPayout: firebase.firestore.FieldValue.increment(workerAmount),
-      updatedAt: nowServer()
-    }, { merge: true });
-
-    await createNotification(workerId, "Payment received", `₹${workerAmount} has been added to your pending earnings.`);
-  } catch {
-    // earning can also be handled by backend API later
   }
 }
 
 async function markBookingComplete(bookingId) {
   try {
     const snap = await db.collection("bookings").doc(bookingId).get();
+
     if (!snap.exists) return;
 
     const booking = snap.data();
@@ -1517,7 +1515,11 @@ async function markBookingComplete(bookingId) {
     }
 
     showToast("Booking marked completed. Chat closed.");
-    await Promise.all([loadCustomerDashboard(), loadChatBookings()]);
+
+    await Promise.all([
+      loadCustomerDashboard(),
+      loadChatBookings()
+    ]);
   } catch (error) {
     showToast(error.message || "Completion failed.", "error");
   }
@@ -1556,7 +1558,12 @@ async function reviewWorker(bookingId, workerUserId) {
     await recalculateWorkerRating(workerUserId);
 
     showToast("Review submitted.");
-    await Promise.all([loadCustomerDashboard(), loadFeaturedWorkers(), loadStats()]);
+
+    await Promise.all([
+      loadCustomerDashboard(),
+      loadFeaturedWorkers(),
+      loadStats()
+    ]);
   } catch (error) {
     showToast(error.message || "Review failed.", "error");
   }
@@ -1590,7 +1597,7 @@ async function recalculateWorkerRating(workerUserId) {
   }, { merge: true });
 }
 
-/* ---------------- Worker Profile ---------------- */
+/* Worker */
 async function loadWorkerProfileForm() {
   if (!currentUser) return;
 
@@ -1617,7 +1624,6 @@ async function registerWorker(event) {
   event.preventDefault();
 
   if (!currentUser) {
-    showToast("Please login first.", "error");
     openAuthModal("login");
     return;
   }
@@ -1629,7 +1635,6 @@ async function registerWorker(event) {
   const workerCity = $("workerCity").value.trim();
   const availability = $("workerAvailability").value;
   const workerAbout = $("workerAbout").value.trim();
-  const file = $("workerPhoto")?.files?.[0] || null;
 
   if (!workerSkill) {
     showToast("Please select worker skill.", "error");
@@ -1645,14 +1650,15 @@ async function registerWorker(event) {
     const existingSnap = await db.collection("workers").doc(currentUser.uid).get();
     const existing = existingSnap.exists ? existingSnap.data() : {};
 
-    let workerPhotoUrl = existing.workerPhotoUrl || currentUserProfile?.photoUrl || "";
+    const file = $("workerPhoto")?.files?.[0] || null;
+    let workerPhotoDataUrl = existing.workerPhotoDataUrl || currentUserProfile?.photoDataUrl || "";
 
-    try {
-      if (file) {
-        workerPhotoUrl = await uploadFile(file, `workerPhotos/${currentUser.uid}/${Date.now()}_${file.name}`);
+    if (file) {
+      workerPhotoDataUrl = await imageFileToDataUrl(file);
+
+      if (!workerPhotoDataUrl) {
+        showToast("Worker photo was not saved.", "warning");
       }
-    } catch {
-      showToast("Worker photo upload failed. Profile saved without new photo.", "warning");
     }
 
     const privateData = {
@@ -1665,7 +1671,7 @@ async function registerWorker(event) {
       workerCity,
       workerCityLower: workerCity.toLowerCase(),
       workerCountry: getSelectedCountry(),
-      workerPhotoUrl,
+      workerPhotoDataUrl,
       availability,
       available: availability !== "Not Available",
       verified: !!existing.verified,
@@ -1679,26 +1685,10 @@ async function registerWorker(event) {
     };
 
     const publicData = {
-      uid: currentUser.uid,
-      workerName,
-      workerSkill,
-      workerType,
-      workerAbout,
-      workerCity,
-      workerCityLower: workerCity.toLowerCase(),
-      workerCountry: getSelectedCountry(),
-      workerPhotoUrl,
-      availability,
-      available: availability !== "Not Available",
-      verified: privateData.verified,
-      verificationStatus: privateData.verificationStatus,
-      workerRating: privateData.workerRating,
-      totalReviews: privateData.totalReviews,
-      totalJobs: privateData.totalJobs,
-      location: privateData.location,
-      createdAt: privateData.createdAt,
-      updatedAt: nowServer()
+      ...privateData
     };
+
+    delete publicData.workerPhone;
 
     await db.collection("workers").doc(currentUser.uid).set(privateData, { merge: true });
     await db.collection("workerPublic").doc(currentUser.uid).set(publicData, { merge: true });
@@ -1707,7 +1697,7 @@ async function registerWorker(event) {
       role: "worker",
       phone: workerPhone,
       city: workerCity,
-      photoUrl: workerPhotoUrl || currentUserProfile?.photoUrl || "",
+      photoDataUrl: workerPhotoDataUrl || currentUserProfile?.photoDataUrl || "",
       updatedAt: nowServer()
     }, { merge: true });
 
@@ -1716,13 +1706,18 @@ async function registerWorker(event) {
       role: "worker",
       phone: workerPhone,
       city: workerCity,
-      photoUrl: workerPhotoUrl || currentUserProfile?.photoUrl || ""
+      photoDataUrl: workerPhotoDataUrl || currentUserProfile?.photoDataUrl || ""
     };
 
     showToast("Worker profile saved successfully.");
 
     updateAuthUI();
-    await Promise.all([loadFeaturedWorkers(), loadStats(), loadNearbyWorkers()]);
+
+    await Promise.all([
+      loadFeaturedWorkers(),
+      loadStats(),
+      loadNearbyWorkers()
+    ]);
   } catch (error) {
     showToast(error.message || "Worker registration failed.", "error");
   }
@@ -1739,31 +1734,35 @@ async function saveWorkerCurrentLocation() {
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const location = {
-      lat: pos.coords.latitude,
-      lng: pos.coords.longitude,
-      updatedAt: Date.now()
-    };
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const location = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        updatedAt: Date.now()
+      };
 
-    await db.collection("workers").doc(currentUser.uid).set({
-      location,
-      updatedAt: nowServer()
-    }, { merge: true });
+      await db.collection("workers").doc(currentUser.uid).set({
+        location,
+        updatedAt: nowServer()
+      }, { merge: true });
 
-    await db.collection("workerPublic").doc(currentUser.uid).set({
-      location,
-      updatedAt: nowServer()
-    }, { merge: true });
+      await db.collection("workerPublic").doc(currentUser.uid).set({
+        location,
+        updatedAt: nowServer()
+      }, { merge: true });
 
-    showToast("Worker location saved.");
-    await loadNearbyWorkers();
-  }, () => {
-    showToast("Location permission denied.", "error");
-  });
+      showToast("Worker location saved.");
+
+      await loadNearbyWorkers();
+    },
+    () => {
+      showToast("Location permission denied.", "error");
+    }
+  );
 }
 
-/* ---------------- Worker Jobs / Bids ---------------- */
+/* Jobs / Bids */
 async function loadPublicJobs() {
   const list = $("jobsList");
   if (!list) return;
@@ -1796,12 +1795,15 @@ function renderPublicJobs() {
 
   let jobs = [...allPublicJobsCache];
 
-  if (skillFilter) jobs = jobs.filter((job) => job.skill === skillFilter);
+  if (skillFilter) {
+    jobs = jobs.filter((job) => job.skill === skillFilter);
+  }
 
   if (search) {
     jobs = jobs.filter((job) => {
-      const text = `${job.skill} ${job.city} ${job.area} ${job.details} ${job.workType}`.toLowerCase();
-      return text.includes(search);
+      return `${job.skill} ${job.city} ${job.area} ${job.details} ${job.workType}`
+        .toLowerCase()
+        .includes(search);
     });
   }
 
@@ -1815,11 +1817,14 @@ function renderPublicJobs() {
   list.innerHTML = jobs.map((job) => `
     <article class="data-card">
       <span class="status open">Open for Bids</span>
+
       <h3>${escapeHtml(job.skill)} - ${escapeHtml(job.workType)}</h3>
+
       <p><strong>City:</strong> ${escapeHtml(job.city)}, ${escapeHtml(job.area)}</p>
       <p><strong>Budget:</strong> ${formatMoney(job.budget, job.currency)}</p>
       <p><strong>Minimum:</strong> ${formatMoney(job.minimumPrice, job.currency)}</p>
       <p>${escapeHtml(job.details)}</p>
+
       <div class="card-actions">
         <button class="btn primary" onclick="openBidPrompt('${job.bookingId}')">Send Bid</button>
       </div>
@@ -1829,7 +1834,6 @@ function renderPublicJobs() {
 
 async function openBidPrompt(bookingId) {
   if (!currentUser) {
-    showToast("Please login as worker to bid.", "error");
     openAuthModal("login");
     return;
   }
@@ -1922,15 +1926,13 @@ async function sendBid(bookingId, bidAmount, message) {
   }
 }
 
-/* ---------------- Featured Workers / Nearby Workers ---------------- */
+/* Workers / Map */
 async function loadFeaturedWorkers() {
   const grid = $("featuredWorkersGrid");
   if (!grid) return;
 
   try {
-    const snap = await db.collection("workerPublic")
-      .limit(6)
-      .get();
+    const snap = await db.collection("workerPublic").limit(6).get();
 
     const workers = snap.docs.map((doc) => ({
       id: doc.id,
@@ -1938,43 +1940,52 @@ async function loadFeaturedWorkers() {
     }));
 
     if (!workers.length) {
-      grid.innerHTML = `
-        <div class="empty-state">
-          Worker profiles will appear here after workers register.
-        </div>
-      `;
+      grid.innerHTML = `<div class="empty-state">Worker profiles will appear here after workers register.</div>`;
       return;
     }
 
-    grid.innerHTML = workers.map(renderWorkerPublicCard).join("");
+    grid.innerHTML = workers.map((w) => renderWorkerPublicCard(w)).join("");
   } catch {
     grid.innerHTML = `<div class="empty-state">Could not load worker profiles.</div>`;
   }
 }
 
 function renderWorkerPublicCard(worker, distanceText = "") {
-  const firstLetter = String(worker.workerName || "R").charAt(0).toUpperCase();
-  const img = worker.workerPhotoUrl;
+  const name = worker.workerName || "Worker";
+  const img = worker.workerPhotoDataUrl || worker.workerPhotoUrl || "";
 
   return `
     <article class="worker-public-card">
-      ${img ? `<img class="worker-card-img" src="${img}" alt="${escapeHtml(worker.workerName)}" />` : `<div class="avatar">${escapeHtml(firstLetter)}</div>`}
+      ${
+        img
+          ? `<img class="worker-card-img" src="${img}" alt="${escapeHtml(name)}" />`
+          : `<div class="avatar">${escapeHtml(name.charAt(0).toUpperCase())}</div>`
+      }
 
       <span class="status ${worker.verified ? "success" : "pending"}">
         ${worker.verified ? "Verified" : "Pending Verification"}
       </span>
 
-      <h3>${escapeHtml(worker.workerName || "Worker")}</h3>
+      <h3>${escapeHtml(name)}</h3>
+
       <p><strong>Skill:</strong> ${escapeHtml(worker.workerSkill || "-")}</p>
       <p><strong>City:</strong> ${escapeHtml(worker.workerCity || "-")}</p>
       <p><strong>Type:</strong> ${escapeHtml(worker.workerType || "Freelancer")}</p>
       <p><strong>Availability:</strong> ${escapeHtml(worker.availability || "-")}</p>
+
       ${distanceText ? `<p><strong>Distance:</strong> ${escapeHtml(distanceText)}</p>` : ""}
-      <p><span class="rating">★ ${Number(worker.workerRating || 0).toFixed(1)}</span> (${worker.totalReviews || 0} reviews)</p>
+
+      <p>
+        <span class="rating">★ ${Number(worker.workerRating || 0).toFixed(1)}</span>
+        (${worker.totalReviews || 0} reviews)
+      </p>
+
       <p>${escapeHtml(worker.workerAbout || "Trusted RapideService worker.")}</p>
 
       <div class="card-actions">
-        <button class="btn primary" onclick="selectServiceAndBook('${escapeHtml(worker.workerSkill || "Freelancer / General Helper")}')">Book Similar</button>
+        <button class="btn primary" onclick="selectServiceAndBook('${escapeHtml(worker.workerSkill || "Freelancer / General Helper")}')">
+          Book Similar
+        </button>
       </div>
     </article>
   `;
@@ -1984,9 +1995,7 @@ async function loadNearbyWorkers(centerLat = null, centerLng = null) {
   const list = $("nearbyWorkersList");
 
   try {
-    const snap = await db.collection("workerPublic")
-      .limit(100)
-      .get();
+    const snap = await db.collection("workerPublic").limit(100).get();
 
     allNearbyWorkersCache = snap.docs.map((doc) => ({
       id: doc.id,
@@ -2011,11 +2020,12 @@ async function loadNearbyWorkers(centerLat = null, centerLng = null) {
 
     renderWorkersOnMap();
   } catch {
-    if (list) list.innerHTML = `<div class="empty-state">Could not load nearby workers.</div>`;
+    if (list) {
+      list.innerHTML = `<div class="empty-state">Could not load nearby workers.</div>`;
+    }
   }
 }
 
-/* ---------------- Map ---------------- */
 function initMap() {
   if (!$("map")) return;
 
@@ -2025,7 +2035,10 @@ function initMap() {
   }
 
   if (mapInstance) {
-    setTimeout(() => mapInstance.invalidateSize(), 200);
+    setTimeout(() => {
+      mapInstance.invalidateSize();
+    }, 200);
+
     renderWorkersOnMap();
     return;
   }
@@ -2052,8 +2065,10 @@ function renderWorkersOnMap() {
     const marker = L.marker([worker.location.lat, worker.location.lng])
       .addTo(mapInstance)
       .bindPopup(`
-        <strong>${escapeHtml(worker.workerName || "Worker")}</strong><br>
-        ${escapeHtml(worker.workerSkill || "")}<br>
+        <strong>${escapeHtml(worker.workerName || "Worker")}</strong>
+        <br>
+        ${escapeHtml(worker.workerSkill || "")}
+        <br>
         ${escapeHtml(worker.workerCity || "")}
       `);
 
@@ -2069,28 +2084,33 @@ function useCurrentLocationForMap() {
 
   initMap();
 
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
 
-    if (mapInstance) {
-      mapInstance.setView([lat, lng], 13);
+      if (mapInstance) {
+        mapInstance.setView([lat, lng], 13);
 
-      if (userMapMarker) userMapMarker.remove();
+        if (userMapMarker) {
+          userMapMarker.remove();
+        }
 
-      userMapMarker = L.marker([lat, lng])
-        .addTo(mapInstance)
-        .bindPopup("You are here")
-        .openPopup();
+        userMapMarker = L.marker([lat, lng])
+          .addTo(mapInstance)
+          .bindPopup("You are here")
+          .openPopup();
+      }
+
+      await loadNearbyWorkers(lat, lng);
+    },
+    () => {
+      showToast("Location permission denied.", "error");
     }
-
-    await loadNearbyWorkers(lat, lng);
-  }, () => {
-    showToast("Location permission denied.", "error");
-  });
+  );
 }
 
-/* ---------------- Accounts / UPI ---------------- */
+/* Accounts / QR */
 async function saveAccountDetails(event) {
   event.preventDefault();
 
@@ -2113,6 +2133,7 @@ async function saveAccountDetails(event) {
   await db.collection("workerAccounts").doc(currentUser.uid).set(accountData, { merge: true });
 
   showToast("Account details saved.");
+
   generateWorkerUpiQr(accountData.upiId);
 }
 
@@ -2148,7 +2169,6 @@ function generateWorkerUpiQr(upiId) {
   });
 }
 
-/* ---------------- Website QR ---------------- */
 function generateWebsiteQr() {
   const canvas = $("websiteQr");
   const textBox = $("websiteQrText");
@@ -2162,10 +2182,12 @@ function generateWebsiteQr() {
     margin: 2
   });
 
-  if (textBox) textBox.textContent = url;
+  if (textBox) {
+    textBox.textContent = url;
+  }
 }
 
-/* ---------------- Worker Earnings ---------------- */
+/* Earnings */
 async function loadWorkerEarnings() {
   if (!currentUser) return;
 
@@ -2190,8 +2212,11 @@ async function loadWorkerEarnings() {
       const amount = Number(item.workerAmount || 0);
       total += amount;
 
-      if (item.payoutStatus === "paid") paid += amount;
-      else pending += amount;
+      if (item.payoutStatus === "paid") {
+        paid += amount;
+      } else {
+        pending += amount;
+      }
     });
 
     if ($("workerTotalEarned")) $("workerTotalEarned").textContent = formatMoney(total);
@@ -2199,7 +2224,10 @@ async function loadWorkerEarnings() {
     if ($("workerPaidPayout")) $("workerPaidPayout").textContent = formatMoney(paid);
 
     const workerSnap = await db.collection("workers").doc(currentUser.uid).get();
-    if ($("workerTotalJobs")) $("workerTotalJobs").textContent = workerSnap.data()?.totalJobs || 0;
+
+    if ($("workerTotalJobs")) {
+      $("workerTotalJobs").textContent = workerSnap.data()?.totalJobs || 0;
+    }
 
     if (!list) return;
 
@@ -2212,8 +2240,12 @@ async function loadWorkerEarnings() {
       <div class="card-grid">
         ${earnings.map((item) => `
           <article class="data-card">
-            <span class="status ${item.payoutStatus === "paid" ? "success" : "pending"}">${escapeHtml(item.payoutStatus || "pending")}</span>
+            <span class="status ${item.payoutStatus === "paid" ? "success" : "pending"}">
+              ${escapeHtml(item.payoutStatus || "pending")}
+            </span>
+
             <h3>${formatMoney(item.workerAmount)}</h3>
+
             <p><strong>Booking:</strong> ${escapeHtml(item.bookingId)}</p>
             <p><strong>Gross:</strong> ${formatMoney(item.grossAmount)}</p>
             <p><strong>Platform Commission:</strong> ${formatMoney(item.platformCommission)}</p>
@@ -2222,11 +2254,13 @@ async function loadWorkerEarnings() {
       </div>
     `;
   } catch (error) {
-    if (list) list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    if (list) {
+      list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    }
   }
 }
 
-/* ---------------- Chat ---------------- */
+/* Chat */
 async function loadChatBookings() {
   const list = $("chatBookingList");
 
@@ -2249,10 +2283,12 @@ async function loadChatBookings() {
         .get();
     }
 
-    const bookings = snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })).filter((b) => b.acceptedBid);
+    const bookings = snap.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      .filter((b) => b.acceptedBid);
 
     if (!bookings.length) {
       list.innerHTML = `<p class="muted">No active chats yet.</p>`;
@@ -2302,17 +2338,23 @@ async function openBookingChat(bookingId) {
   $("callBox")?.classList.toggle("hidden", !canCall);
 
   if ($("callButton")) {
-    const phone = getUserRole() === "worker"
-      ? currentChatBookingData.customerPhone
-      : currentChatBookingData.acceptedBid?.workerPhone || "";
+    const phone =
+      getUserRole() === "worker"
+        ? currentChatBookingData.customerPhone
+        : currentChatBookingData.acceptedBid?.workerPhone || "";
 
     $("callButton").onclick = () => {
-      if (phone) window.location.href = `tel:${phone}`;
-      else showToast("Phone number not available.", "error");
+      if (phone) {
+        window.location.href = `tel:${phone}`;
+      } else {
+        showToast("Phone number not available.", "error");
+      }
     };
   }
 
-  if (chatUnsubscribe) chatUnsubscribe();
+  if (chatUnsubscribe) {
+    chatUnsubscribe();
+  }
 
   chatUnsubscribe = db.collection("chats")
     .doc(bookingId)
@@ -2331,6 +2373,7 @@ async function openBookingChat(bookingId) {
 
 function renderChatMessages(messages) {
   const box = $("chatMessages");
+
   if (!box) return;
 
   if (!messages.length) {
@@ -2389,7 +2432,7 @@ async function sendChatMessage(event) {
   input.value = "";
 }
 
-/* ---------------- Support ---------------- */
+/* Support / Notifications */
 async function createSupportTicket(event) {
   event.preventDefault();
 
@@ -2416,10 +2459,10 @@ async function createSupportTicket(event) {
   });
 
   $("supportForm").reset();
+
   showToast("Support ticket submitted.");
 }
 
-/* ---------------- Notifications ---------------- */
 async function createNotification(toUserId, title, message) {
   if (!toUserId) return;
 
@@ -2431,9 +2474,7 @@ async function createNotification(toUserId, title, message) {
       read: false,
       createdAt: nowServer()
     });
-  } catch {
-    // silent
-  }
+  } catch {}
 }
 
 async function loadNotifications() {
@@ -2453,12 +2494,15 @@ async function loadNotifications() {
       .limit(30)
       .get();
 
-    const notifications = snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const notifications = snap.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
     const unread = notifications.filter((n) => !n.read).length;
+
     $("notifyDot")?.classList.toggle("hidden", unread === 0);
 
     if (!notifications.length) {
@@ -2477,7 +2521,7 @@ async function loadNotifications() {
   }
 }
 
-/* ---------------- Admin ---------------- */
+/* Admin */
 function setAdminTab(tab) {
   currentAdminTab = tab;
 
@@ -2485,11 +2529,22 @@ function setAdminTab(tab) {
     btn.classList.remove("active");
   });
 
-  const tabs = ["users", "workers", "bookings", "payments", "payouts", "support", "prices"];
+  const tabs = [
+    "users",
+    "workers",
+    "bookings",
+    "payments",
+    "payouts",
+    "support",
+    "prices"
+  ];
+
   const index = tabs.indexOf(tab);
   const buttons = document.querySelectorAll("#admin .dash-tabs .tab");
 
-  if (buttons[index]) buttons[index].classList.add("active");
+  if (buttons[index]) {
+    buttons[index].classList.add("active");
+  }
 
   loadAdminPanel();
 }
@@ -2521,13 +2576,12 @@ async function loadAdminStats() {
     if ($("adminWorkers")) $("adminWorkers").textContent = workers.size;
     if ($("adminBookings")) $("adminBookings").textContent = bookings.size;
     if ($("adminPayments")) $("adminPayments").textContent = payments.size;
-  } catch {
-    // silent
-  }
+  } catch {}
 }
 
 async function loadAdminUsers() {
   const content = $("adminContent");
+
   if (!content) return;
 
   const snap = await db.collection("users").limit(100).get();
@@ -2542,7 +2596,9 @@ async function loadAdminUsers() {
       ${users.map((user) => `
         <article class="data-card">
           <span class="status">${escapeHtml(user.role || "customer")}</span>
+
           <h3>${escapeHtml(user.name || "User")}</h3>
+
           <p><strong>Email:</strong> ${escapeHtml(user.email || "-")}</p>
           <p><strong>Phone:</strong> ${escapeHtml(user.phone || "-")}</p>
           <p><strong>City:</strong> ${escapeHtml(user.city || "-")}</p>
@@ -2556,6 +2612,7 @@ async function loadAdminUsers() {
 
 async function loadAdminWorkers() {
   const content = $("adminContent");
+
   if (!content) return;
 
   const snap = await db.collection("workers").limit(100).get();
@@ -2574,8 +2631,12 @@ async function loadAdminWorkers() {
     <div class="card-grid">
       ${workers.map((worker) => `
         <article class="data-card">
-          <span class="status ${worker.verified ? "success" : "pending"}">${worker.verified ? "Verified" : "Pending"}</span>
+          <span class="status ${worker.verified ? "success" : "pending"}">
+            ${worker.verified ? "Verified" : "Pending"}
+          </span>
+
           <h3>${escapeHtml(worker.workerName)}</h3>
+
           <p><strong>Skill:</strong> ${escapeHtml(worker.workerSkill)}</p>
           <p><strong>Phone:</strong> ${escapeHtml(worker.workerPhone)}</p>
           <p><strong>City:</strong> ${escapeHtml(worker.workerCity)}</p>
@@ -2606,14 +2667,24 @@ async function adminVerifyWorker(workerId, verified) {
     updatedAt: nowServer()
   }, { merge: true });
 
-  await createNotification(workerId, "Worker verification updated", verified ? "Your worker profile is verified." : "Your verification was removed.");
+  await createNotification(
+    workerId,
+    "Worker verification updated",
+    verified ? "Your worker profile is verified." : "Your verification was removed."
+  );
 
   showToast(verified ? "Worker verified." : "Worker unverified.");
-  await Promise.all([loadAdminPanel(), loadFeaturedWorkers(), loadNearbyWorkers()]);
+
+  await Promise.all([
+    loadAdminPanel(),
+    loadFeaturedWorkers(),
+    loadNearbyWorkers()
+  ]);
 }
 
 async function loadAdminBookings() {
   const content = $("adminContent");
+
   if (!content) return;
 
   const snap = await db.collection("bookings").limit(100).get();
@@ -2628,7 +2699,9 @@ async function loadAdminBookings() {
       ${bookings.map((booking) => `
         <article class="data-card">
           <span class="status">${escapeHtml(booking.bookingStatus || "-")}</span>
+
           <h3>${escapeHtml(booking.skill || "-")}</h3>
+
           <p><strong>Customer:</strong> ${escapeHtml(booking.customerName || "-")}</p>
           <p><strong>Worker:</strong> ${escapeHtml(booking.assignedWorkerName || "-")}</p>
           <p><strong>Budget:</strong> ${formatMoney(booking.budget || 0)}</p>
@@ -2642,6 +2715,7 @@ async function loadAdminBookings() {
 
 async function loadAdminPayments() {
   const content = $("adminContent");
+
   if (!content) return;
 
   const snap = await db.collection("payments").limit(100).get();
@@ -2660,8 +2734,12 @@ async function loadAdminPayments() {
     <div class="card-grid">
       ${payments.map((p) => `
         <article class="data-card">
-          <span class="status ${p.status === "paid" ? "success" : "pending"}">${escapeHtml(p.status || "created")}</span>
+          <span class="status ${p.status === "paid" ? "success" : "pending"}">
+            ${escapeHtml(p.status || "created")}
+          </span>
+
           <h3>${formatMoney(p.amount || 0, p.currency || "INR")}</h3>
+
           <p><strong>Booking:</strong> ${escapeHtml(p.bookingId || "-")}</p>
           <p><strong>Order:</strong> ${escapeHtml(p.razorpayOrderId || p.id)}</p>
           <p><strong>Worker:</strong> ${escapeHtml(p.workerUserId || "-")}</p>
@@ -2673,6 +2751,7 @@ async function loadAdminPayments() {
 
 async function loadAdminPayouts() {
   const content = $("adminContent");
+
   if (!content) return;
 
   const snap = await db.collection("earnings").limit(100).get();
@@ -2691,14 +2770,22 @@ async function loadAdminPayouts() {
     <div class="card-grid">
       ${earnings.map((e) => `
         <article class="data-card">
-          <span class="status ${e.payoutStatus === "paid" ? "success" : "pending"}">${escapeHtml(e.payoutStatus || "pending")}</span>
+          <span class="status ${e.payoutStatus === "paid" ? "success" : "pending"}">
+            ${escapeHtml(e.payoutStatus || "pending")}
+          </span>
+
           <h3>${formatMoney(e.workerAmount || 0)}</h3>
+
           <p><strong>Worker:</strong> ${escapeHtml(e.workerUserId || "-")}</p>
           <p><strong>Booking:</strong> ${escapeHtml(e.bookingId || "-")}</p>
           <p><strong>Gross:</strong> ${formatMoney(e.grossAmount || 0)}</p>
           <p><strong>Commission:</strong> ${formatMoney(e.platformCommission || 0)}</p>
 
-          ${e.payoutStatus !== "paid" ? `<button class="btn success" onclick="adminMarkPayoutPaid('${e.id}', '${e.workerUserId}', ${Number(e.workerAmount || 0)})">Mark Paid</button>` : ""}
+          ${
+            e.payoutStatus !== "paid"
+              ? `<button class="btn success" onclick="adminMarkPayoutPaid('${e.id}', '${e.workerUserId}', ${Number(e.workerAmount || 0)})">Mark Paid</button>`
+              : ""
+          }
         </article>
       `).join("")}
     </div>
@@ -2720,14 +2807,20 @@ async function adminMarkPayoutPaid(earningId, workerUserId, amount) {
     updatedAt: nowServer()
   }, { merge: true });
 
-  await createNotification(workerUserId, "Payout marked paid", `${formatMoney(amount)} payout marked as paid by admin.`);
+  await createNotification(
+    workerUserId,
+    "Payout marked paid",
+    `${formatMoney(amount)} payout marked as paid by admin.`
+  );
 
   showToast("Payout marked as paid.");
+
   await loadAdminPayouts();
 }
 
 async function loadAdminSupport() {
   const content = $("adminContent");
+
   if (!content) return;
 
   const snap = await db.collection("supportTickets").limit(100).get();
@@ -2746,11 +2839,16 @@ async function loadAdminSupport() {
     <div class="card-grid">
       ${tickets.map((ticket) => `
         <article class="data-card">
-          <span class="status ${ticket.status === "closed" ? "success" : "pending"}">${escapeHtml(ticket.status)}</span>
+          <span class="status ${ticket.status === "closed" ? "success" : "pending"}">
+            ${escapeHtml(ticket.status)}
+          </span>
+
           <h3>${escapeHtml(ticket.type)}</h3>
+
           <p><strong>Name:</strong> ${escapeHtml(ticket.name)}</p>
           <p><strong>Contact:</strong> ${escapeHtml(ticket.contact)}</p>
           <p>${escapeHtml(ticket.message)}</p>
+
           ${ticket.adminReply ? `<p><strong>Admin Reply:</strong> ${escapeHtml(ticket.adminReply)}</p>` : ""}
 
           <div class="card-actions">
@@ -2781,6 +2879,7 @@ async function adminReplyTicket(ticketId) {
   }
 
   showToast("Reply saved.");
+
   await loadAdminSupport();
 }
 
@@ -2791,6 +2890,7 @@ async function adminCloseTicket(ticketId) {
   }, { merge: true });
 
   showToast("Ticket closed.");
+
   await loadAdminSupport();
 }
 
@@ -2800,6 +2900,7 @@ function skillInputId(skill) {
 
 function renderAdminPrices() {
   const content = $("adminContent");
+
   if (!content) return;
 
   content.innerHTML = `
@@ -2848,63 +2949,53 @@ async function adminSavePrices() {
   showToast("Minimum prices saved.");
 }
 
-/* ---------------- Global Exports ---------------- */
-window.openSidebar = openSidebar;
-window.closeSidebar = closeSidebar;
-window.closeAllOverlays = closeAllOverlays;
-window.toggleNotificationDrawer = toggleNotificationDrawer;
-window.closeNotificationDrawer = closeNotificationDrawer;
-
-window.openAuthModal = openAuthModal;
-window.closeAuthModal = closeAuthModal;
-window.setAuthMode = setAuthMode;
-window.handleAuth = handleAuth;
-window.socialLogin = socialLogin;
-window.logoutUser = logoutUser;
-
-window.openForgotModal = openForgotModal;
-window.closeForgotModal = closeForgotModal;
-window.changeResetMethod = changeResetMethod;
-window.requestResetOtp = requestResetOtp;
-window.verifyResetOtp = verifyResetOtp;
-
-window.goToSection = goToSection;
-window.openSettingsSection = openSettingsSection;
-window.saveSettings = saveSettings;
-window.saveSideSettings = saveSideSettings;
-
-window.heroFindWorkers = heroFindWorkers;
-window.selectServiceAndBook = selectServiceAndBook;
-window.calculateMinimumPrice = calculateMinimumPrice;
-
-window.saveUserProfile = saveUserProfile;
-window.registerWorker = registerWorker;
-window.saveWorkerCurrentLocation = saveWorkerCurrentLocation;
-
-window.createBooking = createBooking;
-window.acceptBid = acceptBid;
-window.payForBooking = payForBooking;
-window.markBookingComplete = markBookingComplete;
-window.reviewWorker = reviewWorker;
-
-window.loadPublicJobs = loadPublicJobs;
-window.renderPublicJobs = renderPublicJobs;
-window.openBidPrompt = openBidPrompt;
-
-window.useCurrentLocationForMap = useCurrentLocationForMap;
-window.loadNearbyWorkers = loadNearbyWorkers;
-
-window.saveAccountDetails = saveAccountDetails;
-window.generateWebsiteQr = generateWebsiteQr;
-
-window.openBookingChat = openBookingChat;
-window.sendChatMessage = sendChatMessage;
-
-window.createSupportTicket = createSupportTicket;
-
-window.setAdminTab = setAdminTab;
-window.adminVerifyWorker = adminVerifyWorker;
-window.adminMarkPayoutPaid = adminMarkPayoutPaid;
-window.adminReplyTicket = adminReplyTicket;
-window.adminCloseTicket = adminCloseTicket;
-window.adminSavePrices = adminSavePrices;
+/* Global Exports */
+Object.assign(window, {
+  openSidebar,
+  closeSidebar,
+  closeAllOverlays,
+  toggleNotificationDrawer,
+  closeNotificationDrawer,
+  openAuthModal,
+  closeAuthModal,
+  setAuthMode,
+  handleAuth,
+  socialLogin,
+  logoutUser,
+  openForgotModal,
+  closeForgotModal,
+  changeResetMethod,
+  requestResetOtp,
+  verifyResetOtp,
+  goToSection,
+  openSettingsSection,
+  saveSettings,
+  saveSideSettings,
+  heroFindWorkers,
+  selectServiceAndBook,
+  calculateMinimumPrice,
+  saveUserProfile,
+  registerWorker,
+  saveWorkerCurrentLocation,
+  createBooking,
+  acceptBid,
+  payForBooking,
+  markBookingComplete,
+  reviewWorker,
+  loadPublicJobs,
+  renderPublicJobs,
+  openBidPrompt,
+  useCurrentLocationForMap,
+  loadNearbyWorkers,
+  saveAccountDetails,
+  generateWebsiteQr,
+  openBookingChat,
+  sendChatMessage,
+  createSupportTicket,
+  setAdminTab,
+  adminVerifyWorker,
+  adminMarkPayoutPaid,
+  adminReplyTicket,
+  adminCloseTicket,
+  adminSavePrices
+});
