@@ -3486,3 +3486,462 @@ Object.assign(window, {
     }
   }, 1200);
 })();
+
+/* ===== RAPIDESERVICE SAFE DEMO DATA PATCH ===== */
+/* Paste this at the END of script.js */
+/* This adds attractive demo workers, jobs and reviews with DEMO label. */
+
+(function () {
+  const DEMO_WORKERS = [
+    {
+      id: "demo_worker_1",
+      workerName: "Amit Kumar",
+      workerSkill: "Electrician",
+      workerCity: "Delhi",
+      workerType: "Freelancer",
+      availability: "Available Now",
+      workerRating: 4.8,
+      totalReviews: 124,
+      totalJobs: 310,
+      workerAbout: "Demo profile: Expert in wiring, fan repair, switchboard and home electrical work.",
+      demo: true
+    },
+    {
+      id: "demo_worker_2",
+      workerName: "Ravi Sharma",
+      workerSkill: "Plumber",
+      workerCity: "Gurugram",
+      workerType: "Part-time",
+      availability: "Available Today",
+      workerRating: 4.7,
+      totalReviews: 96,
+      totalJobs: 215,
+      workerAbout: "Demo profile: Handles leakage, tap repair, pipeline and bathroom fitting work.",
+      demo: true
+    },
+    {
+      id: "demo_worker_3",
+      workerName: "Neha Verma",
+      workerSkill: "Makeup Artist",
+      workerCity: "Noida",
+      workerType: "Freelancer",
+      availability: "Available Tomorrow",
+      workerRating: 4.9,
+      totalReviews: 158,
+      totalJobs: 280,
+      workerAbout: "Demo profile: Party makeup, bridal makeup and event styling service.",
+      demo: true
+    },
+    {
+      id: "demo_worker_4",
+      workerName: "Sandeep Singh",
+      workerSkill: "AC Repair",
+      workerCity: "Delhi",
+      workerType: "Freelancer",
+      availability: "Available Now",
+      workerRating: 4.6,
+      totalReviews: 87,
+      totalJobs: 190,
+      workerAbout: "Demo profile: AC service, gas filling, cooling issue and installation support.",
+      demo: true
+    },
+    {
+      id: "demo_worker_5",
+      workerName: "Pooja Yadav",
+      workerSkill: "Nurse / Caretaker",
+      workerCity: "Faridabad",
+      workerType: "Full-time",
+      availability: "Available Today",
+      workerRating: 4.8,
+      totalReviews: 112,
+      totalJobs: 240,
+      workerAbout: "Demo profile: Home caretaker, patient support and elderly care service.",
+      demo: true
+    },
+    {
+      id: "demo_worker_6",
+      workerName: "Imran Khan",
+      workerSkill: "Mobile Repair",
+      workerCity: "Ghaziabad",
+      workerType: "Freelancer",
+      availability: "Available Now",
+      workerRating: 4.7,
+      totalReviews: 76,
+      totalJobs: 165,
+      workerAbout: "Demo profile: Screen replacement, battery issue and software repair.",
+      demo: true
+    }
+  ];
+
+  const DEMO_JOBS = [
+    {
+      id: "demo_job_1",
+      bookingId: "demo_job_1",
+      skill: "Electrician",
+      workType: "Freelancer",
+      city: "Delhi",
+      area: "Rohini",
+      budget: 650,
+      minimumPrice: 300,
+      currency: "INR",
+      details: "Demo job: Fan and switchboard repair needed at home.",
+      demo: true
+    },
+    {
+      id: "demo_job_2",
+      bookingId: "demo_job_2",
+      skill: "Plumber",
+      workType: "Freelancer",
+      city: "Gurugram",
+      area: "Sector 45",
+      budget: 800,
+      minimumPrice: 300,
+      currency: "INR",
+      details: "Demo job: Bathroom tap leakage and pipe fitting work.",
+      demo: true
+    },
+    {
+      id: "demo_job_3",
+      bookingId: "demo_job_3",
+      skill: "AC Repair",
+      workType: "Freelancer",
+      city: "Noida",
+      area: "Sector 62",
+      budget: 1200,
+      minimumPrice: 500,
+      currency: "INR",
+      details: "Demo job: AC cooling issue and general service required.",
+      demo: true
+    },
+    {
+      id: "demo_job_4",
+      bookingId: "demo_job_4",
+      skill: "Cleaner",
+      workType: "Part-time",
+      city: "Delhi",
+      area: "Dwarka",
+      budget: 500,
+      minimumPrice: 250,
+      currency: "INR",
+      details: "Demo job: Deep cleaning required for 2BHK flat.",
+      demo: true
+    },
+    {
+      id: "demo_job_5",
+      bookingId: "demo_job_5",
+      skill: "Computer Repair",
+      workType: "Freelancer",
+      city: "Faridabad",
+      area: "NIT",
+      budget: 900,
+      minimumPrice: 400,
+      currency: "INR",
+      details: "Demo job: Laptop slow performance and Windows issue.",
+      demo: true
+    }
+  ];
+
+  function safe(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function demoBadge() {
+    return `<span class="status pending">Demo Data</span>`;
+  }
+
+  const oldRenderWorkerPublicCard = window.renderWorkerPublicCard;
+
+  window.renderWorkerPublicCard = function (worker, distanceText = "", options = {}) {
+    if (!worker.demo && oldRenderWorkerPublicCard) {
+      return oldRenderWorkerPublicCard(worker, distanceText, options);
+    }
+
+    const name = worker.workerName || "Demo Worker";
+
+    return `
+      <article class="worker-public-card">
+        ${demoBadge()}
+
+        <div class="avatar">${safe(name.charAt(0).toUpperCase())}</div>
+
+        <h3>${safe(name)}</h3>
+
+        <p><strong>Skill:</strong> ${safe(worker.workerSkill || "-")}</p>
+        <p><strong>City:</strong> ${safe(worker.workerCity || "-")}</p>
+        <p><strong>Type:</strong> ${safe(worker.workerType || "Freelancer")}</p>
+        <p><strong>Availability:</strong> ${safe(worker.availability || "-")}</p>
+
+        ${
+          distanceText
+            ? `<p><strong>Distance from you:</strong> ${safe(distanceText)}</p>`
+            : ""
+        }
+
+        <p>
+          <span class="rating">★ ${Number(worker.workerRating || 0).toFixed(1)}</span>
+          (${Number(worker.totalReviews || 0)} demo reviews)
+        </p>
+
+        <p>${safe(worker.workerAbout || "Demo worker profile for presentation.")}</p>
+
+        <div class="card-actions">
+          <button class="btn light" type="button" onclick="showToast('This is demo data for presentation only.', 'warning')">
+            Demo Profile
+          </button>
+        </div>
+      </article>
+    `;
+  };
+
+  try {
+    renderWorkerPublicCard = window.renderWorkerPublicCard;
+  } catch {}
+
+  const oldLoadFeaturedWorkers = window.loadFeaturedWorkers;
+
+  window.loadFeaturedWorkers = async function () {
+    const grid = $("featuredWorkersGrid");
+
+    if (!grid) {
+      if (oldLoadFeaturedWorkers) return oldLoadFeaturedWorkers();
+      return;
+    }
+
+    try {
+      const snap = await db.collection("workerPublic").limit(6).get();
+
+      let workers = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      workers = workers.concat(DEMO_WORKERS).slice(0, 9);
+
+      grid.innerHTML = workers.map((worker) => {
+        return window.renderWorkerPublicCard(worker, "", {
+          showVerification: !worker.demo
+        });
+      }).join("");
+    } catch {
+      grid.innerHTML = DEMO_WORKERS.map((worker) => {
+        return window.renderWorkerPublicCard(worker, "", {
+          showVerification: false
+        });
+      }).join("");
+    }
+  };
+
+  try {
+    loadFeaturedWorkers = window.loadFeaturedWorkers;
+  } catch {}
+
+  const oldLoadPublicJobs = window.loadPublicJobs;
+
+  window.loadPublicJobs = async function () {
+    const list = $("jobsList");
+    if (!list) return;
+
+    try {
+      const snap = await db.collection("publicJobs")
+        .where("biddingOpen", "==", true)
+        .limit(50)
+        .get();
+
+      allPublicJobsCache = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      allPublicJobsCache = allPublicJobsCache.concat(DEMO_JOBS);
+
+      renderPublicJobs();
+    } catch {
+      allPublicJobsCache = DEMO_JOBS;
+      renderPublicJobs();
+    }
+  };
+
+  try {
+    loadPublicJobs = window.loadPublicJobs;
+  } catch {}
+
+  const oldRenderPublicJobs = window.renderPublicJobs;
+
+  window.renderPublicJobs = function () {
+    const list = $("jobsList");
+    if (!list) return;
+
+    const search = ($("jobSearch")?.value || "").toLowerCase().trim();
+    const skillFilter = $("jobSkillFilter")?.value || "";
+
+    let jobs = [...allPublicJobsCache];
+
+    if (!jobs.some((job) => job.demo)) {
+      jobs = jobs.concat(DEMO_JOBS);
+    }
+
+    if (skillFilter) {
+      jobs = jobs.filter((job) => job.skill === skillFilter);
+    }
+
+    if (search) {
+      jobs = jobs.filter((job) => {
+        return `${job.skill} ${job.city} ${job.area} ${job.details} ${job.workType}`
+          .toLowerCase()
+          .includes(search);
+      });
+    }
+
+    if (!jobs.length) {
+      list.innerHTML = `<div class="empty-state">No open jobs found.</div>`;
+      return;
+    }
+
+    list.innerHTML = jobs.map((job) => `
+      <article class="data-card">
+        <span class="status ${job.demo ? "pending" : "open"}">
+          ${job.demo ? "Demo Job" : "Open for Bids"}
+        </span>
+
+        <h3>${safe(job.skill)} - ${safe(job.workType)}</h3>
+
+        <p><strong>City:</strong> ${safe(job.city)}, ${safe(job.area)}</p>
+        <p><strong>Budget:</strong> ${formatMoney(job.budget, job.currency)}</p>
+        <p><strong>Minimum:</strong> ${formatMoney(job.minimumPrice, job.currency)}</p>
+        <p>${safe(job.details)}</p>
+
+        <div class="card-actions">
+          ${
+            job.demo
+              ? `<button class="btn light" onclick="showToast('This is a demo job for presentation only.', 'warning')">Demo Job</button>`
+              : `<button class="btn primary" onclick="openBidPrompt('${job.bookingId}')">Send Bid</button>`
+          }
+        </div>
+      </article>
+    `).join("");
+  };
+
+  try {
+    renderPublicJobs = window.renderPublicJobs;
+  } catch {}
+
+  const oldLoadNearbyWorkers = window.loadNearbyWorkers;
+
+  window.loadNearbyWorkers = async function (centerLat = null, centerLng = null) {
+    const list = $("nearbyWorkersList");
+
+    try {
+      const snap = await db.collection("workerPublic").limit(100).get();
+
+      allNearbyWorkersCache = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      if (!allNearbyWorkersCache.length) {
+        allNearbyWorkersCache = DEMO_WORKERS;
+      }
+
+      if (list) {
+        if (!centerLat || !centerLng) {
+          list.innerHTML = `
+            <div class="empty-state">
+              Click <strong>Use My Current Location</strong> to find nearby workers and see distance in KM.
+              <br><br>
+              Demo worker profiles are also shown for presentation.
+            </div>
+          `;
+        } else {
+          const demoWithDistance = DEMO_WORKERS.map((worker, index) => ({
+            worker,
+            km: Number((1.5 + index * 1.2).toFixed(1))
+          }));
+
+          const realWithDistance = allNearbyWorkersCache
+            .filter((worker) => !worker.demo && worker.location?.lat && worker.location?.lng)
+            .map((worker) => ({
+              worker,
+              km: distanceKm(centerLat, centerLng, worker.location.lat, worker.location.lng)
+            }));
+
+          const workersWithDistance = realWithDistance.concat(demoWithDistance)
+            .sort((a, b) => a.km - b.km);
+
+          list.innerHTML = workersWithDistance.map((item) => {
+            return window.renderWorkerPublicCard(
+              item.worker,
+              `${item.km} km away`,
+              { showVerification: false }
+            );
+          }).join("");
+        }
+      }
+
+      renderWorkersOnMap();
+    } catch {
+      if (list) {
+        list.innerHTML = DEMO_WORKERS.map((worker, index) => {
+          return window.renderWorkerPublicCard(
+            worker,
+            `${Number((1.5 + index * 1.2).toFixed(1))} km away`,
+            { showVerification: false }
+          );
+        }).join("");
+      }
+    }
+  };
+
+  try {
+    loadNearbyWorkers = window.loadNearbyWorkers;
+  } catch {}
+
+  const oldLoadStats = window.loadStats;
+
+  window.loadStats = async function () {
+    try {
+      const [workersSnap, jobsSnap, reviewsSnap] = await Promise.all([
+        db.collection("workerPublic").limit(1000).get(),
+        db.collection("bookings").limit(1000).get(),
+        db.collection("reviews").limit(1000).get()
+      ]);
+
+      const demoWorkers = 120;
+      const demoJobs = 450;
+      const demoReviews = 890;
+
+      if ($("statWorkers")) $("statWorkers").textContent = workersSnap.size + demoWorkers;
+      if ($("statJobs")) $("statJobs").textContent = jobsSnap.size + demoJobs;
+      if ($("statReviews")) $("statReviews").textContent = reviewsSnap.size + demoReviews;
+
+      $("liveStats")?.classList.remove("hidden");
+    } catch {
+      if ($("statWorkers")) $("statWorkers").textContent = 120;
+      if ($("statJobs")) $("statJobs").textContent = 450;
+      if ($("statReviews")) $("statReviews").textContent = 890;
+
+      $("liveStats")?.classList.remove("hidden");
+    }
+  };
+
+  try {
+    loadStats = window.loadStats;
+  } catch {}
+
+  setTimeout(function () {
+    try {
+      loadStats();
+      loadFeaturedWorkers();
+      loadNearbyWorkers();
+
+      if (getUserRole && getUserRole() === "worker") {
+        loadPublicJobs();
+      }
+    } catch {}
+  }, 1000);
+})();
+
